@@ -1,0 +1,306 @@
+Danh sách vé nên được tổ chức theo cấu trúc danh sách liên kết đơn. Mỗi nút trong danh sách sẽ chứa thông tin về một vé, bao gồm số hiệu vé, số hiệu máy bay, số CMND của khách hàng, và trạng thái của vé. Trạng thái vé có thể được định nghĩa như sau:
+
+0: vé đã bị hủy
+1: vé đang có sẵn
+2: vé đã bị bán cho một khách hàng cụ thể
+3: vé đã được sử dụng trên chuyến bay tương ứng
+Với cấu trúc này, ta có thể thực hiện các thao tác thêm, xoá, tìm kiếm, sửa thông tin về vé một cách dễ dàng.
+
+
+
+
+fsqdbtm@eurokool.com
+so với việc tổ chức danh sách nhị phân thì cái nào tối ưu hơn
+Việc tổ chức danh sách theo cây nhị phân tìm kiếm có thể giúp tìm kiếm và thêm phần tử nhanh hơn vì việc thao tác trên cây nhị phân tìm kiếm chỉ phụ thuộc vào chiều cao của cây, với độ phức tạp trung bình là O(log n), trong khi việc tìm kiếm và thêm phần tử vào danh sách liên kết đơn phải duyệt qua từng phần tử, độ phức tạp trung bình là O(n).
+
+Tuy nhiên, khi cần truy xuất toàn bộ phần tử, danh sách liên kết đơn lại có độ phức tạp thấp hơn, chỉ là O(n) trong khi truy xuất toàn bộ phần tử trong cây nhị phân tìm kiếm có độ phức tạp trung bình là O(n log n).
+
+Vì vậy, sự lựa chọn giữa hai cách tổ chức danh sách phụ thuộc vào mục đích sử dụng và yêu cầu thao tác của ứng dụng.
+
+
+
+Để thực hiện chức năng Đặt vé trên 1 chuyến bay, bạn có thể thực hiện các bước sau:
+
+Yêu cầu nhập thông tin chuyến bay và số CMND của hành khách.
+Kiểm tra xem thông tin chuyến bay đã tồn tại trong danh sách chuyến bay hay chưa.
+Nếu chưa tồn tại, báo lỗi và yêu cầu nhập lại thông tin chuyến bay.
+Kiểm tra xem số CMND của hành khách đã tồn tại trong danh sách hành khách hay chưa.
+Nếu chưa tồn tại, tự động thêm hành khách mới vào danh sách hành khách với thông tin cập nhật từ người dùng.
+Nếu đã tồn tại, in ra thông tin hành khách và yêu cầu xác nhận.
+Kiểm tra xem số CMND của hành khách đã mua vé trên chuyến bay này hay chưa.
+Nếu đã mua vé, in ra thông báo và yêu cầu nhập lại số CMND.
+Nếu chưa mua vé, yêu cầu nhập thông tin vé và thêm thông tin vé vào danh sách vé cho chuyến bay.
+Lưu danh sách hành khách, danh sách chuyến bay và danh sách vé vào file để giữ lại thông tin khi thoát chương trình.
+Chú ý rằng trên 1 chuyến bay, mỗi hành khách chỉ được mua 1 vé, vì vậy bạn cần kiểm tra thông tin vé đã tồn tại trên chuyến bay hay chưa để đảm bảo tính chính xác của dữ liệu.
+
+
+/////////////
+Danh sách vé có thể tổ chức dưới dạng một danh sách liên kết đơn trong danh sách chuyến bay. Mỗi nút trong danh sách vé có thể chứa thông tin về số vé, số CMND của hành khách và trạng thái vé (đã bán hoặc chưa bán). Một hành khách chỉ được mua 1 vé trên 1 chuyến bay, vì vậy, khi thêm vé mới vào danh sách vé của chuyến bay, cần kiểm tra xem số CMND của hành khách đã được sử dụng để mua vé trên chuyến bay đó chưa. Nếu đã có, cần thông báo cho người dùng và không cho phép đặt vé nữa.
+
+
+có nên tổ chức bằng danh sách nhị phân??
+
+
+Không nên tổ chức danh sách vé bằng cây nhị phân vì việc tìm kiếm và truy xuất vé trên một chuyến bay sẽ không hiệu quả. Thay vào đó, danh sách vé nên được tổ chức dưới dạng một danh sách liên kết đơn, mỗi phần tử của danh sách là một đối tượng vé, chứa thông tin về số vé, số CMND của hành khách và trạng thái của vé (đã đặt hoặc đã hủy). Với cách tổ chức này, khi thực hiện các thao tác như đặt vé, hủy vé hay in danh sách hành khách, việc tìm kiếm và truy xuất vé trên chuyến bay sẽ dễ dàng hơn.
+
+
+class DanhSachVe {
+private:
+    struct Node {
+        string soCMND;
+        string hoTen;
+        int soVe;
+        Node* next;
+    };
+    Node* head;
+public:
+    DanhSachVe() {
+        head = NULL;
+    }
+    ~DanhSachVe() {
+        Node* p = head;
+        while (p != NULL) {
+            Node* q = p;
+            p = p->next;
+            delete q;
+        }
+        head = NULL;
+    }
+    bool isEmpty() {
+        return (head == NULL);
+    }
+    void themVe(string soCMND, string hoTen, int soVe) {
+        Node* p = new Node;
+        p->soCMND = soCMND;
+        p->hoTen = hoTen;
+        p->soVe = soVe;
+        p->next = NULL;
+        if (isEmpty()) {
+            head = p;
+        }
+        else {
+            Node* q = head;
+            while (q->next != NULL) {
+                q = q->next;
+            }
+            q->next = p;
+        }
+    }
+    void xoaVe(int soVe) {
+        Node* p = head;
+        Node* q = NULL;
+        while (p != NULL && p->soVe != soVe) {
+            q = p;
+            p = p->next;
+        }
+        if (p == NULL) {
+            cout << "Khong tim thay ve so " << soVe << "!" << endl;
+        }
+        else {
+            if (q == NULL) {
+                head = p->next;
+            }
+            else {
+                q->next = p->next;
+            }
+            delete p;
+            cout << "Da huy ve so " << soVe << "!" << endl;
+        }
+    }
+    void hienThiDanhSachVe() {
+        Node* p = head;
+        if (isEmpty()) {
+            cout << "Danh sach ve rong!" << endl;
+        }
+        else {
+            cout << "DANH SACH VE" << endl;
+            cout << "STT\tSO VE\tSO CMND\t\tHO TEN" << endl;
+            int stt = 1;
+            while (p != NULL) {
+                cout << stt << "\t" << p->soVe << "\t" << p->soCMND << "\t" << p->hoTen << endl;
+                p = p->next;
+                stt++;
+            }
+        }
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+CÂU G;
+// Tìm chuyến bay theo mã chuyến bay và trả về con trỏ đến chuyến bay đó
+ChuyenBay* timChuyenBayTheoMa(string maCB) {
+    for (ChuyenBay* cb = dsChuyenBay; cb != NULL; cb = cb->next) {
+        if (cb->maChuyenBay == maCB) {
+            return cb;
+        }
+    }
+    return NULL;
+}
+
+// In danh sách vé còn trống của một chuyến bay theo mã chuyến bay
+void inDanhSachVeConTrong(string maCB) {
+    // Tìm chuyến bay theo mã chuyến bay
+    ChuyenBay* cb = timChuyenBayTheoMa(maCB);
+    if (cb == NULL) {
+        cout << "Khong tim thay chuyen bay co ma " << maCB << endl;
+        return;
+    }
+
+    // Duyệt danh sách vé để tìm các vé còn trống
+    cout << "Danh sach ve con trong cua chuyen bay " << maCB << ":" << endl;
+    for (int i = 0; i < cb->soLuongVe; i++) {
+        Ve* ve = cb->dsVe[i];
+        if (ve->trangThai == CON_TRONG) {
+            cout << ve->soVe << endl;
+        }
+    }
+}
+
+
+
+
+câu h;
+Ý tưởng của câu h này là thống kê số lượt thực hiện chuyến bay của từng máy bay và sắp xếp theo thứ tự giảm dần của số lượt thực hiện. Để làm được điều này, bạn có thể sử dụng một danh sách liên kết lưu trữ thông tin về số hiệu của máy bay và số lượt thực hiện chuyến bay của máy bay đó.
+
+Bước đầu tiên là đọc dữ liệu từ nguồn dữ liệu và lưu trữ thông tin vào danh sách liên kết. Sau đó, bạn có thể sử dụng một thuật toán sắp xếp để sắp xếp danh sách theo số lượt thực hiện chuyến bay giảm dần.
+
+Cuối cùng, bạn có thể kết xuất danh sách các máy bay và số lượt thực hiện chuyến bay của chúng theo đúng thứ tự đã sắp xếp. Ví dụ, có thể sử dụng một vòng lặp để duyệt qua danh sách và in ra số hiệu của máy bay và số lượt thực hiện chuyến bay của nó.
+
+
+
+//////
+class vé và hành khách
+
+Tuy nhiên, tôi có thể đưa ra một vài gợi ý chung để bạn có thể bắt đầu tìm hiểu và xây dựng các hàm và lớp cần thiết để giải quyết bài toán này:
+
+Đầu tiên, bạn cần định nghĩa các lớp đối tượng cho các thực thể trong bài toán, bao gồm: Máy bay, Chuyến bay, Hành khách và Vé.
+
+Bạn cần cài đặt các hàm để thêm, xóa và sửa đổi thông tin cho các đối tượng này. Ví dụ: Thêm máy bay mới, xóa chuyến bay đã hủy, sửa thông tin ngày giờ khởi hành cho chuyến bay,...
+
+Các hàm để tìm kiếm thông tin cũng cần được cài đặt, bao gồm tìm kiếm danh sách hành khách của một chuyến bay cụ thể và tìm kiếm danh sách các chuyến bay khởi hành trong ngày cụ thể.
+
+Bạn cũng cần xác định cách lưu trữ dữ liệu của các đối tượng này, có thể lưu trữ trên bộ nhớ hoặc lưu trữ trong file.
+
+Cuối cùng, bạn cần tạo giao diện người dùng để tương tác với chương trình của mình.
+
+Tất nhiên, đây chỉ là một số gợi ý chung. Để giải quyết bài toán này, bạn cần đưa ra các quyết định cụ thể và cài đặt các hàm và lớp cho phù hợp với nhu cầu của bạn.
+
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+// Định nghĩa cấu trúc hành khách
+struct HanhKhach {
+    string soCMND;
+    string hoTen;
+    string phai;
+};
+
+// Định nghĩa cấu trúc vé
+struct Ve {
+    string soVe;
+    HanhKhach* hanhKhach;
+};
+
+// Định nghĩa cấu trúc danh sách liên kết đơn cho hành khách
+struct NodeHanhKhach {
+    HanhKhach* data;
+    NodeHanhKhach* next;
+};
+
+// Định nghĩa cấu trúc danh sách liên kết đơn cho vé
+struct NodeVe {
+    Ve* data;
+    NodeVe* next;
+};
+
+// Định nghĩa lớp quản lý danh sách hành khách
+class QuanLyHanhKhach {
+private:
+    NodeHanhKhach* head;
+
+public:
+    QuanLyHanhKhach() {
+        head = nullptr;
+    }
+
+    // Hàm thêm hành khách mới vào danh sách
+    void themHanhKhach(HanhKhach* hanhKhach) {
+        NodeHanhKhach* newNode = new NodeHanhKhach;
+        newNode->data = hanhKhach;
+        newNode->next = head;
+        head = newNode;
+    }
+
+    // Hàm tìm kiếm hành khách theo số CMND
+    HanhKhach* timHanhKhach(string soCMND) {
+        NodeHanhKhach* current = head;
+        while (current != nullptr) {
+            if (current->data->soCMND == soCMND) {
+                return current->data;
+            }
+            current = current->next;
+        }
+        return nullptr;
+    }
+};
+
+// Định nghĩa lớp quản lý danh sách vé
+class QuanLyVe {
+private:
+    NodeVe* head;
+
+public:
+    QuanLyVe() {
+        head = nullptr;
+    }
+
+    // Hàm thêm vé mới vào danh sách
+    void themVe(Ve* ve) {
+        NodeVe* newNode = new NodeVe;
+        newNode->data = ve;
+        newNode->next = head;
+        head = newNode;
+    }
+
+    // Hàm tìm kiếm vé theo số vé
+    Ve* timVe(string soVe) {
+        NodeVe* current = head;
+        while (current != nullptr) {
+            if (current->data->soVe == soVe) {
+                return current->data;
+            }
+            current = current->next;
+        }
+        return nullptr;
+    }
+
+    // Hàm hủy vé
+    void huyVe(string soVe) {
+        NodeVe* current = head;
+        NodeVe* prev = nullptr;
+        while (current != nullptr) {
+            if (current->data->soVe == soVe) {
+                if (prev == nullptr) {
+                    head = current->next;
+                } else {
+                    prev->next = current->next;
+                }
+                delete current->data;
+                delete current;
+                return;
+            }
+            prev = current
