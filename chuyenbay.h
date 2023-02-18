@@ -1,3 +1,7 @@
+#ifndef CHUYENBAY_H
+#define CHUYENBAY_H
+
+
 #include"Global.h"
 
 class Ve {
@@ -26,3 +30,6 @@ class ListChuyenBay{ //theo thứ tự mã chuyến bay
 	ChuyenBay first;
 	ListChuyenBay *next = NULL;
 };
+
+
+#endif

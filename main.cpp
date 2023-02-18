@@ -66,8 +66,11 @@ struct NodeHanhKhach{
 	NodeHanhKhach *left = NULL;
 	NodeHanhKhach *right= NULL;
 };
+
+
 int main(){
     ListMayBay ds_maybay;
     ListChuyenBay ds_chuyenbay;
     NodeHanhKhach ds_hanhkhach;
+    return 0;
 }

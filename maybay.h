@@ -1,3 +1,7 @@
+#ifndef MAYBAY_H
+#define MAYBAY_H
+
+
 #include"Global.h"
 
 class MayBay{
@@ -17,3 +21,6 @@ class ListMayBay{
 	MayBay *data[MAX_MAYBAY+1];
 	int so_luong = 0;
 };
+
+
+#endif

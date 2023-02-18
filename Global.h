@@ -1,4 +1,11 @@
+#ifndef GLOBAL_H
+#define GLOBAL_H
+
+
+
 #include <iostream>
+#include <cstring>
+#include<fstream>
 using namespace std;
 
 
@@ -13,3 +20,6 @@ using namespace std;
 #define MAX_LENGTH_TEN 15
 #define MAX_LENGTH_PHAI 100
 #define MAX_LENGTH_SO_VE 4
+
+
+#endif
