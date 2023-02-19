@@ -54,7 +54,7 @@ class FlightList {
     Flight *tail = NULL;
 };
 
-// prototypes of flights
+// prototypes of flight
 void printFlightList(FlightList);
 bool checkFlightIsExisted(FlightList &, Flight);
 void insertFlightToListBegin(FlightList &, Flight *);
