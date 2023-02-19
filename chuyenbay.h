@@ -5,7 +5,7 @@
 
 // classes
 enum ErrorCodes {
-    LOI_HT_DAY_BO_NHO = 1,
+    LOI_HE_THONG_DAY_BO_NHO = 1,
 };
 
 class Error {
@@ -19,7 +19,7 @@ class Error {
 
     void catchError() {
         switch (this->code) {
-            case LOI_HT_DAY_BO_NHO: {
+            case LOI_HE_THONG_DAY_BO_NHO: {
                 cout << ">>> System Warning: Day bo nho!!!";
             }
             default: {
@@ -50,6 +50,24 @@ class ThoiGianBay {
     char day[MAX_LENGTH_TIME + 1];
     char month[MAX_LENGTH_TIME + 1];
     char year[MAX_LENGTH_TIME + 1];
+
+    ThoiGianBay() {}
+
+    ThoiGianBay(char minute[], char hour[], char day[], char month[], char year[]) {
+        strcpy(this->minute, minute);
+        strcpy(this->hour, hour);
+        strcpy(this->day, day);
+        strcpy(this->month, month);
+        strcpy(this->year, year);
+    }
+
+    void operator=(const ThoiGianBay &thoi_gian_bay) {
+        strcpy(this->minute, thoi_gian_bay.minute);
+        strcpy(this->hour, thoi_gian_bay.hour);
+        strcpy(this->day, thoi_gian_bay.day);
+        strcpy(this->month, thoi_gian_bay.month);
+        strcpy(this->year, thoi_gian_bay.year);
+    }
 
     string dinhDangChuoiThoiGian() {
         char chuoi_thoi_gian[MAX_LENGTH_TIME_STRING + 1] = "";
@@ -100,9 +118,8 @@ class ChuyenBay {
 
     void kiemTraKhoiTaoChuyenBay() {
         if (this == NULL) {
-            int ma_loi_error = 1;
             char mo_ta_loi_error[] = "";
-            Error error(ma_loi_error, mo_ta_loi_error);
+            Error error(1, mo_ta_loi_error);
             error.catchError();
         }
     }
@@ -162,16 +179,29 @@ class DanhSachChuyenBay {
         this->dayChuyenBayVaoCuoiDanhSach(cb_can_them);
     }
 
-    void thucHienThemChuyenBayVaoDanhSach(ChuyenBay *cb) {
+    void themChuyenBay(ChuyenBay *cb_can_them) {
         try {
-            bool cb_da_ton_tai = kiemTraChuyenBayTrongDanhSach(cb->ma_so_cb);
+            bool cb_da_ton_tai = kiemTraChuyenBayTrongDanhSach(cb_can_them->ma_so_cb);
             if (cb_da_ton_tai) {
-                int ma_loi_error = 5;
                 char mo_ta_loi_error[] = "Chuyen bay da ton tai!!!";
-                Error error(ma_loi_error, mo_ta_loi_error);
+                Error error(5, mo_ta_loi_error);
                 throw error;
             }
-            chenChuyenBayVaoGiuaDanhSach(cb);
+
+            if (this->head == NULL) {
+                return this->chenChuyenBayVaoDauDanhSach(cb_can_them);
+            }
+
+            for (ChuyenBay *cb = this->head; cb != NULL; cb = cb->next) {
+                if (strcmp(cb->ma_so_cb, cb_can_them->ma_so_cb) == 0) {
+                    ChuyenBay *temp = cb->next;
+                    cb_can_them->next = temp;
+                    cb->next = cb_can_them;
+                    return;
+                }
+            }
+
+            this->dayChuyenBayVaoCuoiDanhSach(cb_can_them);
         } catch (Error error) {
             error.catchError();
         }
@@ -180,11 +210,7 @@ class DanhSachChuyenBay {
     void chinhSuaThoiGianChuyenBay(char ma_so_cb[], ThoiGianBay thoi_gian_bay) {
         for (ChuyenBay *cb = this->head; cb != NULL; cb = cb->next) {
             if (strcmp(cb->ma_so_cb, ma_so_cb) == 0) {
-                strcpy(cb->thoi_gian_bay.minute, thoi_gian_bay.minute);
-                strcpy(cb->thoi_gian_bay.hour, thoi_gian_bay.hour);
-                strcpy(cb->thoi_gian_bay.day, thoi_gian_bay.day);
-                strcpy(cb->thoi_gian_bay.month, thoi_gian_bay.month);
-                strcpy(cb->thoi_gian_bay.year, thoi_gian_bay.year);
+                cb->thoi_gian_bay = thoi_gian_bay;
                 return;
             }
         }
@@ -203,68 +229,68 @@ class DanhSachChuyenBay {
 // prototypes of flights
 void inDanhSachChuyenBay(DanhSachChuyenBay);
 
-// int main() {
-//     DanhSachChuyenBay danh_sach_cb;
+int main() {
+    DanhSachChuyenBay danh_sach_cb;
 
-//     char ma_so_cb[] = "C15";
-//     char ma_so_cb2[] = "C16";
-//     char ma_so_cb3[] = "C15";
-//     char ma_so_cb4[] = "C18";
+    char ma_so_cb[] = "C15";
+    char ma_so_cb2[] = "C16";
+    char ma_so_cb3[] = "C15";
+    char ma_so_cb4[] = "C18";
 
-//     ThoiGianBay thoi_gian_bay;
-//     strcpy(thoi_gian_bay.minute, "22");
-//     strcpy(thoi_gian_bay.hour, "05");
-//     strcpy(thoi_gian_bay.day, "11");
-//     strcpy(thoi_gian_bay.month, "07");
-//     strcpy(thoi_gian_bay.year, "2022");
+    char minute[] = "22";
+    char hour[] = "05";
+    char day[] = "11";
+    char month[] = "07";
+    char year[] = "2022";
+    ThoiGianBay thoi_gian_bay(minute, hour, day, month, year);
 
-//     char san_bay_den[] = "Tan Son Nhat";
+    char san_bay_den[] = "Tan Son Nhat";
 
-//     int trang_thai_cb = 1;
+    int trang_thai_cb = 1;
 
-//     char so_hieu_mb[] = "C15";
+    char so_hieu_mb[] = "C15";
 
-//     DanhSachVe danh_sach_ve;
+    DanhSachVe danh_sach_ve;
 
-//     ChuyenBay *cb = new ChuyenBay(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb,
-//                                   trang_thai_cb, danh_sach_ve);
-//     cb->kiemTraKhoiTaoChuyenBay();
+    ChuyenBay *cb = new ChuyenBay(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb,
+                                  trang_thai_cb, danh_sach_ve);
+    cb->kiemTraKhoiTaoChuyenBay();
 
-//     ChuyenBay *cb2 = new ChuyenBay(ma_so_cb2, thoi_gian_bay, san_bay_den, so_hieu_mb,
-//                                    trang_thai_cb, danh_sach_ve);
-//     cb->kiemTraKhoiTaoChuyenBay();
+    ChuyenBay *cb2 = new ChuyenBay(ma_so_cb2, thoi_gian_bay, san_bay_den, so_hieu_mb,
+                                   trang_thai_cb, danh_sach_ve);
+    cb->kiemTraKhoiTaoChuyenBay();
 
-//     ChuyenBay *cb3 = new ChuyenBay(ma_so_cb3, thoi_gian_bay, san_bay_den, so_hieu_mb,
-//                                    trang_thai_cb, danh_sach_ve);
-//     cb->kiemTraKhoiTaoChuyenBay();
+    ChuyenBay *cb3 = new ChuyenBay(ma_so_cb3, thoi_gian_bay, san_bay_den, so_hieu_mb,
+                                   trang_thai_cb, danh_sach_ve);
+    cb->kiemTraKhoiTaoChuyenBay();
 
-//     ChuyenBay *cb4 = new ChuyenBay(ma_so_cb4, thoi_gian_bay, san_bay_den, so_hieu_mb,
-//                                    trang_thai_cb, danh_sach_ve);
-//     cb->kiemTraKhoiTaoChuyenBay();
+    ChuyenBay *cb4 = new ChuyenBay(ma_so_cb4, thoi_gian_bay, san_bay_den, so_hieu_mb,
+                                   trang_thai_cb, danh_sach_ve);
+    cb->kiemTraKhoiTaoChuyenBay();
 
-//     danh_sach_cb.thucHienThemChuyenBayVaoDanhSach(cb);
-//     danh_sach_cb.thucHienThemChuyenBayVaoDanhSach(cb2);
-//     danh_sach_cb.thucHienThemChuyenBayVaoDanhSach(cb3);
-//     danh_sach_cb.thucHienThemChuyenBayVaoDanhSach(cb4);
+    danh_sach_cb.themChuyenBay(cb);
+    danh_sach_cb.themChuyenBay(cb2);
+    danh_sach_cb.themChuyenBay(cb3);
+    danh_sach_cb.themChuyenBay(cb4);
 
-//     // cout list 1
-//     cout << "\n\n>>> Print 1";
-//     inDanhSachChuyenBay(danh_sach_cb);
+    // cout list 1
+    cout << "\n\n>>> Print 1";
+    inDanhSachChuyenBay(danh_sach_cb);
 
-//     // set time
-//     ThoiGianBay thoi_gian_bay2;
-//     strcpy(thoi_gian_bay2.minute, "09");
-//     strcpy(thoi_gian_bay2.hour, "12");
-//     strcpy(thoi_gian_bay2.day, "21");
-//     strcpy(thoi_gian_bay2.month, "01");
-//     strcpy(thoi_gian_bay2.year, "1999");
+    // set time
+    char minute2[] = "09";
+    char hour2[] = "12";
+    char day2[] = "21";
+    char month2[] = "01";
+    char year2[] = "1999";
+    ThoiGianBay thoi_gian_bay2(minute2, hour2, day2, month2, year2);
 
-//     danh_sach_cb.chinhSuaThoiGianChuyenBay(cb2->ma_so_cb, thoi_gian_bay2);
+    danh_sach_cb.chinhSuaThoiGianChuyenBay(cb2->ma_so_cb, thoi_gian_bay2);
 
-//     // cout list 2
-//     cout << "\n\n>>> Print 2";
-//     inDanhSachChuyenBay(danh_sach_cb);
-// }
+    // cout list 2
+    cout << "\n\n>>> Print 2";
+    inDanhSachChuyenBay(danh_sach_cb);
+}
 
 void inDanhSachChuyenBay(DanhSachChuyenBay danh_sach_cb) {
     for (ChuyenBay *cb = danh_sach_cb.head; cb != NULL; cb = cb->next) {
