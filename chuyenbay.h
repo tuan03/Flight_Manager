@@ -229,68 +229,68 @@ class DanhSachChuyenBay {
 // prototypes of flights
 void inDanhSachChuyenBay(DanhSachChuyenBay);
 
-int main() {
-    DanhSachChuyenBay danh_sach_cb;
+// int main() {
+//     DanhSachChuyenBay danh_sach_cb;
 
-    char ma_so_cb[] = "C15";
-    char ma_so_cb2[] = "C16";
-    char ma_so_cb3[] = "C15";
-    char ma_so_cb4[] = "C18";
+//     char ma_so_cb[] = "C15";
+//     char ma_so_cb2[] = "C16";
+//     char ma_so_cb3[] = "C15";
+//     char ma_so_cb4[] = "C18";
 
-    char minute[] = "22";
-    char hour[] = "05";
-    char day[] = "11";
-    char month[] = "07";
-    char year[] = "2022";
-    ThoiGianBay thoi_gian_bay(minute, hour, day, month, year);
+//     char minute[] = "22";
+//     char hour[] = "05";
+//     char day[] = "11";
+//     char month[] = "07";
+//     char year[] = "2022";
+//     ThoiGianBay thoi_gian_bay(minute, hour, day, month, year);
 
-    char san_bay_den[] = "Tan Son Nhat";
+//     char san_bay_den[] = "Tan Son Nhat";
 
-    int trang_thai_cb = 1;
+//     int trang_thai_cb = 1;
 
-    char so_hieu_mb[] = "C15";
+//     char so_hieu_mb[] = "C15";
 
-    DanhSachVe danh_sach_ve;
+//     DanhSachVe danh_sach_ve;
 
-    ChuyenBay *cb = new ChuyenBay(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb,
-                                  trang_thai_cb, danh_sach_ve);
-    cb->kiemTraKhoiTaoChuyenBay();
+//     ChuyenBay *cb = new ChuyenBay(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb,
+//                                   trang_thai_cb, danh_sach_ve);
+//     cb->kiemTraKhoiTaoChuyenBay();
 
-    ChuyenBay *cb2 = new ChuyenBay(ma_so_cb2, thoi_gian_bay, san_bay_den, so_hieu_mb,
-                                   trang_thai_cb, danh_sach_ve);
-    cb->kiemTraKhoiTaoChuyenBay();
+//     ChuyenBay *cb2 = new ChuyenBay(ma_so_cb2, thoi_gian_bay, san_bay_den, so_hieu_mb,
+//                                    trang_thai_cb, danh_sach_ve);
+//     cb->kiemTraKhoiTaoChuyenBay();
 
-    ChuyenBay *cb3 = new ChuyenBay(ma_so_cb3, thoi_gian_bay, san_bay_den, so_hieu_mb,
-                                   trang_thai_cb, danh_sach_ve);
-    cb->kiemTraKhoiTaoChuyenBay();
+//     ChuyenBay *cb3 = new ChuyenBay(ma_so_cb3, thoi_gian_bay, san_bay_den, so_hieu_mb,
+//                                    trang_thai_cb, danh_sach_ve);
+//     cb->kiemTraKhoiTaoChuyenBay();
 
-    ChuyenBay *cb4 = new ChuyenBay(ma_so_cb4, thoi_gian_bay, san_bay_den, so_hieu_mb,
-                                   trang_thai_cb, danh_sach_ve);
-    cb->kiemTraKhoiTaoChuyenBay();
+//     ChuyenBay *cb4 = new ChuyenBay(ma_so_cb4, thoi_gian_bay, san_bay_den, so_hieu_mb,
+//                                    trang_thai_cb, danh_sach_ve);
+//     cb->kiemTraKhoiTaoChuyenBay();
 
-    danh_sach_cb.themChuyenBay(cb);
-    danh_sach_cb.themChuyenBay(cb2);
-    danh_sach_cb.themChuyenBay(cb3);
-    danh_sach_cb.themChuyenBay(cb4);
+//     danh_sach_cb.themChuyenBay(cb);
+//     danh_sach_cb.themChuyenBay(cb2);
+//     danh_sach_cb.themChuyenBay(cb3);
+//     danh_sach_cb.themChuyenBay(cb4);
 
-    // cout list 1
-    cout << "\n\n>>> Print 1";
-    inDanhSachChuyenBay(danh_sach_cb);
+//     // cout list 1
+//     cout << "\n\n>>> Print 1";
+//     inDanhSachChuyenBay(danh_sach_cb);
 
-    // set time
-    char minute2[] = "09";
-    char hour2[] = "12";
-    char day2[] = "21";
-    char month2[] = "01";
-    char year2[] = "1999";
-    ThoiGianBay thoi_gian_bay2(minute2, hour2, day2, month2, year2);
+//     // set time
+//     char minute2[] = "09";
+//     char hour2[] = "12";
+//     char day2[] = "21";
+//     char month2[] = "01";
+//     char year2[] = "1999";
+//     ThoiGianBay thoi_gian_bay2(minute2, hour2, day2, month2, year2);
 
-    danh_sach_cb.chinhSuaThoiGianChuyenBay(cb2->ma_so_cb, thoi_gian_bay2);
+//     danh_sach_cb.chinhSuaThoiGianChuyenBay(cb2->ma_so_cb, thoi_gian_bay2);
 
-    // cout list 2
-    cout << "\n\n>>> Print 2";
-    inDanhSachChuyenBay(danh_sach_cb);
-}
+//     // cout list 2
+//     cout << "\n\n>>> Print 2";
+//     inDanhSachChuyenBay(danh_sach_cb);
+// }
 
 void inDanhSachChuyenBay(DanhSachChuyenBay danh_sach_cb) {
     for (ChuyenBay *cb = danh_sach_cb.head; cb != NULL; cb = cb->next) {
