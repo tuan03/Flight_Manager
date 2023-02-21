@@ -52,11 +52,11 @@ class DanhSachVe {
 
 class ThoiGianBay {
    public:
-    char minute[MAX_LENGTH_TIME + 1];
-    char hour[MAX_LENGTH_TIME + 1];
-    char day[MAX_LENGTH_TIME + 1];
-    char month[MAX_LENGTH_TIME + 1];
-    char year[MAX_LENGTH_TIME + 1];
+    int minute;
+    int hour;
+    int day;
+    int month;
+    int year;
 };
 
 class ChuyenBay {
@@ -83,21 +83,8 @@ class HanhKhach{
     char ten[MAX_LENGTH_TEN+1]={}; 
     char phai[MAX_LENGTH_PHAI+1]={};
 };
-class NodeHanhKhach{
+class TreeHanhKhach{
     public:
 	HanhKhach* data;
-	NodeHanhKhach *left, *right;
+    TreeHanhKhach *left, *right;
 };
-class BinaryTree {
-    public:
-        NodeHanhKhach* root;
-};
-
-
-
-
-
-
-
-
-
