@@ -6,6 +6,10 @@
 #include <iostream>
 #include <cstring>
 #include<fstream>
+#include<cmath>
+
+
+
 using namespace std;
 
 #define MAX_LENGTH_SO_HIEU_MB 15
@@ -21,6 +25,7 @@ using namespace std;
 #define MAX_LENGTH_PHAI 100
 #define MAX_LENGTH_SO_VE 4
 #define MAX_LENGTH_ERROR_MESSAGE 100
-
+#define MAX_SOCHO 300
+#define MIN_SOCHO 20
 
 #endif
