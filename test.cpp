@@ -40,15 +40,8 @@ class Ve {
    public:
     char so_ve[MAX_LENGTH_SO_VE + 1];
     char so_cmnd[MAX_LENGTH_SO_CMND + 1];
-    Ve *next = NULL;
 };
 
-class DanhSachVe {
-   public:
-    int so_luong = 0;
-    Ve *head = NULL;
-    Ve *tail = NULL;
-};
 
 class ThoiGianBay {
    public:
@@ -66,7 +59,7 @@ class ChuyenBay {
     char san_bay_den[MAX_LENGTH_SAN_BAY_DEN + 1];
     int trang_thai_cb;
     char so_hieu_mb[MAX_LENGTH_SO_HIEU_MB + 1];
-    DanhSachVe danh_sach_ve;
+    Ve *danh_sach_ve;
     ChuyenBay *next = NULL;
 };
 
