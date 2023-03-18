@@ -5,8 +5,12 @@
 
 #include <iostream>
 #include <cstring>
+#include<string>
+#include<sstream>
+#include<iomanip>
 #include<fstream>
 #include<cmath>
+#include <cstdio>
 
 
 
@@ -27,5 +31,10 @@ using namespace std;
 #define MAX_LENGTH_ERROR_MESSAGE 100
 #define MAX_SOCHO 300
 #define MIN_SOCHO 20
+
+
+#define FILE_PATH_DATA_CHUYEN_BAY "data/data_chuyen_bay.txt"
+#define FILE_PATH_DATA_HANH_KHACH "data/data_hanh_khach.txt"
+#define FILE_PATH_DATA_MAY_BAY "data/data_may_bay.txt"
 
 #endif

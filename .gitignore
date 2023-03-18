@@ -1,3 +1,6 @@
 /.vscode
 /*.exe
-/chuyenbay_test.cpp*.exe
+/chuyenbay_test.cpp
+*.exe
+/notes.txt
+/test.cpp

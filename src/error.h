@@ -1,3 +1,5 @@
+#ifndef ERROR_H
+#define ERROR_H
 #include "Global.h"
 // classes
 enum Error_Name {
@@ -22,3 +24,5 @@ class Error {
         }
     }
 };
+
+#endif

@@ -304,3 +304,72 @@ public:
                 return;
             }
             prev = current
+
+
+
+
+
+
+
+
+
+
+int main(){
+    ListMayBay l_cb;
+    fstream inout;
+    inout.open("data\\data_may_bay.txt",ios::in | ios::out);
+    if (inout.is_open()) { // kiểm tra xem file có được mở thành công không
+            std::string line;
+            MayBay temp;
+            while (std::getline(inout, line)) {
+                std::istringstream iss(line);
+                std::string so_hieu_mb, loai_mb;
+                int so_day, so_dong;
+
+                if (iss>>temp) {
+                l_cb.push_data(temp);
+                }
+            }
+            inout.close(); // đóng file đầu vào
+
+
+    } else {
+        cout<<"Khong the mo file";
+        return 0;
+    }
+    l_cb.print();
+
+}
+
+
+
+xử lí các trường hợp đọc đầu vào
+
+
+int main(){
+    ListChuyenBay l_cb;
+    fstream inout;
+    inout.open("data\\data_chuyen_bay.txt",ios::in | ios::out);
+    if (inout.is_open()) { // kiểm tra xem file có được mở thành công không
+            std::string line;
+            ChuyenBay* temp = nullptr;
+            while (std::getline(inout, line)) {
+                temp = new ChuyenBay();
+                std::istringstream iss(line);
+                std::string so_hieu_mb, loai_mb;
+                int so_day, so_dong;
+
+                iss>>*temp;
+                l_cb.push_data(temp);
+                
+            }
+            inout.close(); // đóng file đầu vào
+
+
+    } else {
+        cout<<"Khong the mo file";
+        return 0;
+    }
+    l_cb.print();
+
+}
