@@ -16,9 +16,14 @@ int main(){
     ListChuyenBay ds_chuyenbay;
     TreeHanhKhach ds_hanhkhach;
 
-    FileHandler tuan;
-    tuan.read("src\\data\\data_hanh_khach.txt",ds_hanhkhach);
-    ds_hanhkhach.printAll();
+    
+    // read("src\\data\\data_hanh_khach.txt",ds_hanhkhach);
+    // ds_hanhkhach.printAll();
 
+    read("src\\data\\data_chuyen_bay.txt",ds_chuyenbay);
+    ds_chuyenbay.print();
+
+    // read("src\\data\\data_may_bay.txt",ds_maybay);
+    // ds_maybay.print();
     return 0;
 }

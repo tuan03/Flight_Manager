@@ -16,40 +16,36 @@ class MayBay{
         this->so_dong = dong;
     }
 	public:
+	//getter
 		const char* getSoHieuMB() const {
             return so_hieu_mb;
         }
-        
+        const char* getLoaiMB() const {
+            return loai_mb;
+        }
+ 		int getSoDay() const {
+            return so_day;
+        }
+		int getSoDong() const {
+            return so_dong;
+        }
+	//setter
         void setSoHieuMB(const char* so_hieu) {
             strncpy(so_hieu_mb, so_hieu, MAX_LENGTH_SO_HIEU_MB);
             so_hieu_mb[MAX_LENGTH_SO_HIEU_MB] = '\0';
         }
-        
-        const char* getLoaiMB() const {
-            return loai_mb;
-        }
-        
         void setLoaiMB(const char* loai) {
             strncpy(loai_mb, loai, MAX_LENGTH_LOAI_MAY_BAY);
             loai_mb[MAX_LENGTH_LOAI_MAY_BAY] = '\0';
         }
-        
-        int getSoDay() const {
-            return so_day;
-        }
-        
         void setSoDay(int day) {
             so_day = day;
         }
-        
-        int getSoDong() const {
-            return so_dong;
-        }
-        
         void setSoDong(int dong) {
             so_dong = dong;
         }
 
+	//
 	MayBay(){
 
 	}
@@ -99,16 +95,13 @@ class ListMayBay{
 		bool isFull(){
 			return this->so_luong >= MAX_MAYBAY;
 		}
-		void push_data(const MayBay& maybay){
-			MayBay* mb = new MayBay(maybay);
+		MayBay* push_empty(){
+			MayBay* mb = new MayBay();
 			data[so_luong] = mb;
 			so_luong++;
+			return mb;
 		}
-		void push_data(MayBay* maybay){
-			data[so_luong] = maybay;
-			so_luong++;
-		}
-		bool push(char* sh, char* loai, int day, int dong){
+		bool push(char* sh, char* loai, int day, int dong){ // cần return đầy + đã tồn tại
 			if(isFull() && this->timMayBay(sh) != -1){
 				return false;
 			}
@@ -140,6 +133,14 @@ class ListMayBay{
 				}
 			}
 			return -1; // Trả về -1 nếu không tìm thấy
+		}
+		MayBay* find(char* so_hieu_mb){
+			for(int i = 0; i < so_luong; i++){
+				if(strcmp(data[i]->getSoHieuMB(), so_hieu_mb) == 0){
+					return data[i];
+				}
+			}
+			return nullptr; // Trả về -1 nếu không tìm thấy
 		}
 		// bool hieuChinhMayBay(char* sh_maybay, char* sh, char* loai, int day, int dong){
 		// 	int index = timMayBay(sh_maybay);

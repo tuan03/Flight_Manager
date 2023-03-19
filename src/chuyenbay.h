@@ -1,7 +1,7 @@
 #ifndef CHUYENBAY_H
 #define CHUYENBAY_H
 
-
+#include"maybay.h"
 
 #include "error.h"
 class ThoiGianBay {
@@ -23,33 +23,16 @@ class ThoiGianBay {
             << year;
             return ss.str();
         }
-        ThoiGianBay(const char* timeStr) { //hh:mm-dd/mm/yyyy
-            std::istringstream iss(timeStr);
-            char delimiter;
-
-            iss >> hour >> delimiter >> minute >> delimiter >> day >> delimiter >> month >> delimiter >> year;
-            if (!iss.eof()) {
-                std::cerr << "Failed to read input!" << std::endl;
-            }
-            
-        }
         ThoiGianBay(int m, int h, int d, int month, int y){
             this->set(m,h,d,month,y);
         }
-        void set(int m, int h, int d, int month, int y){
+            void set(int m, int h, int d, int month, int y){
             this->minute = m;
             this->hour = h;
             this->day = d;
             this->month = month;
             this->year = y;
-        }
-        void set(char* str){ //hh:mm-dd/mm/yyyy
-            this->hour = std::stoi(strtok(str, ":"));
-            this->minute = std::stoi(strtok(nullptr, "-"));
-            this->day = std::stoi(strtok(nullptr, "/"));
-            this->month = std::stoi(strtok(nullptr, "/"));
-            this->year = std::stoi(strtok(nullptr, "/"));
-        }
+    }   
         friend std::istringstream& operator>>(std::istringstream& is, ThoiGianBay& time);
 };
 std::istringstream& operator>>(std::istringstream& is, ThoiGianBay& time){
@@ -62,8 +45,41 @@ class Ve {
     char so_ve[MAX_LENGTH_SO_VE + 1];
     char so_cmnd[MAX_LENGTH_SO_CMND + 1];
     public:
+    //getter
+    char* getSoVe() { 
+        return so_ve;
+    }
+    char* getSoCMND() {
+        return so_cmnd;
+    }
+    int getSoDay(){
+        if(strlen(so_ve) == 3){
+            return (int)(so_ve[0] - 'A' + 1);
+        } 
+        return -1;
+    }
+    int getSoDong(){
+        if(strlen(so_ve) == 3){
+            char so_dong[3];
+            strcpy(so_dong,so_ve+1);
+            return std::stoi(so_dong);
+        }
+        return -1;
+    }
+    //setter
+    void setSoVe(char* sv) {
+        strncpy(so_ve, sv, MAX_LENGTH_SO_VE);
+    }
+    void setSoCMND(char* scmnd) {
+        strncpy(so_cmnd, scmnd, MAX_LENGTH_SO_CMND);
+    }
+
     Ve(){
 
+    }
+    Ve(const Ve& ve){
+        strncpy(so_ve, ve.so_ve, MAX_LENGTH_SO_VE);
+        strncpy(so_cmnd, ve.so_cmnd, MAX_LENGTH_SO_CMND);
     }
     Ve(char* sv, char* scmnd) {
         strcpy(so_ve, sv);
@@ -73,17 +89,6 @@ class Ve {
         char d = (char)('A'+day);
         fomatMaVe(day,dong);
         strcpy(so_cmnd, scmnd); 
-    }
-    char* getSoVe() { 
-        return so_ve;
-    }
-    
-    void setSoVe(char* sv) {
-        strncpy(so_ve, sv, MAX_LENGTH_SO_VE);
-    }
-    
-    char* getSoCMND() {
-        return so_cmnd;
     }
     void fomatMaVe(int so_day, int so_dong) {
         this->so_ve[0] = (char)(so_day + 'A' - 1);
@@ -97,9 +102,7 @@ class Ve {
         }
         this->so_ve[3] = 0;
     }
-    void setSoCMND(char* scmnd) {
-        strncpy(so_cmnd, scmnd, MAX_LENGTH_SO_CMND);
-    }
+    
     friend std::ostream& operator<<(std::ostream& os, const Ve& mb) ;
     friend std::istringstream& operator>>(std::istringstream& is, Ve& ve);
 };
@@ -121,7 +124,7 @@ class ChuyenBay { //ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|
     char san_bay_den[MAX_LENGTH_SAN_BAY_DEN + 1];
     int trang_thai_cb;
     char so_hieu_mb[MAX_LENGTH_SO_HIEU_MB + 1];
-    Ve** listve; // cần fix
+    Ve*** listve; // cần fix
     ChuyenBay *next = NULL;
     public:
 
@@ -132,7 +135,7 @@ class ChuyenBay { //ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|
     char* get_san_bay_den() { return this->san_bay_den; }
     int get_trang_thai_cb() { return this->trang_thai_cb; }
     char* get_so_hieu_mb() { return this->so_hieu_mb; }
-    Ve** get_listve() { return this->listve; }
+    Ve*** get_listve() { return this->listve; }
     ChuyenBay* get_next() { return this->next; }
 
 
@@ -148,36 +151,31 @@ class ChuyenBay { //ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|
     void set_macb(char* mcb){
         strcpy(this->ma_so_cb, mcb);
     }
-    void set_time(char* time){
-        thoi_gian_bay.set(time);
-    }
-    void set_sanbayden(char* sbd){
-        strcpy(this->san_bay_den, sbd);
-    }
-    void set_trangthai(int trangthai){
-        this->trang_thai_cb = trangthai;
-    }
-    void set_sohieumb(char* shmb){
-        strcpy(this->so_hieu_mb, shmb);
-    }
-    void add_ve(int day,int dong,char* cmnd){
-        listve[day-1 ] = new Ve(day,dong,cmnd);
-    }
-    void add_ve(char* mave,char* cmnd){
-        char* s = &mave[1];
-        if(listve[mave[0]-'A' + std::stoi(s) - 1 ]  == nullptr)
-        listve[mave[0]-'A' + std::stoi(s) - 1 ] = new Ve(mave,cmnd);
-    }
-    void add_ve(Ve ve){
-        char* s = &ve.getSoVe()[1];
-        if(listve[ve.getSoVe()[0]-'A' + std::stoi(s) - 1 ]  == nullptr)
-        listve[ve.getSoVe()[0]-'A' + std::stoi(s) - 1 ] = new Ve(ve.getSoVe(),ve.getSoCMND());
+    // void set_time(char* time){
+    //     thoi_gian_bay.set(time);
+    // }
+    // void add_ve(int day,int dong,char* cmnd){
+    //     listve[day-1 ] = new Ve(day,dong,cmnd);
+    // }
+    // void add_ve(char* mave,char* cmnd){
+    //     char* s = &mave[1];
+    //     if(listve[mave[0]-'A' + std::stoi(s) - 1 ]  == nullptr)
+    //     listve[mave[0]-'A' + std::stoi(s) - 1 ] = new Ve(mave,cmnd);
+    // }
+    void add_ve(Ve& ve){ // hàm này để thêm vé từ file data nên sẽ không cần check đã tồn tại
+        listve[ve.getSoDay()-1][ve.getSoDong() - 1] = new Ve(ve);
     }
 
     void init_ve(){
-        listve = new Ve*[200]; // cấp phát động cho n hàng đầu tiên
-        for(int i = 0; i < 200; i++){
-        listve[i] = NULL; // gán giá trị NULL cho từng phần tử
+        int so_day = 25, so_dong = 40;
+        listve = new Ve**[so_day];
+        for (int i = 0; i < so_day; ++i) {
+            listve[i] = new Ve*[so_dong];
+        }
+        for(int i=0; i<so_day; i++){
+            for(int j=0; j<so_dong; j++){
+                listve[i][j] = nullptr;
+            }
         }
     }
     ChuyenBay(){
@@ -189,10 +187,14 @@ class ChuyenBay { //ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|
     }
     ~ChuyenBay(){
         // cout<<"\ngiai phong bo nho ve\n";
-            for (int i = 0; i < 200; i++) {
-                    delete listve[i];
+            int so_day = 25, so_dong = 40;
+            for (int i = 0; i < so_day; ++i) {
+                for (int j = 0; j < so_dong; ++j) {
+                    delete[] listve[i][j];
                 }
-                delete[] listve;
+                delete[] listve[i];
+            }
+            delete[] listve;
     }
     void set(char* ma_so_cb, ThoiGianBay thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
         strcpy(this->ma_so_cb, ma_so_cb);
@@ -233,9 +235,12 @@ std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb) {
 }
 std::ostream& operator<<(std::ostream& os, const ChuyenBay& mb) {
     os << mb.ma_so_cb << "|" << mb.so_hieu_mb << "|" << mb.thoi_gian_bay.to_string() << "|" << mb.san_bay_den<<'|'<<mb.trang_thai_cb<<'|'; // in cả vé
-    for(int i=0; i<200; i++){
-        if(mb.listve[i] != nullptr){
-            os<<*(mb.listve[i]);
+    int so_day = 25, so_dong = 40;
+    for(int i=0; i<so_day; i++){
+        for(int j=0; j<so_dong; j++){
+            if(mb.listve[i][j] != nullptr){
+            os<<*(mb.listve[i][j]);
+        }
         }
     }
     return os;

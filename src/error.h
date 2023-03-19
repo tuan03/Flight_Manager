@@ -2,14 +2,15 @@
 #define ERROR_H
 #include "Global.h"
 // classes
-enum Error_Name {
+enum Status_Name {
+    
     HE_THONG_DAY_BO_NHO = 1,
+    ALREADY_EXIST
 };
-
 class Error {
     public:
-        Error_Name name;
-    Error(Error_Name name) {
+        Status_Name name;
+    Error(Status_Name name) {
         this->name = name;
     }
 

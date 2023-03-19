@@ -7,24 +7,16 @@
 #include"hanhkhach.h"
 
 using namespace std;
-class FileHandler{
-    private:
-        std::fstream inout;
-    public:
-    FileHandler(){
-        
-    }
     void read(string link_file,ListMayBay& l_mb){
+        std::fstream inout;
         inout.open(link_file,ios::in | ios::out);
         if (inout.is_open()) { // kiểm tra xem file có được mở thành công không
             std::string line;
             MayBay* temp = nullptr;
             while (std::getline(inout, line)) {
-                temp = new MayBay();
+                temp = l_mb.push_empty(); // tạo 1 Máy Bay rỗng thông tin
                 std::istringstream iss(line);
                 iss>>*temp;
-                l_mb.push_data(temp);
-                
             }
             inout.close();
         } else {
@@ -32,6 +24,7 @@ class FileHandler{
         }
     }
     void read(string link_file,ListChuyenBay& l_mb){
+        std::fstream inout;
         inout.open(link_file,ios::in | ios::out);
         if (inout.is_open()) { // kiểm tra xem file có được mở thành công không
             std::string line;
@@ -49,6 +42,7 @@ class FileHandler{
         }
     }
     void read(string link_file,TreeHanhKhach& l_mb){
+        std::fstream inout;
         inout.open(link_file,ios::in | ios::out);
         if (inout.is_open()) { // kiểm tra xem file có được mở thành công không
             std::string line;
@@ -83,7 +77,7 @@ class FileHandler{
         remove("backup\\HanhKhach_data_backup.txt");
         
     }
-};
+
 
 
 
