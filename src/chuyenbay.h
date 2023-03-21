@@ -16,12 +16,16 @@ class ThoiGianBay {
         }
         std::string to_string() const { //hh:mm-dd/mm/yyyy
             std::stringstream ss;
-            ss << std::setfill('0') << std::setw(2) << hour << ":"
-            << std::setfill('0') << std::setw(2) << minute << "-"
-            << std::setfill('0') << std::setw(2) << day << "/"
-            << std::setfill('0') << std::setw(2) << month << "/"
-            << year;
+            std::tm timeinfo = {};
+            timeinfo.tm_year = year - 1900; // năm bắt đầu từ 1900
+            timeinfo.tm_mon = month - 1;    // tháng bắt đầu từ 0
+            timeinfo.tm_mday = day;
+            timeinfo.tm_hour = hour;
+            timeinfo.tm_min = minute;
+            // In ra chuỗi theo định dạng hh:mm-dd/mm/yyyy
+            ss<<std::put_time(&timeinfo, "%H:%M-%d/%m/%Y");
             return ss.str();
+
         }
         ThoiGianBay(int m, int h, int d, int month, int y){
             this->set(m,h,d,month,y);
@@ -40,6 +44,7 @@ std::istringstream& operator>>(std::istringstream& is, ThoiGianBay& time){
     is >> time.hour >> delimiter >> time.minute >> delimiter >> time.day >> delimiter >> time.month >> delimiter >> time.year;
     return is;
 }
+
 class Ve {
     private:
     char so_ve[MAX_LENGTH_SO_VE + 1];
@@ -259,6 +264,7 @@ class ListChuyenBay {
             delete current;
             current = next;
         }
+        head = nullptr;
         
     }
     void print(){

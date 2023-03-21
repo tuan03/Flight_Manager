@@ -88,6 +88,7 @@ class ListMayBay{
 			for (int i = 0; i < so_luong; i++) {
 				delete data[i];
 			}
+			so_luong = 0;
 		}
 		bool isEmpty(){	
 			return this->so_luong==0;
