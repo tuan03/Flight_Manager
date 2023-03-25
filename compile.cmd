@@ -1,0 +1,2 @@
+gcc main.cpp -Isrc/views/lib/SDL2/include/SDL2 -Lsrc/views/lib/SDL2/bin -Lsrc/views/lib/SDL_image/bin -Lsrc/views/lib/SDL_ttf/bin -Isrc/views/lib/SDL_image/include/SDL2 -Isrc/views/lib/SDL_ttf/include/SDL2 -lSDL2 -lSDL2_image -lSDL2_ttf -lstdc++ -luser32 -lgdi32 -o main
+main.exe                                                                                                       
