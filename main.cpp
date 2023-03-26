@@ -1,3 +1,4 @@
+#include "src/file_handling.h"
 #include "src/flight_manager.h"
 
 char HAN[MAX_LENGTH_SAN_BAY_DEN + 1] = "HAN";
@@ -59,12 +60,7 @@ int main() {
 
     danh_sach_cb.print();
 
-    std::cout << "\n";
-
-    ThoiGianBay tgb(0, 0, 29, 3, 2022);
-
-    cout << ">>> Cac chuyen bay con ve trong ngay:\n";
-    danh_sach_cb.tim_cac_cb_con_ve_trong_ngay_2(HAN, tgb);
+    load_flight_data_into_file("./src/data/data_chuyen_bay.txt", cb_6);
 
     return 0;
 }

@@ -210,6 +210,20 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
         return count;
     }
 
+    std::string dinh_danh_chuyen_bay_theo_string(){
+        std::stringstream ss;
+        ss << this->get_ma_so_cb();
+        ss << "|";
+        ss << this->get_so_hieu_mb();
+        ss << "|";
+        ss << this->get_thoi_gian_bay().to_string();
+        ss << "|";
+        ss << this->get_san_bay_den();
+        ss << "|";
+        ss << this->get_trang_thai_cb();
+        return ss.str();
+    }
+
     ChuyenBay() {
         init_ve();
     }
