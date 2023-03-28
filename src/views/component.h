@@ -17,9 +17,15 @@ class Component{
 
     }
 };
-enum Name_Component{
-    MENU,
-    BODY
+class Menu{
+    private:
+    ListBox menu;
+    public:
+    Menu(){
+        
+    }
+
 };
+
 
 

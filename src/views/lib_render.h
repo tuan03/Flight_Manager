@@ -5,13 +5,7 @@
 #include"views_error.h"
 #define FPS 60
 #define TIME_A_FRAME (1000/FPS)
-enum Name_Box{
-    RESET,
-    PAUSE,
-    RUN,
-    TANG,
-    GIAM
-};
+
 
 
 class SDLInit {
@@ -184,36 +178,33 @@ class MyScreen {
     }
 
 };
-
+enum Name_Box{
+    NONE,
+    PLANE,
+    FLIGHT,
+    CUSTOMER,
+    TICKET,
+    THONGKE
+};
 class Box{
     private:
     MyTexture* mytexture = nullptr; //chứa texture
     SDL_Rect rect;                  // chứa vị trí, kích thước render
-    int p_x;                        //vị trí của x, vị trí thực, vị trí rect sẽ di chuyên đến p_x
-    int p_y;                        //vị trí y, như trên
-    int time_completed;             //thời gian hoàn thành dịch chuyển
     bool is_clone = false;          //check xem phải là Box clone không, để không cần xóa texture của Box này, vì box được clone xóa rồi
     Name_Box namebox;               //đặt tên cho Box, đễ truy vấn
     Box* next;                      //danh sách liên kết đơn
-    MyTexture* convert = nullptr;   //chuyển đổi qua lại 2 texture
-    int vantoc_x, vantoc_y;
-    std::string message =""; 
-    bool exec = false;              // flag, lần khi đang thực thi di chuyển, lần render di chuyển xong thì biến này sẽ là exec. mình sẽ từ đổi nó về false bằng hàm set_exec
-    public:
+    MyTexture* hover = nullptr;   
+    MyTexture* clicked = nullptr; 
+     public:
     Box(){
         next = nullptr; 
     }
     ~Box(){
         if(!is_clone) delete mytexture;
-        if(convert!=nullptr) delete convert;
+        delete hover;
+        delete clicked;
         std::cout<<"Delete a box\n";
         delete next;
-    }
-    int get_px(){
-        return this->p_x;
-    }
-    int get_py(){
-        return this->p_y;
     }
     MyTexture* get_my_texture(){
         return mytexture;
@@ -231,15 +222,13 @@ class Box{
     Box* get_next(){
         return next;
     }
-    Box* set_corvert(const char* file, MyRenderer* renderer){
-        this->convert = new MyTexture(file,renderer->get_renderer());
+    Box* set_hover(const char* file, MyRenderer* renderer){
+        this->hover = new MyTexture(file,renderer->get_renderer());
         return this;
     }
-    void convert_texture(){
-        if(convert != nullptr){
-        MyTexture* temp = this->convert;
-        convert = mytexture;
-        mytexture = temp;}
+    Box* set_clicked(const char* file, MyRenderer* renderer){
+        this->clicked = new MyTexture(file,renderer->get_renderer());
+        return this;
     }
     void set_next(Box*& box){
         next = box;
@@ -250,96 +239,32 @@ class Box{
     void create_from(Box* box){ //clone box
         mytexture = box->get_my_texture();
         this->is_clone = true;
-        this->convert = box->convert;
-    }
-    void create_empty(SDL_Rect &r){ 
-        mytexture = nullptr;
-        rect = r;
-        p_x = r.x;
-        p_y = r.y;
     }
 
     void set_rect(int x, int y, int w, int h){
         this->rect = {x,y,w,h};
-        p_x = x;
-        p_y = y;
     }
     void set_rect(SDL_Rect& rect){
         this->rect = rect;
-        p_x = this->rect.x;
-        p_y = this->rect.y;
     }
-    std::string get_mess(){
-        return this->message;
-    }
-    void reset_mess(){
-        this->message = "";
-    }
-    void set_animation(int x, int y,int time_completed, std::string mess = ""){
-            this->p_x = x;
-            this->p_y = y;
-                if(time_completed >= TIME_A_FRAME){
-            this->time_completed = time_completed;
-            } else {
-                this->time_completed = TIME_A_FRAME;
-            }
-            int so_lan_render = (this->time_completed)/(TIME_A_FRAME);
-            vantoc_x = std::abs(p_x-rect.x)/so_lan_render;
-            vantoc_y = std::abs(p_y-rect.y)/so_lan_render;
-            if(mess.length()>0) this->message = mess;
-
-    }
-    bool get_exec(){
-        return exec;
-    }
-    void set_exec(bool v){
-        this->exec = v;
-    }
-    void move(){
-        
-        int khoang_cach_x = std::abs(p_x-rect.x);
-        int khoang_cach_y = std::abs(p_y-rect.y);
-        if(khoang_cach_x > 0 && vantoc_x == 0){
-            vantoc_x = 1;
-        }
-        if(khoang_cach_x <= vantoc_x){
-            vantoc_x = 0;
-            rect.x = p_x;
-            this->exec = true;
-        } else rect.x += (p_x > rect.x ? vantoc_x : -vantoc_x);
-        if(khoang_cach_y > 0 && vantoc_y == 0){
-            vantoc_y = 1;
-        }
-        if(khoang_cach_y <= vantoc_y){
-            vantoc_y = 0;
-            rect.y = p_y;
-        } rect.y += (p_y > rect.y ? vantoc_y : -vantoc_y);
-    }
-    bool done_animation(){
-        return p_x == rect.x && p_y == rect.y;
-    }
-
-    bool handle_exec_completed(){
-        if(this->exec == true && this->done_animation()==true){
-            this->exec = false;
-            return true;
-        }
-        return false;
-    }
-
-
-
-    void render(MyRenderer* renderer,bool is_pause = false , bool choose = true){ //true: render texture chính, false: render convert
-        if(choose){
-            if(!is_pause && (p_x != rect.x || p_y != rect.y)){
-            this->move();}
+    void render(MyRenderer* renderer, int choose = 0){ //true: render texture chính, false: render convert
+        if(choose == 0){
             if(mytexture!=nullptr)
             SDL_RenderCopy(renderer->get_renderer(),mytexture->get_texture(),nullptr,&this->rect);
-        } else {
-            if(p_x != rect.x || p_y != rect.y){
-            this->move();}
-            SDL_RenderCopy(renderer->get_renderer(),convert->get_texture(),nullptr,&this->rect);
+            return;
         }
+        if(choose == 1){
+            if(hover!=nullptr)
+            SDL_RenderCopy(renderer->get_renderer(),hover->get_texture(),nullptr,&this->rect);
+            return;
+        }
+        if(choose == 2){
+            if(clicked!=nullptr)
+            SDL_RenderCopy(renderer->get_renderer(),clicked->get_texture(),nullptr,&this->rect);
+            return;
+        }
+
+
     }
     
     bool is_in_box(int x, int y){
@@ -361,13 +286,13 @@ class ListBox{
         this->renderer = renderer;
     }
   
-    Box* insert(const char * file, SDL_Rect rect){ // thêm box no name
+    Box* insert(const char * file, SDL_Rect rect, Name_Box name_box = Name_Box::NONE){ // thêm box no name
         //create box
         Box* newBox = new Box;
         if(!renderer) throw Views::Error(Views::Name_Error::UNKNOWN_RENDERER);
         newBox->create(file,this->renderer);
         newBox->set_rect(rect);
-
+        newBox->set_name_box(name_box);
         //add
         if(this->head == nullptr){
             this->head = newBox;
@@ -406,6 +331,23 @@ class ListBox{
         Box* current = head;
         while (current != NULL) {
             current->render(renderer);
+            current = current->get_next();
+        }
+    }
+    void render_list_ver2(Name_Box& namebox, Name_Box& current_route){ //render list lên cửa sổ
+        Box* current = head;
+        while (current != NULL) {
+            if(current_route != Name_Box::NONE && current->get_name_box() == current_route){
+                current->render(renderer,2);
+                cout<<current_route<<'\n';
+                current = current->get_next();
+                continue;
+            }
+            if(namebox != Name_Box::NONE && current->get_name_box() == namebox){
+                current->render(renderer,1);
+            } else {
+                current->render(renderer);
+            }
             current = current->get_next();
         }
     }
