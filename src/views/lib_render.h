@@ -154,9 +154,23 @@ class MyScreen {
         delete myfont;
         myfont = new MyFont(fontName.c_str(),font_size);
     }
-    void render_Text(const std::string& text,SDL_Rect &vitri,SDL_Color text_color,bool type_center_box = false){ // true: in text giữa box vitri, false: in text tại vitri
+    void render_cot(SDL_Rect rect){
+                SDL_Rect content = {rect.x+1,rect.y+1,rect.w - 2,rect.h - 2};
+                SDL_SetRenderDrawColor(myrenderer->get_renderer(), 0, 0, 0, 255); // màu đen
+                SDL_RenderFillRect(myrenderer->get_renderer(), &rect);
+                SDL_SetRenderDrawColor(myrenderer->get_renderer(), 222, 252, 249, 255); // màu trắng
+                SDL_RenderFillRect(myrenderer->get_renderer(), &content);
+    }
+    void render_cot_2(SDL_Rect rect){
+                SDL_Rect content = {rect.x+1,rect.y+1,rect.w - 2,rect.h - 2};
+                SDL_SetRenderDrawColor(myrenderer->get_renderer(), 0, 0, 0, 255); // màu đen
+                SDL_RenderFillRect(myrenderer->get_renderer(), &rect);
+                SDL_SetRenderDrawColor(myrenderer->get_renderer(), 99,130,28, 255); // màu trắng
+                SDL_RenderFillRect(myrenderer->get_renderer(), &content);
+    }
+    void render_Text(const std::string& text,SDL_Rect& vitri,SDL_Color text_color,bool type_center_box = false){ // true: in text giữa box vitri, false: in text tại vitri
         SDL_Color textColor = text_color;
-        SDL_Surface* textSurface = TTF_RenderText_Solid(myfont->get_font(), text.c_str(), textColor);
+        SDL_Surface* textSurface = TTF_RenderUTF8_Blended(myfont->get_font(), text.c_str(), textColor); // thay thành TTF_RenderText_Solid để tối ưu nhưng text sẽ xấu :v // tiếng viêt : TTF_RenderUTF8_Solid
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(myrenderer->get_renderer(), textSurface);
 
         if(type_center_box == false){
@@ -173,10 +187,31 @@ class MyScreen {
             vt_render.y = vt_box.y + (vt_box.h/2) - (vt_render.h/2);
             SDL_RenderCopy(myrenderer->get_renderer(), textTexture, NULL, &vt_render);
         }
-                    SDL_FreeSurface(textSurface);
-                    SDL_DestroyTexture(textTexture);
+            SDL_FreeSurface(textSurface);
+            SDL_DestroyTexture(textTexture);
     }
+    void render_Text(const char* text,SDL_Rect& vitri,SDL_Color text_color,bool type_center_box = false){ // true: in text giữa box vitri, false: in text tại vitri
+        SDL_Color textColor = text_color;
+        SDL_Surface* textSurface = TTF_RenderUTF8_Blended(myfont->get_font(), text, textColor); // thay thành TTF_RenderText_Solid để tối ưu nhưng text sẽ xấu :v // tiếng viêt : TTF_RenderUTF8_Solid
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(myrenderer->get_renderer(), textSurface);
 
+        if(type_center_box == false){
+            vitri.w =  (textSurface != NULL ? textSurface->w : vitri.w = 0);
+            vitri.h = myfont->get_font_size();
+            SDL_RenderCopy(myrenderer->get_renderer(), textTexture, NULL, &vitri);
+
+        } else {
+            SDL_Rect vt_render;
+            vt_render.w =  (textSurface != NULL ? textSurface->w : vt_render.w = 0);
+            vt_render.h = myfont->get_font_size();
+            SDL_Rect vt_box = vitri ; //box->get_rect()
+            vt_render.x = vt_box.x + (vt_box.w/2) - (vt_render.w/2);
+            vt_render.y = vt_box.y + (vt_box.h/2) - (vt_render.h/2);
+            SDL_RenderCopy(myrenderer->get_renderer(), textTexture, NULL, &vt_render);
+        }
+            SDL_FreeSurface(textSurface);
+            SDL_DestroyTexture(textTexture);
+    }
 };
 enum Name_Box{
     NONE,
@@ -339,7 +374,6 @@ class ListBox{
         while (current != NULL) {
             if(current_route != Name_Box::NONE && current->get_name_box() == current_route){
                 current->render(renderer,2);
-                cout<<current_route<<'\n';
                 current = current->get_next();
                 continue;
             }

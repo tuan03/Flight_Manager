@@ -17,10 +17,13 @@
 
 using namespace std;
 
+//class máy bay
 #define MAX_LENGTH_SO_HIEU_MB 15
-#define MAX_LENGTH_MA_CB 15
 #define MAX_LENGTH_LOAI_MAY_BAY 40 
 #define MAX_MAYBAY 300
+
+// class chuyến bay
+#define MAX_LENGTH_MA_CB 15
 #define MAX_LENGTH_SAN_BAY_DEN 100
 #define MAX_LENGTH_TIME 5
 #define MAX_LENGTH_TIME_STRING 15

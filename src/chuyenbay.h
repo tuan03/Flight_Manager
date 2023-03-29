@@ -73,18 +73,18 @@ class Ve {
     }
     //setter
     void setSoVe(char* sv) {
-        strncpy(so_ve, sv, MAX_LENGTH_SO_VE);
+        strncpy(so_ve, sv, MAX_LENGTH_SO_VE+1);
     }
     void setSoCMND(char* scmnd) {
-        strncpy(so_cmnd, scmnd, MAX_LENGTH_SO_CMND);
+        strncpy(so_cmnd, scmnd, MAX_LENGTH_SO_CMND+1);
     }
 
     Ve(){
 
     }
     Ve(const Ve& ve){
-        strncpy(so_ve, ve.so_ve, MAX_LENGTH_SO_VE);
-        strncpy(so_cmnd, ve.so_cmnd, MAX_LENGTH_SO_CMND);
+        strncpy(so_ve, ve.so_ve, MAX_LENGTH_SO_VE+1);
+        strncpy(so_cmnd, ve.so_cmnd, MAX_LENGTH_SO_CMND+1);
     }
     Ve(char* sv, char* scmnd) {
         strcpy(so_ve, sv);
@@ -117,8 +117,8 @@ std::ostream& operator<<(std::ostream& os, const Ve& mb){
 }
  
 std::istringstream& operator>>(std::istringstream& is, Ve& ve){
-    is.getline(ve.so_ve,MAX_LENGTH_SO_VE,'-');
-    is.getline(ve.so_cmnd,MAX_LENGTH_SO_CMND,';');
+    is.getline(ve.so_ve,MAX_LENGTH_SO_VE+1,'-');
+    is.getline(ve.so_cmnd,MAX_LENGTH_SO_CMND+1,';');
     return is;
 }
 
@@ -221,11 +221,11 @@ class ChuyenBay { //ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|
 };
 //ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|A01|12321|A02|2344
 std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb) {
-    is.getline(mb.ma_so_cb,MAX_LENGTH_MA_CB,'|');
-    is.getline(mb.so_hieu_mb,MAX_LENGTH_SO_HIEU_MB,'|');
+    is.getline(mb.ma_so_cb,MAX_LENGTH_MA_CB+1,'|');
+    is.getline(mb.so_hieu_mb,MAX_LENGTH_SO_HIEU_MB+1,'|');
     is>>mb.thoi_gian_bay;
     is.ignore(1);
-    is.getline(mb.san_bay_den,MAX_LENGTH_SAN_BAY_DEN,'|');
+    is.getline(mb.san_bay_den,MAX_LENGTH_SAN_BAY_DEN+1,'|');
     is>>mb.trang_thai_cb;
     is.ignore(1);
     // nhập vé

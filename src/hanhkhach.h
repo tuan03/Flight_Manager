@@ -70,10 +70,10 @@ class HanhKhach{
 	friend std::ostream& operator<<(std::ostream& os, const HanhKhach& mb);
 };
 std::istringstream& operator>>(std::istringstream& is, HanhKhach& mb){ //0123456789|Nguyen Van|A|Nam
-    is.getline(mb.so_cmnd,MAX_LENGTH_SO_CMND,'|');
-    is.getline(mb.ho,MAX_LENGTH_HO,'|');
-    is.getline(mb.ten,MAX_LENGTH_TEN,'|');
-    is.getline(mb.phai,MAX_LENGTH_PHAI);
+    is.getline(mb.so_cmnd,MAX_LENGTH_SO_CMND+1,'|');
+    is.getline(mb.ho,MAX_LENGTH_HO+1,'|');
+    is.getline(mb.ten,MAX_LENGTH_TEN+1,'|');
+    is.getline(mb.phai,MAX_LENGTH_PHAI+1);
     return is;
 }
 std::ostream& operator<<(std::ostream& os, const HanhKhach& mb) {

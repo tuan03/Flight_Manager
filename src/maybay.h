@@ -68,8 +68,8 @@ class MayBay{
 		friend std::ostream& operator<<(std::ostream& os, const MayBay& mb) ;
 };
 std::istringstream& operator>>(std::istringstream& is, MayBay& mb) {
-    is.getline(mb.so_hieu_mb,MAX_LENGTH_SO_HIEU_MB,'|');
-    is.getline(mb.loai_mb,MAX_LENGTH_LOAI_MAY_BAY,'|');
+    is.getline(mb.so_hieu_mb,MAX_LENGTH_SO_HIEU_MB+1,'|');
+    is.getline(mb.loai_mb,MAX_LENGTH_LOAI_MAY_BAY+1,'|');
     is>>mb.so_day;
     is.ignore(1);
     is>>mb.so_dong;
@@ -89,6 +89,12 @@ class ListMayBay{
 				delete data[i];
 			}
 			so_luong = 0;
+		}
+		MayBay* get_at(int index) const {
+			return this->data[index];
+		}
+		int get_so_luong(){
+			return this->so_luong;
 		}
 		bool isEmpty(){	
 			return this->so_luong==0;
@@ -117,6 +123,7 @@ class ListMayBay{
 				cout<<*data[i]<<'\n';
 			}
         }
+	
 		void xoaMayBay(char* soHieuMB){
     		int index = timMayBay(soHieuMB);
     		if (index != -1) {
