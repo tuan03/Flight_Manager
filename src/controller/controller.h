@@ -35,6 +35,12 @@ class Controller{
     string route_thongke_name_cot[3]{"STT","Mã Số CB","Số Lượt Bay"};
 
 
+    Box edit;
+    Box add;
+    Box del;
+
+    Box khung;
+
     public:
     Controller(): myscreen{WIDTH_SCREEN,HEIGHT_SCREEN,"Quản Lí Chuyến Bay","src/views/font/Arial.ttf",24}{
         menu.connect_my_renderer(myscreen.get_my_renderer());
@@ -57,14 +63,19 @@ class Controller{
         next.set_rect(960,815,80,80);
         next.set_hover("src/views/img/next1.png",myscreen.get_my_renderer());
 
-        khung_menu.create("src/views/img/khung_menu.png",myscreen.get_my_renderer());
-        khung_menu.set_rect(300, -10,1200,700);
+        khung_menu.create("src/views/img/menu.png",myscreen.get_my_renderer());
+
+        edit.create("src/views/img/edit.png",myscreen.get_my_renderer());
+        add.create("src/views/img/add.png",myscreen.get_my_renderer());
+        del.create("src/views/img/del.png",myscreen.get_my_renderer());
+
+        khung.create("src/views/img/khung.png",myscreen.get_my_renderer());
     }
     
 
     void running(){
 
-        View_Plane view_plane(&(this->qlcb),&(this->myscreen),&(this->prev),&(this->next),&(this->khung_menu)); // khởi tạo view Plane
+        View_Plane view_plane(&(this->qlcb),&(this->myscreen),&(this->prev),&(this->next),&(this->khung_menu),&(this->add),&(this->edit),&(this->del),&(this->khung)); // khởi tạo view Plane
 
 
         bool quit = false; // điều kiện thoát chương trình
