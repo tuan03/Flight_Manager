@@ -324,6 +324,16 @@ class ListChuyenBay {
         tail = new_chuyenbay;
     }
     }
+    ChuyenBay* timChuyenBayTheoMaSoMB(const char* ma_so_mb) {
+        ChuyenBay* p = head;
+        while (p != NULL) {
+            if (strcmp(p->get_so_hieu_mb(), ma_so_mb) == 0) { // sử dụng hàm getter để lấy mã máy bay
+                return p; // trả về chuyến bay nếu tìm thấy
+            }
+            p = p->get_next();
+        }
+        return nullptr; // trả về NULL nếu không tìm thấy chuyến bay
+    }
 
     bool xoa_chuyen_bay(char* ma_so_cb){
         ChuyenBay* chuyenbay = head;

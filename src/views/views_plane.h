@@ -31,7 +31,7 @@ class Menu{
     Box* del = nullptr;
 
     public:
-    void handleEvent(SDL_Event e, State& state, int mouse_X, int mouse_Y){
+    void handleEvent(SDL_Event e, State& state, int mouse_X, int mouse_Y,bool& quit){
         nut_xoa = {255,255,255};
         nut_sua = {255,255,255};
         nut_x = {255,255,255};
@@ -55,10 +55,14 @@ class Menu{
                         } else
                         if(check_click(mouse_X,mouse_Y, vi_tri_nut_sua)){
                             state = State::EDIT;
+
                         } else
                         if(check_click(mouse_X,mouse_Y, vi_tri_nut_xoa)){
                             cout<<"Click xoa\n";
                         }
+                    break;
+                case SDL_QUIT: // sự kiện nhất thoát
+                    quit = true;
                     break;
         }
     }
@@ -126,6 +130,20 @@ class Edit{
     SDL_Rect vi_tri_nut_sua = {950, 450,150,60};
     SDL_Color nut_sua = {255,255,255};
     SDL_Color nut_x = {255,255,255};
+
+    bool now = true;
+
+    string name_field[4] = {"Số hiệu Máy Bay", "Loại","Số Dãy","Số Dòng"};
+        SDL_Rect rect_field[4]= {{530, 300 ,240,50},{530, 350,240,50},{530, 400,240,50},{530, 450,240,50}};
+        SDL_Rect rect_input[4]={{770, 300,500,50},{770, 350,500,50},{770, 400,500,50},{770, 450,500,50}};
+    int current_click_input = -1;
+    
+    string so_hieu_mb = "";
+    string loai_mb = "";
+    string so_day = "";
+    string so_dong = "";
+
+    bool da_lap_cb = false;
     public:
     void set(MyScreen* mc, Box* khung,Box* edit){
         this->myscreen = mc;
@@ -139,7 +157,7 @@ class Edit{
         nut_sua = {255,255,255};
         nut_x = {255,255,255};
     }
-    void handleEvent(SDL_Event e, State& state, int mouse_X, int mouse_Y){
+    void handleEvent(SDL_Event e, State& state, int mouse_X, int mouse_Y,bool& quit){
         this->reset();
         switch (e.type)
         {
@@ -152,6 +170,13 @@ class Edit{
                 }
                 break;
                 case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
+                        this->current_click_input = -1;
+                        for(int i=0; i<4; i++){ 
+                            if(check_click(mouse_X,mouse_Y, rect_input[i])){
+                                this->current_click_input = i;
+                                break;
+                            }
+                        }  
                         if(check_click(mouse_X,mouse_Y, vi_tri_nut_x)){
                             state = State::MENU;
                             this->reset();
@@ -159,42 +184,107 @@ class Edit{
                         if(check_click(mouse_X,mouse_Y, vi_tri_nut_sua)){
                             cout<<"click sua\n";
                         } 
+                        
+                    break;
+                case SDL_QUIT: // sự kiện nhất thoát
+                    quit = true;
+                    break;
+        }
+        this->handleInput_IN_HOA_KHONG_CACH(e,so_hieu_mb,MAX_LENGTH_SO_HIEU_MB);
+
+    }
+    void handleInput_IN_HOA_KHONG_CACH(SDL_Event e, string& inputString, int max_length){
+        
+        switch(e.type){
+            case SDL_KEYDOWN:
+                    if (e.key.keysym.sym == SDLK_RETURN)
+                    {
+                        this->current_click_input +=1;
+                        if(this->current_click_input == 5) this->current_click_input = -1;
+                    }else if (e.key.keysym.sym == SDLK_BACKSPACE && inputString.length() > 0)
+                    {
+                        inputString.pop_back();
+                    }
+                    break;
+                case SDL_TEXTINPUT:
+                    if(e.text.text[0] >= 'A' && e.text.text[0] <= 'Z' && inputString.length() < max_length) 
+                    inputString += e.text.text;
+                    if(e.text.text[0] >= 'a' && e.text.text[0] <= 'z' && inputString.length() < max_length) 
+                    inputString +=  e.text.text[0] - ('a'-'A');
+                    break;
+        }
+    }
+     void handleInput_number(SDL_Event e, string& inputString){
+        switch(e.type){
+            case SDL_KEYDOWN:
+                    if (e.key.keysym.sym == SDLK_RETURN)
+                    {
+                        inputString = "";
+                    }else if (e.key.keysym.sym == SDLK_BACKSPACE && inputString.length() > 0)
+                    {
+                        // Xóa ký tự cuối cùng trong chuỗi nhập vào
+                        inputString.pop_back();
+                    }
+                    break;
+                case SDL_TEXTINPUT:
+                    // Nếu sự kiện là nhập ký tự
+                    inputString += e.text.text;
                     break;
         }
     }
 
-    void render_menu(MayBay* mb){
-        SDL_Rect rect;
+    void input(SDL_Rect vitri,string& inputString, int stt){
+
+
+
+
+        SDL_Rect box_input{vitri.x+3,vitri.y + 3,vitri.w - 6,vitri.h-6};
+        myscreen->render_cot(vitri,{0,0,0});
+        if(stt == current_click_input)
+        myscreen->render_cot(box_input);
+        else
+        myscreen->render_cot(box_input,{255,255,255});
+        SDL_Rect con_tro;
+        myscreen->render_Text(inputString,box_input,{0,0,0},true,&con_tro);
+        if(stt == current_click_input){
+        con_tro.x = con_tro.x + con_tro.w + 2;
+        con_tro.w = 2;
+        myscreen->render_cot(con_tro);
+        }
+}
+    void render_menu(MayBay* mb, Flight_Manager* qlcb){
         myscreen->blur_background(150);
         khung->render(myscreen->get_my_renderer());
         this->edit->set_rect(this->vi_tri_nut_sua);
         
+        
+        if(this->now == true){
+            so_hieu_mb = mb->getSoHieuMB();
+            loai_mb = mb->getLoaiMB();
+            so_day = std::to_string(mb->getSoDay());
+            so_dong = std::to_string(mb->getSoDong());
+
+            
+            this->da_lap_cb = qlcb->getListCB().timChuyenBayTheoMaSoMB(mb->getSoHieuMB()) != nullptr;
+
+            this->now = false;
+        }
 
 
-        rect = {530, 300 ,240,50};
-        myscreen->render_Text("Số hiệu Máy Bay:",rect,{0,0,0},true);
+
+        for(int i=0; i<4; i++){
+            this->myscreen->render_Text(name_field[i],rect_field[i],{0,0,0},true);
+        }
+        this->myscreen->render_Text(so_hieu_mb,rect_input[0],{0,0,0},true);
+        if(this->da_lap_cb == false){
+            this->myscreen->render_Text(loai_mb,rect_input[1],{0,0,0},true);
+        } else {
+        this->input(rect_input[1],loai_mb,1);
+        }
+
         
-        rect = {770, rect.y,500,50};
-        
-        myscreen->render_Text(mb->getSoHieuMB(),rect,{0,0,0},true);
-        rect = {530, rect.y + 50,240,50};
-        
-        myscreen->render_Text("Loại:",rect,{0,0,0},true);
-        rect = {770, rect.y ,500,50};
-        
-        myscreen->render_Text(mb->getLoaiMB(),rect,{0,0,0},true);
-        rect = {530, rect.y + 50,240,50};
-        
-        myscreen->render_Text("Số dãy:",rect,{0,0,0},true);
-        rect = {770, rect.y ,500,50};
-        
-        myscreen->render_Text(std::to_string(mb->getSoDay()),rect,{0,0,0},true);
-        rect = {530, rect.y + 50,240,50};
-        
-        myscreen->render_Text("Số dòng:",rect,{0,0,0},true);
-        rect = {770, rect.y,500,50};
-        
-        myscreen->render_Text(std::to_string(mb->getSoDong()),rect,{0,0,0},true);
+        this->input(rect_input[2],so_day,2);
+        this->input(rect_input[3],so_dong,3);
 
         this->render_button_xoa_sua();
     }
@@ -272,17 +362,14 @@ class View_Plane{
     }
     
     void handleEvent(SDL_Event e,Name_Box& current_route, ListBox& menu, bool& quit) {
+        if(e.type == SDL_MOUSEMOTION) SDL_GetMouseState(&mouse_X, &mouse_Y);
+        if(this->state == Plane::State::HOME){
         switch (e.type) {
                 case SDL_MOUSEMOTION:
-                // Lấy vị trí chuột
-                SDL_GetMouseState(&mouse_X, &mouse_Y);
-                if(this->state == Plane::State::HOME){ // không get vị trí hover nữa khi đã bật menu lên
                 this->vi_tri_hover_on_table = this->get_vitri(this->mouse_X,this->mouse_Y,qlcb->getListMB().get_so_luong()); // 0 - 9
-                }
-
                 break;
+
                 case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
-                if(this->state == Plane::State::HOME){ // sự kiện này chỉ dành cho route Home
                     if(current_page > 1){
                     if(prev->is_in_box(mouse_X,mouse_Y)){
                         this->current_page-=1;
@@ -297,8 +384,6 @@ class View_Plane{
                             this->state = Plane::State::MENU;
                             this->temp = qlcb->getListMB().get_at(vi_tri_hover_on_table + (current_page-1) *10);
                     }
-                }
-
                     break;
                 case SDL_KEYDOWN:
                     if (e.key.keysym.sym == SDLK_RETURN)
@@ -320,12 +405,12 @@ class View_Plane{
                     quit = true;
                     break;
             }
-
+            } else
             if(state == Plane::State::MENU){
-                menu_plane.handleEvent(e,this->state,mouse_X,mouse_Y);
+                menu_plane.handleEvent(e,this->state,mouse_X,mouse_Y,quit);
             } else
             if(state == Plane::State::EDIT){
-                edit_plane.handleEvent(e,this->state,mouse_X,mouse_Y);
+                edit_plane.handleEvent(e,this->state,mouse_X,mouse_Y,quit);
             }
     }
     
@@ -348,7 +433,7 @@ class View_Plane{
                 menu_plane.render_menu(temp,vi_tri_hover_on_table);
         } else 
         if(state == Plane::State::EDIT){
-                edit_plane.render_menu(temp);
+                edit_plane.render_menu(temp,this->qlcb);
         }
 
     }
@@ -365,17 +450,7 @@ class View_Plane{
         }
         return -1;
     }
-void input(){
-        SDL_Rect box_input_vien{300,400,300,50};
-        SDL_Rect box_input{303,403,294,44};
-        SDL_Rect con_tro;
-        myscreen->render_cot(box_input_vien,{0,0,0});
-        myscreen->render_cot(box_input);
-        myscreen->render_Text(inputString,box_input,{0,0,0},true,&con_tro);
-        con_tro.x = con_tro.x + con_tro.w + 2;
-        con_tro.w = 2;
-        myscreen->render_cot(con_tro);
-}
+
 
 
    void render_next_prev(){
