@@ -7,7 +7,14 @@
 #define TIME_A_FRAME (1000/FPS)
 
 
-
+namespace MyFunc{
+    bool check_click(int x, int y, SDL_Rect rect){
+        if(x>=rect.x && x<= rect.x + rect.w && y>=rect.y && y<=rect.y + rect.h){
+            return true;
+        }
+        return false;
+    }
+}
 class SDLInit {
 public:
     SDLInit() {
@@ -443,3 +450,4 @@ class ListBox{
         return nullptr;
     }
 };
+

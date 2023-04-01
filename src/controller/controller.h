@@ -34,6 +34,7 @@ class Controller{
     int route_thongke_width[3]{200,600,700};
     string route_thongke_name_cot[3]{"STT","Mã Số CB","Số Lượt Bay"};
 
+    bool is_home = true;
 
     Box edit;
     Box add;
@@ -98,12 +99,12 @@ class Controller{
                     current_hover = Name_Box::NONE;
                 }
             }
-            if(e.type == SDL_MOUSEBUTTONDOWN){// sự kiện nhấn vào các box
+            if(is_home && e.type == SDL_MOUSEBUTTONDOWN ){// sự kiện nhấn vào các box
                 if(current_hover != Name_Box::NONE) current_route = current_hover;
             } 
 
 
-            view_plane.handleEvent(e,current_route,menu,quit);
+            view_plane.handleEvent(e,current_route,menu,is_home,quit);
         
         }
         
