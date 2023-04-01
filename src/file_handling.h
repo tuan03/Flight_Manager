@@ -4,18 +4,40 @@
 #include "chuyenbay.h"
 #include "hanhkhach.h"
 #include "maybay.h"
+#include <string>
+#include <cstdio>
 
 using namespace std;
 
-void load_flight_data_into_file(string path, ChuyenBay* flight) {
-    std::ofstream chuyenBayFile;
-    chuyenBayFile.open(path, ios::app);
-    if (chuyenBayFile.is_open()) {
-        chuyenBayFile << flight->dinh_danh_chuyen_bay_theo_string();
-        chuyenBayFile << "\n";
-        chuyenBayFile.close();
-    } else
+void load_flight_data_into_file(string path, string backup, ChuyenBay * flight) {
+    std::ifstream fileToLoad;
+    std::fstream fileToBackup;
+    fileToLoad.open(path, ios::in);
+    fileToBackup.open(backup, ios::out | ios::in);
+    if (fileToLoad.is_open() && fileToBackup.is_open()) {
+        std::string data;
+        while (std::getline(fileToLoad, data)) {
+            fileToBackup << data << "\n";
+        }
+    } else{
         throw "Can not open file!";
+        return;
+    }
+    fileToLoad.close();
+
+    std::ofstream chuyenBayFile;
+    chuyenBayFile.open(path, ios::trunc);
+    if (chuyenBayFile.is_open()) {
+        chuyenBayFile << flight -> dinh_danh_chuyen_bay_theo_string();
+        chuyenBayFile << "\n";
+    } else {
+        std::string data;
+        while (std::getline(fileToBackup, data)) {
+            chuyenBayFile << data << "\n";
+        }
+    }
+    fileToBackup.close();
+    chuyenBayFile.close();
 }
 
 void read(string link_file, ListMayBay& l_mb) {

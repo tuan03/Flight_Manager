@@ -60,7 +60,7 @@ int main() {
 
     danh_sach_cb.print();
 
-    load_flight_data_into_file("./src/data/data_chuyen_bay.txt", cb_6);
+    load_flight_data_into_file("./src/data/data_chuyen_bay.txt","./src/backup/bk_data_chuyenbay.txt",cb_6);
 
     return 0;
 }
