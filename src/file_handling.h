@@ -9,38 +9,20 @@
 
 using namespace std;
 
-void load_flight_data_into_file(string path, string backup, ChuyenBay * flight) {
-    std::ifstream fileToLoad;
-    std::fstream fileToBackup;
-    fileToLoad.open(path, ios::in); //trước tiên, mở file data để load data sang file backup
-    fileToBackup.open(backup, ios::out | ios::in); //mở file backup
-    if (fileToLoad.is_open() && fileToBackup.is_open()) {
-        //load data dùng string
-        std::string data;
-        while (std::getline(fileToLoad, data)) {
-            fileToBackup << data << "\n";
-        }
-    } else{
-        throw "Can not open file!";
-        return;
-    }
-    fileToLoad.close(); //đã backup dữ liệu xong, bây giờ đóng file
+void load_flight_data_into_file(string file_path_to_load_data, ListChuyenBay list) {
+    std::ifstream fileToLoadData(file_path_to_load_data);
+    std::string fileContent((std::istreambuf_iterator<char>(fileToLoadData)), std::istreambuf_iterator<char>());
+    fileToLoadData.close();
 
-    std::ofstream chuyenBayFile;
-    chuyenBayFile.open(path, ios::trunc); //mở file data để chuẩn bị ghi data mới vào, khi mở file sẽ trống
-    if (chuyenBayFile.is_open()) {
-        //ghi data vào file (dùng phương thức, nếu cần thì sau này fix)
-        chuyenBayFile << flight -> dinh_danh_chuyen_bay_theo_string();
-        chuyenBayFile << "\n";
-    } else { //mở file ko dc thì thực hiện backup data từ file backup
-        std::string data;
-        while (std::getline(fileToBackup, data)) {
-            chuyenBayFile << data << "\n";
-        }
-    }
-    //đóng 2 file vừa mở
-    fileToBackup.close();
-    chuyenBayFile.close();
+    std::ofstream backupFile("backup\\HanhKhach_data_backup.txt", ios::trunc);
+    backupFile << fileContent;
+    backupFile.close();
+
+    std::ofstream outputFile(file_path_to_load_data, ios::trunc);
+    outputFile << list;
+    outputFile.close();
+
+    remove("backup\\HanhKhach_data_backup.txt");
 }
 
 void read(string link_file, ListMayBay& l_mb) {

@@ -210,19 +210,19 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
         return count;
     }
 
-    std::string dinh_danh_chuyen_bay_theo_string(){
-        std::stringstream ss;
-        ss << this->get_ma_so_cb();
-        ss << "|";
-        ss << this->get_so_hieu_mb();
-        ss << "|";
-        ss << this->get_thoi_gian_bay().to_string();
-        ss << "|";
-        ss << this->get_san_bay_den();
-        ss << "|";
-        ss << this->get_trang_thai_cb();
-        return ss.str();
-    }
+    // std::string dinh_dang_chuyen_bay_theo_string(){
+    //     std::stringstream ss;
+    //     ss << this->get_ma_so_cb();
+    //     ss << "|";
+    //     ss << this->get_so_hieu_mb();
+    //     ss << "|";
+    //     ss << this->get_thoi_gian_bay().to_string();
+    //     ss << "|";
+    //     ss << this->get_san_bay_den();
+    //     ss << "|";
+    //     ss << this->get_trang_thai_cb();
+    //     return ss.str();
+    // }
 
     ChuyenBay() {
         init_ve();
@@ -507,6 +507,18 @@ class ListChuyenBay {
         copy_list.gio_khoi_hanh_cua_cac_cb();
         copy_list.dem_so_luong_ve_con_trong_cua_cac_cb();
     }
+
+    void in_du_lieu(std::ofstream& os) const{
+        for (ChuyenBay* current = this->head; current != NULL; current = current->get_next()) {
+            os << *current << "\n";
+        }
+    }
+
+    friend std::ofstream& operator<<(std::ofstream& os, const ListChuyenBay& list);
 };
+std::ofstream& operator<<(std::ofstream& os, const ListChuyenBay& list){
+    list.in_du_lieu(os);
+    return os;
+}
 
 #endif
