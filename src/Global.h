@@ -15,6 +15,8 @@
 
 
 
+
+
 using namespace std;
 
 //class máy bay
@@ -40,5 +42,21 @@ using namespace std;
 #define FILE_PATH_DATA_CHUYEN_BAY "data/data_chuyen_bay.txt"
 #define FILE_PATH_DATA_HANH_KHACH "data/data_hanh_khach.txt"
 #define FILE_PATH_DATA_MAY_BAY "data/data_may_bay.txt"
+
+
+#define X_START_BODY 50
+#define Y_START_BODY 150
+
+#define X_START_TABLE 150
+#define Y_START_TABLE 290
+#define HEIGHT_TABLE 500
+#define WIDTH_TABLE 1500
+
+#define WIDTH_SCREEN 1800
+#define HEIGHT_SCREEN 950
+
+#define COLOR_HOVER_LINE {99,130,28, 255}
+#define COLOR_MENU_CHILD  {255,115,115}
+//{232,186,236,255}
 
 #endif

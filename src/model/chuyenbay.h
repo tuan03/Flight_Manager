@@ -144,6 +144,7 @@ class ChuyenBay { //ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|
     ChuyenBay* get_next() { return this->next; }
 
 
+
     // Setter
     void set_ma_so_cb(char* ma_so_cb) { strcpy(this->ma_so_cb, ma_so_cb); }
     void set_thoi_gian_bay(ThoiGianBay thoi_gian_bay) { this->thoi_gian_bay = thoi_gian_bay; }
@@ -265,6 +266,17 @@ class ListChuyenBay {
             current = next;
         }
         head = nullptr;
+        
+    }
+    int get_so_luong_cb(){
+        int count = 0;
+        ChuyenBay* current = head;
+        while (current != nullptr)
+        {   
+            count++;
+            current = current->get_next();
+        }
+        return count;
         
     }
     void print(){

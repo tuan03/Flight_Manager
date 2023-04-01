@@ -1,31 +1,4 @@
-#pragma once
-#include"lib_render.h"
-class Component{
-    private:
-        int z_index = 1;
-        ListBox listbox;
-    public:
-    Component(){
-    }
-    void set_z_index(int value){
-        this->z_index = value;
-    }
-    int get_z_index(){
-        return z_index;
-    }
-    ~Component(){
+#ifndef VIEWS_COMPONENT_H
+#define VIEWS_COMPONENT_H
 
-    }
-};
-class Menu{
-    private:
-    ListBox menu;
-    public:
-    Menu(){
-        
-    }
-
-};
-
-
-
+#endif

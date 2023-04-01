@@ -11,7 +11,7 @@
 class SDLInit {
 public:
     SDLInit() {
-        std::cout<<"Init SDL\n";
+        // std::cout<<"Init SDL\n";
         if (SDL_Init(SDL_INIT_VIDEO) != 0) throw Views::Error(Views::Name_Error::CAN_NOT_INIT_SDL);
         if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG) throw Views::Error(Views::Name_Error::CAN_NOT_INIT_IMG);
         if (TTF_Init() != 0) throw Views::Error(Views::Name_Error::CAN_NOT_INIT_TTF);
@@ -21,7 +21,7 @@ public:
         TTF_Quit();
         IMG_Quit();
         SDL_Quit();
-        std::cout<<"Quit SDL\n";
+        // std::cout<<"Quit SDL\n";
     }
 };
 
@@ -30,7 +30,7 @@ class MyWindow{
     SDL_Window* window = nullptr;
     public:
     MyWindow(const char* nameProgram,int screen_width,int screen_height){
-        std::cout<<"Init Window\n";
+        // std::cout<<"Init Window\n";
         this->window = SDL_CreateWindow(nameProgram, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height,SDL_WINDOW_SHOWN);
         if (this->window == nullptr) throw Views::Error(Views::Name_Error::CAN_NOT_CREATE_WINDOW);
         
@@ -40,7 +40,7 @@ class MyWindow{
     }
     ~MyWindow(){
         SDL_DestroyWindow(window);
-        std::cout<<"Destroy Window\n";
+        // std::cout<<"Destroy Window\n";
     }
 };
 class MyRenderer{
@@ -48,7 +48,7 @@ class MyRenderer{
     SDL_Renderer* renderer = nullptr;
     public:
     MyRenderer(SDL_Window* window){
-        std::cout<<"Init Renderer\n";
+        // std::cout<<"Init Renderer\n";
         this->renderer = SDL_CreateRenderer(window, -1, 0);
         if (this->renderer == nullptr) throw Views::Error(Views::Name_Error::CAN_NOT_CREATE_RENDERER);
     }
@@ -58,7 +58,7 @@ class MyRenderer{
 
     ~MyRenderer(){
         SDL_DestroyRenderer(renderer);
-        std::cout<<"Destroy Renderer\n";
+        // std::cout<<"Destroy Renderer\n";
     }
 };
 class MyFont{
@@ -68,7 +68,7 @@ class MyFont{
     std::string fontName;
     public:
     MyFont(const char* nameFileFont, int fontSize){
-        std::cout<<"Load Font\n";
+        // std::cout<<"Load Font\n";
         this->font = TTF_OpenFont(nameFileFont, fontSize);
         if(!this->font) throw Views::Error(Views::Name_Error::CAN_NOT_OPEN_FONT);
         this->fontSize=fontSize;
@@ -85,7 +85,7 @@ class MyFont{
     }
     ~MyFont(){
             TTF_CloseFont(font);
-            std::cout<<"Destroy Font\n";
+            // std::cout<<"Destroy Font\n";
     }
 };
 class MyTexture{
@@ -93,7 +93,7 @@ class MyTexture{
     SDL_Texture* texture = nullptr;
     public:
     MyTexture(const char* file,SDL_Renderer* renderer) {
-        std::cout<<"Create Texture\n";
+        // std::cout<<"Create Texture\n";
         SDL_Surface* image = IMG_Load(file);    //load ảnh vào surface
         if (image == nullptr) throw Views::Error(Views::Name_Error::CAN_NOT_GET_IMG);
         this->texture = SDL_CreateTextureFromSurface(renderer, image); 
@@ -105,7 +105,7 @@ class MyTexture{
     }
     ~MyTexture(){
             SDL_DestroyTexture(this->texture);
-            std::cout<<"Delete a texture\n";
+            // std::cout<<"Delete a texture\n";
     }
 
 };
@@ -120,7 +120,7 @@ class MyScreen {
     int screen_height;
     public:
     MyScreen(int width, int height,const char * nameProgram, const char * fileFont, int fontSize){
-        std::cout<<"Create Screen\n";
+        // std::cout<<"Create Screen\n";
         mywindow = new MyWindow(nameProgram,width,height);
         screen_width = width;
         screen_height = height;
@@ -131,7 +131,7 @@ class MyScreen {
         delete myfont;
         delete myrenderer;
         delete mywindow;
-        std::cout<<"Quit Screen\n";
+        // std::cout<<"Quit Screen\n";
         TTF_Quit();
         IMG_Quit();
         SDL_Quit();
@@ -154,21 +154,38 @@ class MyScreen {
         delete myfont;
         myfont = new MyFont(fontName.c_str(),font_size);
     }
-    void render_cot(SDL_Rect rect){
+    void render_cot(SDL_Rect rect, SDL_Color fill = {222, 252, 249, 255}, SDL_Color vien = {0, 0, 0, 255}){ // fill nên xanh nhạt dễ thw :3 :3
                 SDL_Rect content = {rect.x+1,rect.y+1,rect.w - 2,rect.h - 2};
-                SDL_SetRenderDrawColor(myrenderer->get_renderer(), 0, 0, 0, 255); // màu đen
+                SDL_SetRenderDrawColor(myrenderer->get_renderer(), vien.r,vien.g,vien.b,vien.a); // màu đen
                 SDL_RenderFillRect(myrenderer->get_renderer(), &rect);
-                SDL_SetRenderDrawColor(myrenderer->get_renderer(), 222, 252, 249, 255); // màu trắng
+                SDL_SetRenderDrawColor(myrenderer->get_renderer(), fill.r,fill.g,fill.b,fill.a); 
                 SDL_RenderFillRect(myrenderer->get_renderer(), &content);
     }
-    void render_cot_2(SDL_Rect rect){
-                SDL_Rect content = {rect.x+1,rect.y+1,rect.w - 2,rect.h - 2};
-                SDL_SetRenderDrawColor(myrenderer->get_renderer(), 0, 0, 0, 255); // màu đen
-                SDL_RenderFillRect(myrenderer->get_renderer(), &rect);
-                SDL_SetRenderDrawColor(myrenderer->get_renderer(), 99,130,28, 255); // màu trắng
-                SDL_RenderFillRect(myrenderer->get_renderer(), &content);
+
+    void render_table(int n, int* arr,string* name_cot){ //n : số cột, arr: mảng chứa độ rộng từng cột liên tiếp // dùng cho các views
+            SDL_Rect rect = {X_START_TABLE,Y_START_TABLE,0,0};
+            SDL_Rect rect_text;
+            for(int i=0; i<n;i++){
+                rect = {rect.x + rect.w , 290,arr[i],HEIGHT_TABLE};
+                this->render_cot(rect);
+                rect_text = {rect.x,rect.y-50,rect.w,50};
+                this->render_Text(name_cot[i],rect_text,{0,0,0},true);
+            }
+        }
+
+
+    void blur_background(int alpha){
+        SDL_Surface* surface = IMG_Load("src/views/img/blur.png");
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(this->get_my_renderer()->get_renderer(), surface);
+        SDL_FreeSurface(surface);
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(texture, alpha); 
+        SDL_Rect destRect = {0, 0, WIDTH_SCREEN, HEIGHT_SCREEN};
+        SDL_RenderCopy(this->get_my_renderer()->get_renderer(), texture, NULL, &destRect);
     }
-    void render_Text(const std::string& text,SDL_Rect& vitri,SDL_Color text_color,bool type_center_box = false){ // true: in text giữa box vitri, false: in text tại vitri
+
+    
+    void render_Text(const std::string& text,SDL_Rect vitri,SDL_Color text_color,bool type_center_box = false, SDL_Rect* rect_return = nullptr){ // true: in text giữa box vitri, false: in text tại vitri
         SDL_Color textColor = text_color;
         SDL_Surface* textSurface = TTF_RenderUTF8_Blended(myfont->get_font(), text.c_str(), textColor); // thay thành TTF_RenderText_Solid để tối ưu nhưng text sẽ xấu :v // tiếng viêt : TTF_RenderUTF8_Solid
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(myrenderer->get_renderer(), textSurface);
@@ -186,11 +203,12 @@ class MyScreen {
             vt_render.x = vt_box.x + (vt_box.w/2) - (vt_render.w/2);
             vt_render.y = vt_box.y + (vt_box.h/2) - (vt_render.h/2);
             SDL_RenderCopy(myrenderer->get_renderer(), textTexture, NULL, &vt_render);
+            if(rect_return != nullptr) *rect_return = vt_render;
         }
             SDL_FreeSurface(textSurface);
             SDL_DestroyTexture(textTexture);
     }
-    void render_Text(const char* text,SDL_Rect& vitri,SDL_Color text_color,bool type_center_box = false){ // true: in text giữa box vitri, false: in text tại vitri
+    void render_Text(const char* text,SDL_Rect& vitri,SDL_Color text_color,bool type_center_box = false, SDL_Rect* rect_return = nullptr){ // true: in text giữa box vitri, false: in text tại vitri
         SDL_Color textColor = text_color;
         SDL_Surface* textSurface = TTF_RenderUTF8_Blended(myfont->get_font(), text, textColor); // thay thành TTF_RenderText_Solid để tối ưu nhưng text sẽ xấu :v // tiếng viêt : TTF_RenderUTF8_Solid
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(myrenderer->get_renderer(), textSurface);
@@ -208,6 +226,7 @@ class MyScreen {
             vt_render.x = vt_box.x + (vt_box.w/2) - (vt_render.w/2);
             vt_render.y = vt_box.y + (vt_box.h/2) - (vt_render.h/2);
             SDL_RenderCopy(myrenderer->get_renderer(), textTexture, NULL, &vt_render);
+            if(rect_return != nullptr) *rect_return = vt_render;
         }
             SDL_FreeSurface(textSurface);
             SDL_DestroyTexture(textTexture);
@@ -219,7 +238,9 @@ enum Name_Box{
     FLIGHT,
     CUSTOMER,
     TICKET,
-    THONGKE
+    THONGKE,
+    PREV,
+    NEXT
 };
 class Box{
     private:
@@ -238,7 +259,7 @@ class Box{
         if(!is_clone) delete mytexture;
         delete hover;
         delete clicked;
-        std::cout<<"Delete a box\n";
+        // std::cout<<"Delete a box\n";
         delete next;
     }
     MyTexture* get_my_texture(){
@@ -397,7 +418,7 @@ class ListBox{
     }
     ~ListBox(){
         delete head;
-        std::cout<<"Delete Listbox\n";
+        // std::cout<<"Delete Listbox\n"; 
     }
     Box* operator[] (int index){
         Box* current = head;

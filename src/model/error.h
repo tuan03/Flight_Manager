@@ -1,6 +1,6 @@
 #ifndef ERROR_H
 #define ERROR_H
-#include "Global.h"
+#include "../Global.h"
 // classes
 enum Status_Name {
     
