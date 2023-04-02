@@ -3,26 +3,18 @@
 #include "../Global.h"
 // classes
 enum Status_Name {
-    
-    HE_THONG_DAY_BO_NHO = 1,
+    SUCCESS,
     ALREADY_EXIST
 };
-class Error {
+class Status {
     public:
-        Status_Name name;
-    Error(Status_Name name) {
-        this->name = name;
+    Status_Name status;
+        string mess;
+    Status(string mess ="Thành Công",Status_Name status = Status_Name::SUCCESS) {
+        this->mess = mess;
     }
-
-    std::string getError() {
-        switch (this->name) {
-            case HE_THONG_DAY_BO_NHO: {
-                return "He Thong Day Bo Nho";
-            }
-            default: {
-                return "Khong Xac Dinh";
-            }
-        }
+    string get_status() {
+        return this->mess;
     }
 };
 
