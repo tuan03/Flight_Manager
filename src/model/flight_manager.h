@@ -30,7 +30,26 @@ class Flight_Manager{
         ~Flight_Manager(){
             
         }
-};
+        void in_ds_kh( const char* ma_so_cb){
+   ChuyenBay* p= ds_chuyenbay.timChuyenBayTheoMaSoMB(ma_so_cb);
+  cout<<"1";
+   if(p!=nullptr){
+    MayBay* mb=ds_maybay.find_mamb_ct(p->get_so_hieu_mb());
+    for(int i=0; i<mb->getSoDay();i++){
+         cout<<"2";
+        for(int j=0;j<mb->getSoDong();j++){
+             cout<<"3";
+            if(p->get_listve()[i][j] != nullptr){
+            HanhKhach* hk= ds_hanhkhach.search(p->get_listve()[i][j]->getSoCMND());
+             cout<<"4";
+            cout<< hk;
 
+            }
+        }
+    }
+     
+}
+}
+};
 
 #endif

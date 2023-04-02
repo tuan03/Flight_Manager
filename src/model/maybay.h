@@ -108,41 +108,77 @@ class ListMayBay{
 			so_luong++;
 			return mb;
 		}
-		bool push(char* sh, char* loai, int day, int dong){ // cần return đầy + đã tồn tại
-			if(isFull() && this->timMayBay(sh) != -1){
-				return false;
+		//tinh so cho
+		int getsocho(int a, int b){
+          int sc= a*b;
+		  return sc;
+		}
+		Status addMaybay(char* so_hieu_mb, char* loai, int day, int dong){
+         
+	    if(isFull() && this->find_mamb(so_hieu_mb) != -1 && (getsocho(day,dong)<=20)){
+				return Status("KHÔNG THÀNH CÔNG");
 			}
 			else{
-				data[so_luong] = new MayBay(sh,loai,day,dong);
+				data[so_luong] = new MayBay(so_hieu_mb,loai,day,dong);
 				so_luong++;
-				return true;
+				return Status("THÀNH CÔNG");
+			}
+			}
+		bool checkcomplete(){
+			return true;
+		}//check xem da thanh lap chuyen bay
+		void edit_seat(int day, int dong, int index){
+			if(getsocho(day,dong) > getsocho(data[index]->getSoDay(),data[index]->getSoDong())){
+			data[index]->setSoDay(day);
+			data[index]->setSoDong(dong);
+			}
+		}// sua so ghe (so day, so dong)
+		void edit_type(char* loai_mb, int index) //sua loai mb
+		{
+            data[index]->setLoaiMB(loai_mb);
+		}
+		void edit_Plane(char* so_hieu_mb,char* loai_mb,int day,int dong ){
+            int index = find_mamb(so_hieu_mb);
+		    if(index!= -1){
+		       if(checkcomplete()){
+			
+		       edit_seat(day,dong,index);
+		       }
+		       else{
+               edit_seat(day,dong,index);
+		       edit_type(loai_mb,index);} 
+		   }
+		   }
+		void xoaMayBay(char* soHieuMB){
+    		int index = find_mamb(soHieuMB);
+    		if (index != -1) {
+				if(!checkcomplete()){
+			    delete data[index];
+			    for (int i = index; i < so_luong - 1; i++) {
+				data[i] = data[i + 1];
+			       }
+			    so_luong--;
+    		    } 
 			}
 		}
+
 		void print(){
             for(int i = 0; i < so_luong; i++){
 				cout<<*data[i]<<'\n';
 			}
         }
 	
-		void xoaMayBay(char* soHieuMB){
-    		int index = timMayBay(soHieuMB);
-    		if (index != -1) {
-			delete data[index];
-			for (int i = index; i < so_luong - 1; i++) {
-				data[i] = data[i + 1];
-			}
-			so_luong--;
-    		}
-		}
-		int timMayBay(char* so_hieu_mb){
+		
+		//find chuyen bay
+		int find_mamb(char* so_hieu_mb){
 			for(int i = 0; i < so_luong; i++){
 				if(strcmp(data[i]->getSoHieuMB(), so_hieu_mb) == 0){
 					return i;
 				}
 			}
-			return -1; // Trả về -1 nếu không tìm thấy
+			return -1; // Trả về false nếu không tìm thấy
 		}
-		MayBay* find(char* so_hieu_mb){
+		MayBay* find_mamb_ct(char* so_hieu_mb){
 			for(int i = 0; i < so_luong; i++){
 				if(strcmp(data[i]->getSoHieuMB(), so_hieu_mb) == 0){
 					return data[i];
@@ -150,6 +186,7 @@ class ListMayBay{
 			}
 			return nullptr; // Trả về -1 nếu không tìm thấy
 		}
+		//end
 		// bool hieuChinhMayBay(char* sh_maybay, char* sh, char* loai, int day, int dong){
 		// 	int index = timMayBay(sh_maybay);
 		// 	if(index != -1){
