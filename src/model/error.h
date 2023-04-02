@@ -1,6 +1,7 @@
 #ifndef ERROR_H
 #define ERROR_H
 #include "../Global.h"
+
 // classes
 enum Status_Name {
     SUCCESS,
@@ -8,13 +9,14 @@ enum Status_Name {
 };
 class Status {
     public:
-        Status status;
+        Status_Name status;
         string mess;
     Status(string mess ="Thành Công",Status_Name status = Status_Name::SUCCESS) {
         this->mess = mess;
+        this->status = status;
     }
-    string get_status() {
-        return this->mess;
+    Status_Name get_status() {
+        return this->status;
     }
 };
 
