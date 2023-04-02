@@ -81,7 +81,7 @@ class Thong_Bao{
         switch (e.type)
         {
         case SDL_MOUSEMOTION:
-                if(MyFunc::check_click(mouse_X,mouse_Y, oke)){
+                if(MyFunc::check_click(mouse_X,mouse_Y, ok)){
                     c_ok = {255,219,26};
                 } else
                 if(MyFunc::check_click(mouse_X,mouse_Y, huy)){
@@ -89,7 +89,7 @@ class Thong_Bao{
                 }
                 break;
         case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
-                if(MyFunc::check_click(mouse_X,mouse_Y, oke)){
+                if(MyFunc::check_click(mouse_X,mouse_Y, ok)){
                     //xử lí bấm oke
                 } else
                 if(MyFunc::check_click(mouse_X,mouse_Y, huy)){
@@ -100,8 +100,9 @@ class Thong_Bao{
                 quit = true;
                     break;
         }
+    }
     void render(MyScreen& myscreen){
-        man_thong_bao.render(myscreen.get_my_renderer());
+        man_thong_bao->render(myscreen.get_my_renderer());
         myscreen.render_cot(ok,{255,255,255});
         myscreen.render_Text("Đồng Ý",ok,{0,0,0},true);
         myscreen.render_cot(huy,{255,255,255});
