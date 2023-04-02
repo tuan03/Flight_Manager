@@ -42,8 +42,15 @@ class Controller{
 
     Box khung;
 
+    Box thong_bao;
+
+
     public:
     Controller(): myscreen{WIDTH_SCREEN,HEIGHT_SCREEN,"Quản Lí Chuyến Bay","src/views/font/Arial.ttf",24}{
+
+        homepage.create("src/views/img/plane_img.png",myscreen.get_my_renderer());
+        homepage.set_rect(500,190,800,700);
+
         menu.connect_my_renderer(myscreen.get_my_renderer());
         menu.insert("src/views/img/plane1.png",{50,25,300,100},Name_Box::PLANE)->set_hover("src/views/img/plane2.png",myscreen.get_my_renderer())->set_clicked("src/views/img/plane3.png",myscreen.get_my_renderer());
         menu.insert("src/views/img/chuyenbay1.jpg",{400,25,300,100},Name_Box::FLIGHT)->set_hover("src/views/img/chuyenbay2.jpg",myscreen.get_my_renderer())->set_clicked("src/views/img/chuyenbay3.jpg",myscreen.get_my_renderer());
@@ -53,8 +60,7 @@ class Controller{
  
         menu.insert("src/views/img/body.png",{X_START_BODY,Y_START_BODY,1700,780});
 
-        homepage.create("src/views/img/plane_img.png",myscreen.get_my_renderer());
-        homepage.set_rect(500,190,800,700);
+        
 
         prev.create("src/views/img/prev.png",myscreen.get_my_renderer());
         prev.set_rect(760,815,80,80);
@@ -71,6 +77,8 @@ class Controller{
         del.create("src/views/img/del.png",myscreen.get_my_renderer());
 
         khung.create("src/views/img/khung.png",myscreen.get_my_renderer());
+        thong_bao.create("src/views/img/thong_bao.png",myscreen.get_my_renderer());
+
     }
     
 
@@ -78,6 +86,8 @@ class Controller{
 
         View_Plane view_plane(&(this->qlcb),&(this->myscreen),&(this->prev),&(this->next),&(this->khung_menu),&(this->add),&(this->edit),&(this->del),&(this->khung)); // khởi tạo view Plane
 
+        thong_bao.set_rect(400,100,1000,600);
+        
 
         bool quit = false; // điều kiện thoát chương trình
         SDL_Event e;    
@@ -135,6 +145,7 @@ class Controller{
             homepage.render(myscreen.get_my_renderer());
             break;
         }
+        
 
         timeCurrent = SDL_GetTicks();
         SDL_RenderPresent(myscreen.get_my_renderer()->get_renderer());
