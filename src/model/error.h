@@ -8,7 +8,7 @@ enum Status_Name {
 };
 class Status {
     public:
-        // Status name;
+        Status status;
         string mess;
     Status(string mess ="Thành Công",Status_Name status = Status_Name::SUCCESS) {
         this->mess = mess;
@@ -17,5 +17,8 @@ class Status {
         return this->mess;
     }
 };
+
+
+
 
 #endif
