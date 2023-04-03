@@ -1,17 +1,17 @@
-MB001MB001MB123|Boeing 747|10|6    
+MB001MB001MB123|Boeing 747|10|6
 MB002|Airbus A320|6|4
 MB003|Boeing 787|12|8
-MB004|Embraer E175|4|2   
+MB004|Embraer E175|4|2
 MB005|Airbus A350|14|10
 MB006|Bombardier CRJ700|5|3
 MB007|Boeing 737|8|5
 MB008|Airbus A380|18|12
 MB009|Embraer E190|5|3
 MB010|Bombardier Global ExpressBombardier Glob|4|2
-MB011|Boeing 747|10|6    
+MB011|Boeing 747|10|6
 MB012|Airbus A320|6|4
 MB013|Boeing 787|12|8
-MB014|Embraer E175|4|2   
+MB014|Embraer E175|4|2
 MB015|Airbus A350|14|10
 MB016|Bombardier CRJ700|5|3
 MB017|Boeing 737|8|5

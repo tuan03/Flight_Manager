@@ -10,9 +10,6 @@
 using namespace std;
 
 void read(string link_file, ListMayBay& l_mb) {
-    if (!l_mb.isEmpty()) {
-        l_mb.~ListMayBay();
-    }
     std::fstream inout;
     inout.open(link_file, ios::in | ios::out);
     if (inout.is_open()) {  // kiểm tra xem file có được mở thành công không
@@ -29,7 +26,6 @@ void read(string link_file, ListMayBay& l_mb) {
     }
 }
 void read(string link_file, ListChuyenBay& l_mb) {
-    l_mb.~ListChuyenBay();
     std::fstream inout;
     inout.open(link_file, ios::in | ios::out);
     if (inout.is_open()) {  // kiểm tra xem file có được mở thành công không
@@ -46,28 +42,6 @@ void read(string link_file, ListChuyenBay& l_mb) {
         throw "Khong the mo file";
     }
 }
-//     void read(string link_file, ListChuyenBay& l_mb) {
-//     l_mb.clear();
-//     std::fstream inout(link_file, std::ios::in);
-
-//     if (!inout) {
-//         throw std::runtime_error("Khong the mo file " + link_file);
-//     }
-
-//     try {
-//         std::string line;
-//         ChuyenBay* temp = nullptr;
-
-//         while (std::getline(inout, line)) {
-//             temp = new ChuyenBay();
-//             std::istringstream iss(line);
-//             iss >> *temp;
-//             l_mb.push_data(temp);
-//         }
-//     } catch (const std::exception& e) {
-//         throw std::runtime_error("Khong the doc file " + link_file + ": " + e.what());
-//     }
-// }
 
 void read(string link_file, TreeHanhKhach& l_mb) {
     std::fstream inout;
@@ -89,33 +63,94 @@ void read(string link_file, TreeHanhKhach& l_mb) {
 
 void write(string link_file, TreeHanhKhach& l_mb) {
     std::ifstream inputFile(link_file);
+    if (!inputFile.is_open()) {
+        std::cerr << "Khong mo duoc file " << link_file << std::endl;
+        return;
+    }
     std::string fileContent((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
     inputFile.close();
 
     std::ofstream backupFile("src/backup/HanhKhach_data_backup.txt", ios::trunc);
+    if (!backupFile.is_open()) {
+        std::cerr << "Khong tao duoc file backup" << std::endl;
+        return;
+    }
     backupFile << fileContent;
     backupFile.close();
 
     std::ofstream outputFile(link_file, ios::trunc);
+    if (!outputFile.is_open()) {
+        std::cerr << "Khong tao duoc file " << link_file << std::endl;
+        return;
+    }
     outputFile << l_mb;
     outputFile.close();
 
-    remove("src/backup/HanhKhach_data_backup.txt");
+    if (remove("src/backup/HanhKhach_data_backup.txt") != 0) {
+        std::cerr << "Khong xoa duoc file backup" << std::endl;
+    }
 }
+
 void write(string file_path_to_load_data, ListChuyenBay& list) {
     std::ifstream fileToLoadData(file_path_to_load_data);
+    if (!fileToLoadData.is_open()) {
+        std::cerr << "Khong mo duoc file " << file_path_to_load_data << std::endl;
+        return;
+    }
     std::string fileContent((std::istreambuf_iterator<char>(fileToLoadData)), std::istreambuf_iterator<char>());
     fileToLoadData.close();
 
     std::ofstream backupFile("src/backup/ChuyenBay_data_backup.txt", ios::trunc);
+    if (!backupFile.is_open()) {
+        std::cerr << "Khong tao duoc file backup" << std::endl;
+        return;
+    }
     backupFile << fileContent;
     backupFile.close();
 
     std::ofstream outputFile(file_path_to_load_data, ios::trunc);
+    if (!outputFile.is_open()) {
+        std::cerr << "Khong tao duoc file " << file_path_to_load_data << std::endl;
+        return;
+    }
     outputFile << list;
     outputFile.close();
-    remove("src/backup/ChuyenBay_data_backup.txt");
+
+    if (remove("src/backup/ChuyenBay_data_backup.txt") != 0) {
+        std::cerr << "Khong xoa duoc file backup" << std::endl;
+    }
 }
+
+void write(string file_path_to_load_data, ListMayBay& list) {
+    std::ifstream fileToLoadData(file_path_to_load_data);
+    if (!fileToLoadData.is_open()) {
+        std::cerr << "Khong mo duoc file " << file_path_to_load_data << std::endl;
+        return;
+    }
+    std::string fileContent((std::istreambuf_iterator<char>(fileToLoadData)), std::istreambuf_iterator<char>());
+    fileToLoadData.close();
+
+    std::ofstream backupFile("src/backup/MayBay_data_backup.txt", ios::trunc);
+    if (!backupFile.is_open()) {
+        std::cerr << "Khong tao duoc file backup" << std::endl;
+        return;
+    }
+    backupFile << fileContent;
+    backupFile.close();
+
+    std::ofstream outputFile(file_path_to_load_data, ios::trunc);
+    if (!outputFile.is_open()) {
+        std::cerr << "Khong tao duoc file " << file_path_to_load_data << std::endl;
+        return;
+    }
+    outputFile << list;
+    outputFile.close();
+
+    if (remove("src/backup/MayBay_data_backup.txt") != 0) {
+        std::cerr << "Khong xoa duoc file backup" << std::endl;
+    }
+}
+
 /*
 - đọc dữ liệu từng file
 - lưu dữ liệu vào từng file

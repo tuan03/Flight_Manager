@@ -66,6 +66,7 @@ class MayBay{
 	}
 		friend std::istringstream& operator>>(std::istringstream& is, MayBay& mb);
 		friend std::ostream& operator<<(std::ostream& os, const MayBay& mb) ;
+		friend std::ofstream& operator<<(std::ofstream& os, const MayBay& mb) ;
 };
 std::istringstream& operator>>(std::istringstream& is, MayBay& mb) {
     is.getline(mb.so_hieu_mb,MAX_LENGTH_SO_HIEU_MB+1,'|');
@@ -76,6 +77,10 @@ std::istringstream& operator>>(std::istringstream& is, MayBay& mb) {
     return is;
 }
 std::ostream& operator<<(std::ostream& os, const MayBay& mb) {
+    os << mb.so_hieu_mb << "|" << mb.loai_mb << "|" << mb.so_day << "|" << mb.so_dong;
+    return os;
+}
+std::ofstream& operator<<(std::ofstream& os, const MayBay& mb) {
     os << mb.so_hieu_mb << "|" << mb.loai_mb << "|" << mb.so_day << "|" << mb.so_dong;
     return os;
 }
@@ -196,6 +201,13 @@ class ListMayBay{
 		// 	return false;
 		// }
 
-};
 
+   friend std::ofstream& operator<<(std::ofstream& os, const ListMayBay& list);
+};
+std::ofstream& operator<<(std::ofstream& os, const ListMayBay& list) {
+    for (int i=0 ; i < list.so_luong; i++) {
+        os << *(list.get_at(i)) << "\n";
+    }
+    return os;
+}
 #endif

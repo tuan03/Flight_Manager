@@ -221,7 +221,7 @@ class Edit{
             so_dong = std::to_string(mb->getSoDong());
 
             
-            this->da_lap_cb = qlcb->getListCB().timChuyenBayTheoMaSoMB(mb->getSoHieuMB()) != nullptr;
+            this->da_lap_cb = qlcb->getListCB().find_by_ma_cb_ct(mb->getSoHieuMB()) != nullptr;
 
             this->now = false;
         }

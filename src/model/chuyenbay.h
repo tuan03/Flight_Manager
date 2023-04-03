@@ -6,10 +6,11 @@
 #include "error.h"
 #include "maybay.h"
 
-class ThoiGianBay {
+class Time {
    private:
     int minute;
     int hour;
+
     int day;
     int month;
     int year;
@@ -27,18 +28,9 @@ class ThoiGianBay {
         ss << std::put_time(&timeinfo, "%H:%M-%d/%m/%Y");
         return ss.str();
     }
-    std::string to_time_string() const {
-        std::stringstream ss;
-        std::tm timeinfo = {};
-        timeinfo.tm_hour = hour;
-        timeinfo.tm_min = minute;
-        // In ra chuỗi theo định dạng hh:mm
-        ss << std::put_time(&timeinfo, "%H gio %M phut");
-        return ss.str();
+    Time() {
     }
-    ThoiGianBay() {
-    }
-    ThoiGianBay(int m, int h, int d, int month, int y) {
+    Time(int m, int h, int d, int month, int y) {
         this->set(m, h, d, month, y);
     }
 
@@ -49,66 +41,65 @@ class ThoiGianBay {
         this->month = month;
         this->year = year;
     }
-
-    bool kiem_tra_thoi_gian_lap_cb_gan_nhat_chua_qua_12h() {
-        // dinh dang: giay, phut, gio, ngay, thang, nam
-        std::tm input_time = {0, this->minute, this->hour, this->day, this->month - 1, this->year - 1900};
-        // Chuyển đổi thời gian đầu vào thành std::time_t
-        std::time_t input_c = std::mktime(&input_time);
-        // Lấy thời gian hiện tại
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-        // Chuyển đổi thành cấu trúc thời gian của C
-        std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-        // Kiểm tra chênh lệch giữa thời gian hiện tại và thời gian đầu vào
-        double diff_hours = std::difftime(input_c, now_c) / 3600.0;
-
-        if (diff_hours > 12.0) return false;
-        return true;
+    void get_current_time(){
+        auto now = chrono::system_clock::now();
+        time_t now_c = chrono::system_clock::to_time_t(now);
+        struct tm* parts = localtime(&now_c);
+        this->hour = parts->tm_hour;
+        this->minute = parts->tm_min;
+        this->year = parts->tm_year + 1900;
+        this->month = parts->tm_mon + 1;
+        this->day = parts->tm_mday;
     }
+    // Hàm tính khoảng cách thời gian giữa 2 mốc thời gian (trong đơn vị giây)
+    static double timeDiffInSeconds(Time t1, Time t2) { // trả về time : t2 - t1 
+        struct tm time1, time2;
+        time1.tm_sec = 0;
+        time1.tm_hour = t1.hour;
+        time1.tm_min = t1.minute ;
+        time1.tm_year = t1.year - 1900;
+        time1.tm_mon = t1.month - 1;
+        time1.tm_mday = t1.day;
+        time2.tm_sec = 0;
+        time2.tm_hour = t2.hour;
+        time2.tm_min = t2.minute ;
+        time2.tm_year = t2.year - 1900;
+        time2.tm_mon = t2.month - 1;
+        time2.tm_mday = t2.day;
 
-    bool kiem_tra_gio_hop_le() {
-        // định dạng: giay, phut, gio, ngay, thang, nam
-        std::tm input_time = {0, this->minute, this->hour, this->day, this->month - 1, this->year - 1900};
-        // Chuyển đổi thời gian đầu vào thành std::time_t
-        std::time_t input_c = std::mktime(&input_time);
-        // Lấy thời gian hiện tại
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-        // Chuyển đổi thành cấu trúc thời gian của C
-        std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-        // Kiểm tra chênh lệch giữa thời gian hiện tại và thời gian đầu vào
-        double diff_hours = std::difftime(input_c, now_c) / 3600.0;
+        time_t t1_time = mktime(&time1);
+        time_t t2_time = mktime(&time2);
 
-        if (diff_hours > 1.0) return true;
-        return false;
+        double diff = difftime(t2_time, t1_time);
+        return diff;
     }
-
-    bool kiem_tra_nam_hop_le() {
-        // dinh dang: giay, phut, gio, ngay, thang, nam
-        std::tm input_time = {0, this->minute, this->hour, this->day, this->month - 1, this->year - 1900};
-        // Chuyển đổi thời gian đầu vào thành std::time_t
-        std::time_t input_c = std::mktime(&input_time);
-        // Lấy thời gian hiện tại
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-        // Chuyển đổi thành cấu trúc thời gian của C
-        std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-        std::tm now_tm = *std::localtime(&now_c);
-        // Kiểm tra chênh lệch giữa thời gian hiện tại và thời gian đầu vào
-        double diff_hours = std::difftime(now_c, input_c) / 3600.0;
-
-        if (diff_hours > 1.0 * 8760.0) return false;
-
-        return true;
-    }
-
-    bool kiem_tra_ngay_bay(ThoiGianBay ngay_thang_nam) {
-        if (this->year != ngay_thang_nam.year || this->month != ngay_thang_nam.month || this->day != ngay_thang_nam.day)
+    bool isValidDate() {
+        if(minute < 0 || minute >60 || hour < 0 || hour > 24){
             return false;
+        }
+        if (year < 1 || year > 9999 || month < 1 || month > 12) {
+            return false;
+        }
+        int daysInMonth;
+        if (month == 2) {
+            if (Func_Global::is_nam_nhuan(year)) {
+                daysInMonth = 29;
+            } else {
+                daysInMonth = 28;
+            }
+        } else if (month == 4 || month == 6 || month == 9 || month == 11) {
+            daysInMonth = 30;
+        } else {
+            daysInMonth = 31;
+        }
+        if (day < 1 || day > daysInMonth) {
+            return false;
+        }
         return true;
     }
-
-    friend std::istringstream& operator>>(std::istringstream& is, ThoiGianBay& time);
+    friend std::istringstream& operator>>(std::istringstream& is, Time& time);
 };
-std::istringstream& operator>>(std::istringstream& is, ThoiGianBay& time) {
+std::istringstream& operator>>(std::istringstream& is, Time& time) {
     char delimiter;
     is >> time.hour >> delimiter >> time.minute >> delimiter >> time.day >> delimiter >> time.month >> delimiter >> time.year;
     return is;
@@ -194,26 +185,31 @@ std::istringstream& operator>>(std::istringstream& is, Ve& ve) {
 class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|ve1-cmnd;ve2-cmnd
    private:
     char ma_so_cb[MAX_LENGTH_MA_CB + 1];
-    ThoiGianBay thoi_gian_bay;
+    Time thoi_gian_bay;
     char san_bay_den[MAX_LENGTH_SAN_BAY_DEN + 1];
-    int trang_thai_cb;
+    int trang_thai_cb; //0: hủy chuyến, 1: còn vé, 2: hết vé,3: hoàn tất 
     char so_hieu_mb[MAX_LENGTH_SO_HIEU_MB + 1];
     Ve*** listve;  // cần fix
     ChuyenBay* next = NULL;
 
+    //chỉ số tạm
+    int so_day = 0;
+    int so_dong = 0;
+
    public:
     // Getter
     char* get_ma_so_cb() { return this->ma_so_cb; }
-    ThoiGianBay get_thoi_gian_bay() { return this->thoi_gian_bay; }
+    Time get_thoi_gian_bay() { return this->thoi_gian_bay; }
     char* get_san_bay_den() { return this->san_bay_den; }
     int get_trang_thai_cb() { return this->trang_thai_cb; }
     char* get_so_hieu_mb() { return this->so_hieu_mb; }
     Ve*** get_listve() { return this->listve; }
     ChuyenBay* get_next() { return this->next; }
+    
 
     // Setter
     void set_ma_so_cb(char* ma_so_cb) { strcpy(this->ma_so_cb, ma_so_cb); }
-    void set_thoi_gian_bay(ThoiGianBay thoi_gian_bay) { this->thoi_gian_bay = thoi_gian_bay; }
+    void set_thoi_gian_bay(Time thoi_gian_bay) { this->thoi_gian_bay = thoi_gian_bay; }
     void set_san_bay_den(char* san_bay_den) { strcpy(this->san_bay_den, san_bay_den); }
     void set_trang_thai_cb(int trang_thai_cb) { this->trang_thai_cb = trang_thai_cb; }
     void set_so_hieu_mb(char* so_hieu_mb) { strcpy(this->so_hieu_mb, so_hieu_mb); }
@@ -261,21 +257,6 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
         }
         return count;
     }
-
-    // std::string dinh_dang_chuyen_bay_theo_string(){
-    //     std::stringstream ss;
-    //     ss << this->get_ma_so_cb();
-    //     ss << "|";
-    //     ss << this->get_so_hieu_mb();
-    //     ss << "|";
-    //     ss << this->get_thoi_gian_bay().to_string();
-    //     ss << "|";
-    //     ss << this->get_san_bay_den();
-    //     ss << "|";
-    //     ss << this->get_trang_thai_cb();
-    //     return ss.str();
-    // }
-
     ChuyenBay() {
         init_ve();
     }
@@ -283,7 +264,7 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
         init_ve();
         this->set(cb->ma_so_cb, cb->thoi_gian_bay, cb->san_bay_den, cb->so_hieu_mb, cb->trang_thai_cb);
     }
-    ChuyenBay(char* ma_so_cb, ThoiGianBay thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
+    ChuyenBay(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
         init_ve();
         this->set(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb, trang_thai_cb);
     }
@@ -298,7 +279,7 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
         }
         delete[] listve;
     }
-    void set(char* ma_so_cb, ThoiGianBay thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
+    void set(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
         strcpy(this->ma_so_cb, ma_so_cb);
         strcpy(this->san_bay_den, san_bay_den);
         strcpy(this->so_hieu_mb, so_hieu_mb);
@@ -362,66 +343,13 @@ class ListChuyenBay {
     ChuyenBay* tail = NULL;
 
    public:
-    ~ListChuyenBay() {
-        ChuyenBay* current = head;
-        ChuyenBay* next = nullptr;
-        while (current != nullptr) {
-            next = current->get_next();
-            delete current;
-            current = next;
-        }
-        head = nullptr;
-    }
-    int get_so_luong_cb() {
-        int count = 0;
-        ChuyenBay* current = head;
-        while (current != nullptr) {
-            count++;
-            current = current->get_next();
-        }
-        return count;
-    }
-    void print() {
-        ChuyenBay* current = head;
-        while (current != nullptr) {
-            cout << *current << "\n";
-            current = current->get_next();
-        }
-    }
 
-    Status them_cb_moi_vao_danh_sach_co_bat_loi(ChuyenBay* cb_can_them) {
-        if (listMayBay.timMayBay(cb_can_them->get_so_hieu_mb()) == -1)
-            return Status("Không tồn tại trong danh sách máy bay");
-        if (!cb_can_them->get_thoi_gian_bay().kiem_tra_gio_hop_le())
-            return Status("Thời gian bay không hợp lệ (giờ khởi hành phải lớn hơn giờ hiện tại 1 giờ)");
-        if (!cb_can_them->get_thoi_gian_bay().kiem_tra_nam_hop_le())
-            return Status("Thời gian bay không hợp lệ (năm khởi hành phải lớn hơn năm hiện tại không quá 1 giờ)");
-        ChuyenBay* kiem_tra_cb = this->kiem_tra_va_tra_ve_chuyen_bay_ton_tai_trong_danh_sach(cb_can_them);
-        if (kiem_tra_cb != NULL && kiem_tra_cb->get_trang_thai_cb() != 3)
-            return Status("Chuyến bay đang được thực thi");
-        if (kiem_tra_cb != NULL && kiem_tra_cb->get_trang_thai_cb() == 3 && kiem_tra_cb->get_thoi_gian_bay().kiem_tra_thoi_gian_lap_cb_gan_nhat_chua_qua_12h())
-            return Status("Thời gian lập chuyến bay mới phải hơn 12h kể từ chuyến bay gần nhất");
-        this->insert_order(cb_can_them);
-        return Status();
-    }
-
-    void add(char* ma_so_cb, ThoiGianBay thoi_gian_bay, char* san_bay_den, char* so_hieu_mb) {
+   void add(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb) {
         ChuyenBay* new_chuyenbay = new ChuyenBay(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb, 1);
         insert_order(new_chuyenbay);
     }
 
-    void insert_last(ChuyenBay* new_chuyenbay) {
-        if (head == nullptr) {
-            head = new_chuyenbay;
-            tail = new_chuyenbay;
-        } else {
-            tail->set_next(new_chuyenbay);
-            tail = tail->get_next();
-        }
-    }
-    void push_data(ChuyenBay* chuyenbay) {
-        this->insert_last(chuyenbay);
-    }
+    //func insert order
     void insert_order(ChuyenBay* new_chuyenbay) {
         // nếu danh sách rỗng hoặc chuyên bay mới có mã nhỏ hơn head
         if (head == NULL || new_chuyenbay->so_sanh_macb_voi_macb_cua_doi_tuong(head) == -1) {
@@ -442,8 +370,42 @@ class ListChuyenBay {
             tail = new_chuyenbay;
         }
     }
+    //end
 
-    ChuyenBay* timChuyenBayTheoMaSoMB(const char* ma_so_mb) {
+    //add from UI
+
+
+    
+
+    //end
+
+
+
+
+
+
+
+
+
+    // func add from file
+
+    void insert_last(ChuyenBay* new_chuyenbay) {
+        if (head == nullptr) {
+            head = new_chuyenbay;
+            tail = new_chuyenbay;
+        } else {
+            tail->set_next(new_chuyenbay);
+            tail = tail->get_next();
+        }
+    }
+    void push_data(ChuyenBay* chuyenbay) {
+        this->insert_last(chuyenbay);
+    }
+
+    //end
+    //func find
+
+    ChuyenBay* find_by_sh_mb_ct(const char* ma_so_mb) { //find cb theo mã máy bay @ return point
         ChuyenBay* p = head;
         while (p != NULL) {
             if (strcmp(p->get_so_hieu_mb(), ma_so_mb) == 0) {  // sử dụng hàm getter để lấy mã máy bay
@@ -452,168 +414,84 @@ class ListChuyenBay {
             p = p->get_next();
         }
         return nullptr;  // trả về NULL nếu không tìm thấy chuyến bay
-    }
-
-    bool xoa_chuyen_bay_theo_ma_so_cb(char* ma_so_cb) {
-        ChuyenBay* chuyenbay = head;
-        ChuyenBay* chuyenbay_truoc = NULL;
-        while (chuyenbay != NULL) {
-            if (chuyenbay->compare_macb(ma_so_cb) == 0) {
-                if (chuyenbay == head) {  // chuyến bay cần xóa ở đầu danh sách
-                    head = chuyenbay->get_next();
-                } else {  // chuyến bay cần xóa ở vị trí khác
-                    chuyenbay_truoc->set_next(chuyenbay->get_next());
-                }
-                if (chuyenbay == tail) {  // chuyến bay cần xóa ở cuối danh sách
-                    tail = chuyenbay_truoc;
-                }
-                delete chuyenbay;
-                return true;
+    } 
+    bool find_by_sh_mb(const char* ma_so_mb) { //find cb theo mã máy bay @ return bool
+        ChuyenBay* p = head;
+        while (p != NULL) {
+            if (strcmp(p->get_so_hieu_mb(), ma_so_mb) == 0) {  // sử dụng hàm getter để lấy mã máy bay
+                return true;                                      // trả về chuyến bay nếu tìm thấy
             }
-            chuyenbay_truoc = chuyenbay;
-            chuyenbay = chuyenbay->get_next();
+            p = p->get_next();
         }
-        return false;
+        return false;  // trả về NULL nếu không tìm thấy chuyến bay
+    }
+    ChuyenBay* find_by_ma_cb_ct(const char* ma_so_cb) {
+        ChuyenBay* p = head;
+        while (p != NULL) {
+            if (strcmp(p->get_ma_so_cb(), ma_so_cb) == 0) {  // sử dụng hàm getter để lấy mã máy bay
+                return p;                                      // trả về chuyến bay nếu tìm thấy
+            }
+            p = p->get_next();
+        }
+        return nullptr;  // trả về NULL nếu không tìm thấy chuyến bay
+    }
+    bool find_by_ma_cb(const char* ma_so_cb) {
+        ChuyenBay* p = head;
+        while (p != NULL) {
+            if (strcmp(p->get_ma_so_cb(), ma_so_cb) == 0) {  // sử dụng hàm getter để lấy mã máy bay
+                return true;                                      // trả về chuyến bay nếu tìm thấy
+            }
+            p = p->get_next();
+        }
+        return false;  // trả về NULL nếu không tìm thấy chuyến bay
     }
 
-    void gio_khoi_hanh_cua_cac_cb() {
+    // func find
+
+
+
+
+
+    
+
+    //getter
+    int get_so_luong_cb() {
+        int count = 0;
         ChuyenBay* current = head;
-        while (current != NULL) {
-            cout << ">>> Gio khoi hanh cua chuyen bay " << current->get_ma_so_cb() << ": " << current->get_thoi_gian_bay().to_time_string() << "\n";
+        while (current != nullptr) {
+            count++;
+            current = current->get_next();
+        }
+        return count;
+    }
+    ChuyenBay* get_head(){
+        return this->head;
+    }
+    void print() {
+        ChuyenBay* current = head;
+        while (current != nullptr) {
+            cout << *current << "\n";
             current = current->get_next();
         }
     }
-
-    void dem_so_luong_ve_con_trong_cua_cac_cb() {
-        for (ChuyenBay* current = this->head; current != NULL; current = current->get_next()) {
-            cout << ">>> So ve con trong cua chuyen bay " << current->get_ma_so_cb() << ": " << current->dem_so_ve_con_trong() << "\n";
-        }
-    }
-
-    void xoa_cb_theo_san_bay_den(char* san_bay_den) {
-        if (this->head == NULL) return;
-        ChuyenBay* current = this->head->get_next();
-        ChuyenBay* previous = this->head;
-        ChuyenBay* cb_can_xoa;
-        while (current != NULL) {
-            if (!current->kiem_tra_san_bay_den(san_bay_den)) {
-                cb_can_xoa = current;
-                previous->set_next(current->get_next());
-                current = current->get_next();
-                delete cb_can_xoa;
-                continue;
+    ~ListChuyenBay() {
+            ChuyenBay* current = head;
+            ChuyenBay* next = nullptr;
+            while (current != nullptr) {
+                next = current->get_next();
+                delete current;
+                current = next;
             }
-            previous = current;
-            current = current->get_next();
-        }
-        if (!this->head->kiem_tra_san_bay_den(san_bay_den)) {
-            cb_can_xoa = this->head;
-            this->head = this->head->get_next();
-            delete cb_can_xoa;
-        }
-    }
-
-    void xoa_cb_theo_ngay_thang_nam(ThoiGianBay ngay_thang_nam) {
-        if (this->head == NULL) return;
-        ChuyenBay* current = this->head->get_next();
-        ChuyenBay* previous = this->head;
-        ChuyenBay* cb_can_xoa;
-        while (current != NULL) {
-            if (!current->get_thoi_gian_bay().kiem_tra_ngay_bay(ngay_thang_nam)) {
-                cb_can_xoa = current;
-                previous->set_next(current->get_next());
-                current = current->get_next();
-                delete cb_can_xoa;
-                continue;
-            }
-            previous = current;
-            current = current->get_next();
-        }
-        if (!this->head->get_thoi_gian_bay().kiem_tra_ngay_bay(ngay_thang_nam)) {
-            cb_can_xoa = this->head;
-            this->head = this->head->get_next();
-            delete cb_can_xoa;
-        }
-    }
-
-    void xoa_cb_theo_trang_thai_khong_con_ve() {
-        if (this->head == NULL) return;
-        ChuyenBay* current = this->head->get_next();
-        ChuyenBay* previous = this->head;
-        ChuyenBay* cb_can_xoa;
-        while (current != NULL) {
-            if (!current->kiem_tra_con_ve()) {
-                cb_can_xoa = current;
-                previous->set_next(current->get_next());
-                current = current->get_next();
-                delete cb_can_xoa;
-                continue;
-            }
-            previous = current;
-            current = current->get_next();
-        }
-        if (!this->head->kiem_tra_con_ve()) {
-            cb_can_xoa = this->head;
-            this->head = this->head->get_next();
-            delete cb_can_xoa;
-        }
-    }
-
-    ListChuyenBay tim_cac_cb_con_ve_trong_ngay(char* san_bay_can_loc, ThoiGianBay thoi_gian_bay_can_loc) {
-        ListChuyenBay danh_sach_de_loc;
-        if (this->head == NULL) return danh_sach_de_loc;
-        ChuyenBay* current = this->head;
-        ChuyenBay* them_cb;
-        while (current != NULL) {
-            if (current->kiem_tra_san_bay_den(san_bay_can_loc) && current->get_thoi_gian_bay().kiem_tra_ngay_bay(thoi_gian_bay_can_loc) && current->kiem_tra_con_ve()) {
-                them_cb = new ChuyenBay(current);
-                danh_sach_de_loc.insert_last(them_cb);
-            }
-            current = current->get_next();
-        }
-        return danh_sach_de_loc;
-    }
-
-    void in_du_lieu(std::ofstream& os) const {
-        for (ChuyenBay* current = this->head; current != NULL; current = current->get_next()) {
-            os << *current << "\n";
-        }
-    }
-
-    bool kiem_tra_chuyen_bay_ton_tai_trong_danh_sach(char* ma_so_cb) {
-        ChuyenBay* current = this->head;
-        while (current != NULL) {
-            if (current->compare_macb(ma_so_cb) == 0)
-                return true;
-            current = current->get_next();
-        }
-        return false;
-    }
-
-    ChuyenBay* kiem_tra_va_tra_ve_chuyen_bay_ton_tai_trong_danh_sach(ChuyenBay* cb) {
-        ChuyenBay* current = this->head;
-        while (current != NULL) {
-            if (current->so_sanh_macb_voi_macb_cua_doi_tuong(cb) == 0)
-                return current;
-            current = current->get_next();
-        }
-        return NULL;
+            head = nullptr;
     }
 
     friend std::ofstream& operator<<(std::ofstream& os, const ListChuyenBay& list);
-    ListChuyenBay& operator=(const ListChuyenBay& list);
 };
 std::ofstream& operator<<(std::ofstream& os, const ListChuyenBay& list) {
-    list.in_du_lieu(os);
-    return os;
-}
-
-ListChuyenBay& ListChuyenBay::operator=(const ListChuyenBay& list) {
-    if (this != &list) {
-        head = list.head;
-        tail = list.tail;
+    for (ChuyenBay* current = list.head; current != nullptr; current = current->get_next()) {
+        os << *current << "\n";
     }
-    return *this;
+    return os;
 }
 
 #endif
