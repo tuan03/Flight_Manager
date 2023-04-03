@@ -215,7 +215,7 @@ class MyScreen {
             SDL_FreeSurface(textSurface);
             SDL_DestroyTexture(textTexture);
     }
-    void render_Text(const char* text,SDL_Rect& vitri,SDL_Color text_color,bool type_center_box = false, SDL_Rect* rect_return = nullptr){ // true: in text giữa box vitri, false: in text tại vitri
+    void render_Text(const char* text,SDL_Rect vitri,SDL_Color text_color,bool type_center_box = false, SDL_Rect* rect_return = nullptr){ // true: in text giữa box vitri, false: in text tại vitri
         SDL_Color textColor = text_color;
         SDL_Surface* textSurface = TTF_RenderUTF8_Blended(myfont->get_font(), text, textColor); // thay thành TTF_RenderText_Solid để tối ưu nhưng text sẽ xấu :v // tiếng viêt : TTF_RenderUTF8_Solid
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(myrenderer->get_renderer(), textSurface);

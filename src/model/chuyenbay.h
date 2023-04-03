@@ -196,6 +196,15 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     int so_day = 0;
     int so_dong = 0;
 
+
+    void set(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
+        strcpy(this->ma_so_cb, ma_so_cb);
+        strcpy(this->san_bay_den, san_bay_den);
+        strcpy(this->so_hieu_mb, so_hieu_mb);
+
+        this->trang_thai_cb = trang_thai_cb;
+        this->thoi_gian_bay = thoi_gian_bay;
+    }
    public:
     // Getter
     char* get_ma_so_cb() { return this->ma_so_cb; }
@@ -215,9 +224,7 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     void set_so_hieu_mb(char* so_hieu_mb) { strcpy(this->so_hieu_mb, so_hieu_mb); }
     void set_next(ChuyenBay* next) { this->next = next; }
 
-    void set_macb(char* mcb) {
-        strcpy(this->ma_so_cb, mcb);
-    }
+
     // void set_time(char* time){
     //     thoi_gian_bay.set(time);
     // }
@@ -260,10 +267,6 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     ChuyenBay() {
         init_ve();
     }
-    ChuyenBay(ChuyenBay* cb) {
-        init_ve();
-        this->set(cb->ma_so_cb, cb->thoi_gian_bay, cb->san_bay_den, cb->so_hieu_mb, cb->trang_thai_cb);
-    }
     ChuyenBay(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
         init_ve();
         this->set(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb, trang_thai_cb);
@@ -279,33 +282,12 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
         }
         delete[] listve;
     }
-    void set(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
-        strcpy(this->ma_so_cb, ma_so_cb);
-        strcpy(this->san_bay_den, san_bay_den);
-        strcpy(this->so_hieu_mb, so_hieu_mb);
-
-        this->trang_thai_cb = trang_thai_cb;
-        this->thoi_gian_bay = thoi_gian_bay;
-    }
-    int so_sanh_macb_voi_macb_cua_doi_tuong(ChuyenBay* cb) {  // return -1: cb này < cb2, 0: cb này == cb2, 1: cb này > cb2
-        return strcmp(this->ma_so_cb, cb->get_ma_so_cb());
-    }
     int compare_macb(char* macb) {  // return -1: cb này < cb2, 0: cb này == cb2, 1: cb này > cb2
         return strcmp(this->ma_so_cb, macb);
     }
-
-    bool kiem_tra_san_bay_den(char* san_bay_den) {
-        char* found = std::strstr(this->san_bay_den, san_bay_den);  // tìm kiếm chuỗi con
-        if (found != NULL) return true;
-        return false;
-    }
-
-    bool kiem_tra_con_ve() {
-        return this->trang_thai_cb == 1;
-    }
-
     friend std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb);
     friend std::ostream& operator<<(std::ostream& os, const ChuyenBay& mb);
+    friend int compare_ma_cb(const ChuyenBay* mb1, const ChuyenBay* mb2);
 };
 // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|A01|12321|A02|2344
 std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb) {
@@ -337,57 +319,15 @@ std::ostream& operator<<(std::ostream& os, const ChuyenBay& cb) {
     }
     return os;
 }
+int compare_ma_cb(const ChuyenBay* mb1,const ChuyenBay* mb2){
+    return strcmp(mb1->ma_so_cb, mb2->ma_so_cb);
+}
 class ListChuyenBay {
    private:
     ChuyenBay* head = NULL;
     ChuyenBay* tail = NULL;
 
-   public:
 
-   void add(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb) {
-        ChuyenBay* new_chuyenbay = new ChuyenBay(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb, 1);
-        insert_order(new_chuyenbay);
-    }
-
-    //func insert order
-    void insert_order(ChuyenBay* new_chuyenbay) {
-        // nếu danh sách rỗng hoặc chuyên bay mới có mã nhỏ hơn head
-        if (head == NULL || new_chuyenbay->so_sanh_macb_voi_macb_cua_doi_tuong(head) == -1) {
-            new_chuyenbay->set_next(head);
-            head = new_chuyenbay;
-        } else {
-            ChuyenBay* current = head;
-            // Tìm vị trí để chèn vào
-            while (current->get_next() != NULL && new_chuyenbay->get_next()->so_sanh_macb_voi_macb_cua_doi_tuong(current) == -1) {
-                current = current->get_next();
-            }
-
-            new_chuyenbay->set_next(current->get_next());
-            current->set_next(new_chuyenbay);
-        }
-        // Nếu danh sách rỗng hoặc chuyenbay được thêm sau tail thì cập nhật tail
-        if (tail == NULL || tail->get_next() == new_chuyenbay) {
-            tail = new_chuyenbay;
-        }
-    }
-    //end
-
-    //add from UI
-
-
-    
-
-    //end
-
-
-
-
-
-
-
-
-
-    // func add from file
 
     void insert_last(ChuyenBay* new_chuyenbay) {
         if (head == nullptr) {
@@ -398,13 +338,39 @@ class ListChuyenBay {
             tail = tail->get_next();
         }
     }
-    void push_data(ChuyenBay* chuyenbay) {
+   public:
+    //func insert order
+    void insert_order(ChuyenBay *new_chuyenbay) {
+        //nếu danh sách rỗng hoặc chuyên bay mới có mã nhỏ hơn head
+        if (head == NULL || compare_ma_cb(new_chuyenbay,head) == -1 ) {
+            new_chuyenbay->set_next(head);
+            head = new_chuyenbay;
+        }
+        else {
+            ChuyenBay *current = head;
+            // Tìm vị trí để chèn vào
+            while (current->get_next() != NULL && compare_ma_cb(new_chuyenbay,current) == -1) {
+                current = current->get_next();
+            }
+            
+            new_chuyenbay->set_next(current->get_next());
+            current->set_next(new_chuyenbay);
+        }
+        // Nếu danh sách rỗng hoặc chuyenbay được thêm sau tail thì cập nhật tail
+        if (tail == NULL || tail->get_next() == new_chuyenbay) {
+            tail = new_chuyenbay;
+        }
+    }
+    //end
+    void add(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb) {
+            ChuyenBay* new_chuyenbay = new ChuyenBay(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb, 1);
+            insert_order(new_chuyenbay);
+        }
+
+    void add_from_file_data(ChuyenBay* chuyenbay) { // add data từ file, file theo thứ tự sẵn, nên khoogn cần insert_order
         this->insert_last(chuyenbay);
     }
-
-    //end
     //func find
-
     ChuyenBay* find_by_sh_mb_ct(const char* ma_so_mb) { //find cb theo mã máy bay @ return point
         ChuyenBay* p = head;
         while (p != NULL) {
@@ -447,10 +413,6 @@ class ListChuyenBay {
     }
 
     // func find
-
-
-
-
 
     
 

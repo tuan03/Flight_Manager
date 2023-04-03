@@ -122,16 +122,23 @@ class TreeHanhKhach {
         }
         std::ofstream& in_data(std::ofstream& os, HanhKhach* p) const {
             if (p == nullptr) {
-                os<<'\n';
                 return os;
             }
-
+            os<<*p<<'\n';
             in_data(os,p->getLeft());
-            os<<*p;
             in_data(os,p->getRight());
             return os;
         }
+        int countNodes(HanhKhach* root) {
+            if (root == NULL) {
+                return 0;
+            }
+            return 1 + countNodes(root->getLeft()) + countNodes(root->getRight());
+        }
     public:
+        HanhKhach* getRoot(){
+            return this->root;
+        }
         TreeHanhKhach() {
             root = nullptr;
         }
@@ -147,6 +154,9 @@ class TreeHanhKhach {
         void print_data(std::ofstream& os) const{
                 in_data(os,root);
         }
+        int so_hanh_khach() {
+            return countNodes(this->root);
+        }
         friend std::ofstream& operator<<(std::ofstream& os, const TreeHanhKhach& mb);
 };
 std::ofstream& operator<<(std::ofstream& os, const TreeHanhKhach& mb){
@@ -154,35 +164,5 @@ std::ofstream& operator<<(std::ofstream& os, const TreeHanhKhach& mb){
     return os;
 }
 
-
+//lưu ý, viết thêm code về lưu và load data sao cho nó tự cân bằng, làm sau ... :3
 #endif
-
-// bool add(char * so_cmnd, char * ho, char * ten, char * phai){
-//             if(search_hanhkhach(so_cmnd) != nullptr) return false;
-//             HanhKhach* newhk = new HanhKhach(so_cmnd,ho,ten,phai);
-//             insert(&root,newhk);
-//         }
-//         void insert( HanhKhach**  root, HanhKhach* hanhkhach) {
-//             if(*root == nullptr){
-//                 *root = hanhkhach;
-//             }
-//             else{
-//                 if(hanhkhach->compare_cmnd((*root)->get_cmnd()) == -1){
-//                     insert((*root)->get_left(),hanhkhach);
-//                 } else{
-//                     insert((*root)->get_right(),hanhkhach);
-//                 }
-//             }
-//         }
-
-
-//         HanhKhach * search_hanhkhach(char *CMND){
-//             HanhKhach* nodeRun = this->root;
-// 	        while(nodeRun != nullptr && nodeRun->compare_cmnd(CMND) != 0){
-// 		    if( nodeRun->compare_cmnd(CMND)  == -1)     
-// 		        nodeRun = *(nodeRun->get_right());
-// 		    else
-// 		        nodeRun = *(nodeRun->get_left());
-// 	        }
-// 	        return nodeRun;
-//         }

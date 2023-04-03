@@ -200,7 +200,7 @@ class Edit{
                     quit = true;
                     break;
         }
-        input_shmb.handleInput_IN_HOA_KHONG_CACH(e,mouse_X,mouse_Y);
+        input_shmb.handleInput_IN_HOA_SO_KHONG_CACH(e,mouse_X,mouse_Y);
 
 
 
@@ -283,6 +283,9 @@ class View_Plane{
         Plane::Menu menu_plane; //route menu
         Plane::Edit edit_plane; //route edit
 
+        string so_hieu_mb = "";
+        Input input_so_hieu_mb;
+
 
 
         int vi_tri_hover_on_table = -1; //vị trí hover trên table
@@ -305,11 +308,13 @@ class View_Plane{
         menu_plane.set(myscreen,khung_menu,edit,del);
         edit_plane.set(myscreen,khung,edit);
 
+        input_so_hieu_mb.connect(this->myscreen);
+        input_so_hieu_mb.connect_data(&(this->so_hieu_mb),MAX_LENGTH_SO_HIEU_MB);
+        input_so_hieu_mb.set_vitri({300,175,300,50});
 
 
         this->add = add;
         this->add->set_rect(X_START_BODY + 1700 - 150, Y_START_BODY, 150,60);
-        this->so_luong_data = qlcb->getListMB().get_so_luong();
     }
     
     void handleEvent(SDL_Event e,Name_Box& current_route, ListBox& menu,bool& is_home, bool& quit) {
@@ -333,7 +338,6 @@ class View_Plane{
 
                     if(this->vi_tri_hover_on_table != -1){ // nếu nhấn vào, mà đnag hover vào line trong table thì bật menu.
                             this->state = Plane::State::MENU;
-                            this->temp = qlcb->getListMB().get_at(vi_tri_hover_on_table + (current_page-1) *10); 
                     }
                     break;
 
@@ -341,6 +345,9 @@ class View_Plane{
                     quit = true;
                     break;
             }
+
+            input_so_hieu_mb.handleInput_IN_HOA_SO_KHONG_CACH(e,mouse_X,mouse_Y);
+
             } else {
                 is_home = false;
             if(state == Plane::State::MENU){
@@ -356,12 +363,13 @@ class View_Plane{
         this->so_luong_data = qlcb->getListMB().get_so_luong(); // lấy số lượng máy bay
 
         myscreen->render_table(5,route_plane_width,route_plane_name_cot); 
-        if(this->vi_tri_hover_on_table != -1){
-            myscreen->render_cot({X_START_TABLE,Y_START_TABLE + vi_tri_hover_on_table*50,WIDTH_TABLE,50},{159,212,171});
-        }
         this->add->render(this->myscreen->get_my_renderer()); //render nút add
         this->render_data(); // render bảng dữ liệu
         this->render_next_prev(); // render nút next và prev
+        SDL_Rect rect_temp{150,175,150,50}; // ô input : 300,175,300,50
+        this->myscreen->render_Text("Số Hiệu MB:",rect_temp,{0,0,0},true);
+        input_so_hieu_mb.render(); // render ô input nhập số hiệu máy bay
+
 
         if(state == Plane::State::MENU){
                 menu_plane.render_menu(temp,vi_tri_hover_on_table);
@@ -394,31 +402,57 @@ class View_Plane{
         rect = {840,825,120,50};
         myscreen->render_Text(std::to_string(current_page)+"/"+std::to_string(((this->so_luong_data -1 )/10) + 1), rect,{0,0,0,255},true);
     }
+    void render_line_data(int stt, int start,MayBay* mb){
+        SDL_Rect rect;
+        rect = {X_START_TABLE, Y_START_TABLE + (stt-start)*50 ,route_plane_width[0],50};
+
+                if(vi_tri_hover_on_table == (stt-start)){
+                    myscreen->render_cot({X_START_TABLE,Y_START_TABLE + (stt-start)*50,WIDTH_TABLE,50},{159,212,171});
+                    this->temp = mb;
+                }
+
+                this->myscreen->render_Text(std::to_string((stt)+1), rect,{0,0,0,255},true);
+
+                rect.x += rect.w; 
+                rect.w = route_plane_width[1];
+                this->myscreen->render_Text(mb->getSoHieuMB(), rect,{0,0,0,255},true);
+
+                rect.x += rect.w; 
+                rect.w = route_plane_width[2];
+                this->myscreen->render_Text(mb->getLoaiMB(), rect,{0,0,0,255},true);
+
+                rect.x += rect.w; 
+                rect.w = route_plane_width[3];
+                this->myscreen->render_Text(std::to_string(mb->getSoDay()), rect,{0,0,0,255},true);
+                        
+                rect.x += rect.w; 
+                rect.w = route_plane_width[4];
+                this->myscreen->render_Text(std::to_string(mb->getSoDong()), rect,{0,0,0,255},true);
+    }
 
     void render_data(){
-        SDL_Rect rect;
-        for(int i=0; i< 10; i++){ // 10 dòng
-            if(i + 10*(this->current_page-1) >= this->qlcb->getListMB().get_so_luong()) break;
-            MayBay* mb = this->qlcb->getListMB().get_at(i+10*(this->current_page-1)); // công thức lấy thông tin máy bay tại dòng
-
-            rect = {X_START_TABLE, Y_START_TABLE + i*50 ,route_plane_width[0],50};
-            this->myscreen->render_Text(std::to_string(i+1), rect,{0,0,0,255},true);
-
-            rect.x += rect.w; 
-            rect.w = route_plane_width[1];
-            this->myscreen->render_Text(mb->getSoHieuMB(), rect,{0,0,0,255},true);
-
-            rect.x += rect.w; 
-            rect.w = route_plane_width[2];
-            this->myscreen->render_Text(mb->getLoaiMB(), rect,{0,0,0,255},true);
-
-            rect.x += rect.w; 
-            rect.w = route_plane_width[3];
-            this->myscreen->render_Text(std::to_string(mb->getSoDay()), rect,{0,0,0,255},true);
-                    
-            rect.x += rect.w; 
-            rect.w = route_plane_width[4];
-            this->myscreen->render_Text(std::to_string(mb->getSoDong()), rect,{0,0,0,255},true);
+        int so_may_bay = this->qlcb->getListMB().get_so_luong();
+        int start = (this->current_page-1) * 10;
+        int end = start + 9; // 0 - 9 là 10
+        int stt = 0;
+        int so_line_render = 0;
+        MayBay* mb = nullptr;
+        for(int i=0; i< so_may_bay; i++){ 
+            mb = this->qlcb->getListMB().get_at(i);
+            if(Func_Global::check_prefix(mb->getSoHieuMB(),this->so_hieu_mb.c_str())){
+                if(stt >= start && stt <= end){
+                    this->render_line_data(stt,start,mb);
+                    so_line_render++;
+                }
+                stt++;
+                // if(stt == end+1){
+                //     break;
+                // }
+            }
+        }
+        this->so_luong_data = stt;
+        if(so_line_render == 0){
+            this->myscreen->render_Text("Trống !!!",{X_START_TABLE,Y_START_TABLE,WIDTH_TABLE,HEIGHT_TABLE},{255,0,0},true);
         }
     }
 };

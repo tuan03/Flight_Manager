@@ -13,7 +13,7 @@ class Input{
         void set(bool logic){
             this->ok = logic;
         }
-        void handleInput_IN_HOA_KHONG_CACH(SDL_Event e , int x, int y){
+        void handleInput_IN_HOA_SO_KHONG_CACH(SDL_Event e , int x, int y){
             if(ok && e.type == SDL_MOUSEBUTTONDOWN) this->is_clicked = MyFunc::check_click(x,y, this->vitri);
             if(this->is_clicked){
                 switch(e.type){
@@ -25,6 +25,8 @@ class Input{
                     break;
                     case SDL_TEXTINPUT:
                         if((*data).length() < max_length){
+                            if(e.text.text[0] >= '0' && e.text.text[0] <= '9')*data += e.text.text; 
+                            else
                             if(e.text.text[0] >= 'A' && e.text.text[0] <= 'Z') *data += e.text.text; 
                             else if(e.text.text[0] >= 'a' && e.text.text[0] <= 'z') *data +=  e.text.text[0] - ('a'-'A');
                         }
@@ -111,5 +113,12 @@ class Thong_Bao{
     }
 
 };
+class Render_Data{
+    private:
 
+    public:
+    Render_Data(){
+
+    }
+};
 #endif

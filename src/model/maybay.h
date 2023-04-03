@@ -9,26 +9,25 @@ class MayBay{
 		char loai_mb[MAX_LENGTH_LOAI_MAY_BAY+1];
 		int so_day;
 		int so_dong;
-	void set(char* sh, char* loai, int day, int dong){
-        strcpy(this->so_hieu_mb, sh);
-        strcpy(this->loai_mb, loai);
-        this->so_day = day;
-        this->so_dong = dong;
-    }
+
+
+		// 
+		int so_lan_bay = 0;
+
+
+		void set(char* sh, char* loai, int day, int dong){
+			strcpy(this->so_hieu_mb, sh);
+			strcpy(this->loai_mb, loai);
+			this->so_day = day;
+			this->so_dong = dong;
+		}
 	public:
 	//getter
-		const char* getSoHieuMB() const {
-            return so_hieu_mb;
-        }
-        const char* getLoaiMB() const {
-            return loai_mb;
-        }
- 		int getSoDay() const {
-            return so_day;
-        }
-		int getSoDong() const {
-            return so_dong;
-        }
+		const char* getSoHieuMB() const { return so_hieu_mb; }
+        const char* getLoaiMB() const { return loai_mb; }
+ 		int getSoDay() const { return so_day; }
+		int getSoDong() const { return so_dong; }
+		int getSoCho() { return so_day*so_dong;}
 	//setter
         void setSoHieuMB(const char* so_hieu) {
             strncpy(so_hieu_mb, so_hieu, MAX_LENGTH_SO_HIEU_MB);
@@ -68,22 +67,22 @@ class MayBay{
 		friend std::ostream& operator<<(std::ostream& os, const MayBay& mb) ;
 		friend std::ofstream& operator<<(std::ofstream& os, const MayBay& mb) ;
 };
-std::istringstream& operator>>(std::istringstream& is, MayBay& mb) {
-    is.getline(mb.so_hieu_mb,MAX_LENGTH_SO_HIEU_MB+1,'|');
-    is.getline(mb.loai_mb,MAX_LENGTH_LOAI_MAY_BAY+1,'|');
-    is>>mb.so_day;
-    is.ignore(1);
-    is>>mb.so_dong;
-    return is;
-}
-std::ostream& operator<<(std::ostream& os, const MayBay& mb) {
-    os << mb.so_hieu_mb << "|" << mb.loai_mb << "|" << mb.so_day << "|" << mb.so_dong;
-    return os;
-}
-std::ofstream& operator<<(std::ofstream& os, const MayBay& mb) {
-    os << mb.so_hieu_mb << "|" << mb.loai_mb << "|" << mb.so_day << "|" << mb.so_dong;
-    return os;
-}
+	std::istringstream& operator>>(std::istringstream& is, MayBay& mb) {
+		is.getline(mb.so_hieu_mb,MAX_LENGTH_SO_HIEU_MB+1,'|');
+		is.getline(mb.loai_mb,MAX_LENGTH_LOAI_MAY_BAY+1,'|');
+		is>>mb.so_day;
+		is.ignore(1);
+		is>>mb.so_dong;
+		return is;
+	}
+	std::ostream& operator<<(std::ostream& os, const MayBay& mb) {
+		os << mb.so_hieu_mb << "|" << mb.loai_mb << "|" << mb.so_day << "|" << mb.so_dong;
+		return os;
+	}
+	std::ofstream& operator<<(std::ofstream& os, const MayBay& mb) {
+		os << mb.so_hieu_mb << "|" << mb.loai_mb << "|" << mb.so_day << "|" << mb.so_dong;
+		return os;
+	}
 class ListMayBay{	
     private:
 		MayBay* data[MAX_MAYBAY];
@@ -95,77 +94,49 @@ class ListMayBay{
 			}
 			so_luong = 0;
 		}
-		MayBay* get_at(int index) const {
-			return this->data[index];
-		}
-		int get_so_luong(){
-			return this->so_luong;
-		}
-		bool isEmpty(){	
-			return this->so_luong==0;
-		}
-		bool isFull(){
-			return this->so_luong >= MAX_MAYBAY;
-		}
-		MayBay* push_empty(){
-			MayBay* mb = new MayBay();
+		MayBay* get_at(int index) const { return this->data[index]; }
+		int get_so_luong(){ return this->so_luong; }
+		bool isEmpty(){	 return this->so_luong==0; }
+		bool isFull(){ return this->so_luong >= MAX_MAYBAY; }
+		void add_from_file_data(MayBay* mb){
 			data[so_luong] = mb;
 			so_luong++;
-			return mb;
 		}
-		//tinh so cho
-		int getsocho(int a, int b){
-          int sc= a*b;
-		  return sc;
+		Status add(char* so_hieu_mb, char* loai, int day, int dong){
+			if(this->isFull()) return Status("Danh Sách Máy Bay Đã Đầy");
+			if(this->find_mamb(so_hieu_mb) != -1) return Status("Số Hiệu Máy Bay Đã Tồn Tại");
+			if(day*dong < 20 ) return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
+			if(day < 1 || day > 26 ) return Status("Số Dãy Không Hợp Lệ (1-26)");
+			if(dong < 1 || dong > 99 ) return Status("Số Dòng Không Hợp Lệ (1-99)");
+
+			data[so_luong++] = new MayBay(so_hieu_mb,loai,day,dong);
+			return Status("Thêm Máy Bay Thành Công !",Status_Name::SUCCESS);
 		}
-		Status addMaybay(char* so_hieu_mb, char* loai, int day, int dong){
-         
-	    if(isFull() && this->find_mamb(so_hieu_mb) != -1 && (getsocho(day,dong)<=20)){
-				return Status("KHÔNG THÀNH CÔNG");
-			}
-			else{
-				data[so_luong] = new MayBay(so_hieu_mb,loai,day,dong);
-				so_luong++;
-				return Status("THÀNH CÔNG");
-			}
-			}
-		bool checkcomplete(){
-			return true;
-		}//check xem da thanh lap chuyen bay
-		void edit_seat(int day, int dong, int index){
-			if(getsocho(day,dong) > getsocho(data[index]->getSoDay(),data[index]->getSoDong())){
-			data[index]->setSoDay(day);
-			data[index]->setSoDong(dong);
-			}
-		}// sua so ghe (so day, so dong)
-		void edit_type(char* loai_mb, int index) //sua loai mb
-		{
-            data[index]->setLoaiMB(loai_mb);
+
+
+		Status edit(MayBay* mb,char* loai_mb,int day,int dong){
+			if(day*dong < 20 ) return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
+			if(day < 1 || day > 26 ) return Status("Số Dãy Không Hợp Lệ (1-26)");
+			if(dong < 1 || dong > 99 ) return Status("Số Dòng Không Hợp Lệ (1-99)");
+            mb->setLoaiMB(loai_mb);
+			mb->setSoDay(day);
+			mb->setSoDong(dong);
+			return Status("Sửa Máy Bay Thành Công !",Status_Name::SUCCESS);
 		}
-		void edit_Plane(char* so_hieu_mb,char* loai_mb,int day,int dong ){
-            int index = find_mamb(so_hieu_mb);
-		    if(index!= -1){
-		       if(checkcomplete()){
-			
-		       edit_seat(day,dong,index);
-		       }
-		       else{
-               edit_seat(day,dong,index);
-		       edit_type(loai_mb,index);} 
-		   }
-		   }
-		void xoaMayBay(char* soHieuMB){
-    		int index = find_mamb(soHieuMB);
-    		if (index != -1) {
-				if(!checkcomplete()){
-			    delete data[index];
-			    for (int i = index; i < so_luong - 1; i++) {
-				data[i] = data[i + 1];
-			       }
-			    so_luong--;
-    		    } 
-			}
-		}
+
+
+		// void xoaMayBay(char* soHieuMB){
+    	// 	int index = find_mamb(soHieuMB);
+    	// 	if (index != -1) {
+		// 		if(!checkcomplete()){
+		// 	    delete data[index];
+		// 	    for (int i = index; i < so_luong - 1; i++) {
+		// 		data[i] = data[i + 1];
+		// 	       }
+		// 	    so_luong--;
+    	// 	    } 
+		// 	}
+		// }
 
 		void print(){
             for(int i = 0; i < so_luong; i++){

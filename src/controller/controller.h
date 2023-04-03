@@ -85,6 +85,8 @@ class Controller{
     void running(){
 
         View_Plane view_plane(&(this->qlcb),&(this->myscreen),&(this->prev),&(this->next),&(this->khung_menu),&(this->add),&(this->edit),&(this->del),&(this->khung)); // khởi tạo view Plane
+        View_Flight view_flight(&(this->qlcb),&(this->myscreen),&(this->prev),&(this->next),&(this->khung_menu),&(this->add),&(this->edit),&(this->del),&(this->khung)); // khởi tạo view Plane
+        View_Customer view_customer(&(this->qlcb),&(this->myscreen),&(this->prev),&(this->next),&(this->khung_menu),&(this->add),&(this->edit),&(this->del),&(this->khung)); // khởi tạo view Plane
 
         thong_bao.set_rect(400,100,1000,600);
         
@@ -115,6 +117,10 @@ class Controller{
 
 
             view_plane.handleEvent(e,current_route,menu,is_home,quit);
+
+            view_flight.handleEvent(e,current_route,menu,is_home,quit);
+
+            view_customer.handleEvent(e,current_route,menu,is_home,quit);
         
         }
         
@@ -129,11 +135,11 @@ class Controller{
             view_plane.render();
             break;
         case Name_Box::FLIGHT :
-               
+            view_flight.render();
 
             break;
         case Name_Box::CUSTOMER :
-                
+            view_customer.render();
             break;
         case Name_Box::TICKET :
             break;

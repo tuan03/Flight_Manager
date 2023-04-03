@@ -16,9 +16,10 @@ void read(string link_file, ListMayBay& l_mb) {
         std::string line;
         MayBay* temp = nullptr;
         while (std::getline(inout, line)) {
-            temp = l_mb.push_empty();  // tạo 1 Máy Bay rỗng thông tin
+            temp = new MayBay();  // tạo 1 Máy Bay rỗng thông tin
             std::istringstream iss(line);
             iss >> *temp;
+            l_mb.add_from_file_data(temp);
         }
         inout.close();
     } else {
@@ -35,7 +36,7 @@ void read(string link_file, ListChuyenBay& l_mb) {
             temp = new ChuyenBay();
             std::istringstream iss(line);
             iss >> *temp;
-            l_mb.push_data(temp);
+            l_mb.add_from_file_data(temp);
         }
         inout.close();
     } else {
@@ -61,7 +62,7 @@ void read(string link_file, TreeHanhKhach& l_mb) {
     }
 }
 
-void write(string link_file, TreeHanhKhach& l_mb) {
+void write(string link_file, TreeHanhKhach& list_hanhkhach) {
     std::ifstream inputFile(link_file);
     if (!inputFile.is_open()) {
         std::cerr << "Khong mo duoc file " << link_file << std::endl;
@@ -83,7 +84,7 @@ void write(string link_file, TreeHanhKhach& l_mb) {
         std::cerr << "Khong tao duoc file " << link_file << std::endl;
         return;
     }
-    outputFile << l_mb;
+    outputFile << list_hanhkhach;
     outputFile.close();
 
     if (remove("src/backup/HanhKhach_data_backup.txt") != 0) {
