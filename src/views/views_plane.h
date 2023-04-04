@@ -286,6 +286,7 @@ class View_Plane{
         string so_hieu_mb = "";
         Input input_so_hieu_mb;
 
+        SDL_Texture* target = nullptr;
 
 
         int vi_tri_hover_on_table = -1; //vị trí hover trên table
@@ -307,6 +308,9 @@ class View_Plane{
 
         menu_plane.set(myscreen,khung_menu,edit,del);
         edit_plane.set(myscreen,khung,edit);
+
+        target = SDL_CreateTexture(myscreen->get_my_renderer()->get_renderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, WIDTH_TABLE, HEIGHT_TABLE);
+
 
         input_so_hieu_mb.connect(this->myscreen);
         input_so_hieu_mb.connect_data(&(this->so_hieu_mb),MAX_LENGTH_SO_HIEU_MB);
@@ -364,7 +368,7 @@ class View_Plane{
 
         myscreen->render_table(5,route_plane_width,route_plane_name_cot); 
         this->add->render(this->myscreen->get_my_renderer()); //render nút add
-        this->render_data(); // render bảng dữ liệu
+        // this->render_data(); // render bảng dữ liệu
         this->render_next_prev(); // render nút next và prev
         SDL_Rect rect_temp{150,175,150,50}; // ô input : 300,175,300,50
         this->myscreen->render_Text("Số Hiệu MB:",rect_temp,{0,0,0},true);

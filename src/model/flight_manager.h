@@ -23,8 +23,8 @@ class Flight_Manager{
         }
         Flight_Manager(){
             read("src\\data\\data_hanh_khach.txt",ds_hanhkhach);
-            read("src\\data\\data_chuyen_bay.txt",ds_chuyenbay);
             read("src\\data\\data_may_bay.txt",ds_maybay);
+            read("src\\data\\data_chuyen_bay.txt",ds_chuyenbay);
         }
 
         ~Flight_Manager(){

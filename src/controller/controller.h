@@ -95,7 +95,7 @@ class Controller{
         SDL_Event e;    
         Uint32 timeCurrent = SDL_GetTicks(); //tại fps
         Uint32 timePre = SDL_GetTicks(); // tạo fps
-
+        int frames = 0;
         Box* get_box_hover = nullptr;   // để lấy lấy box đang hover, null nếu khoogn trên box nào
         Name_Box current_hover = Name_Box::NONE; // route đnag hover
         Name_Box current_route = Name_Box::NONE; // route hiện tại đang ở
@@ -153,14 +153,24 @@ class Controller{
         }
         
 
-        timeCurrent = SDL_GetTicks();
+        
         SDL_RenderPresent(myscreen.get_my_renderer()->get_renderer());
         //render
+        // // tạo fps
+        // timeCurrent = SDL_GetTicks();
+        // if(timeCurrent-timePre < TIME_A_FRAME){
+        //     SDL_Delay(TIME_A_FRAME - (timeCurrent-timePre));
+        // }
+        // timePre = SDL_GetTicks();
 
-        if(timeCurrent-timePre < TIME_A_FRAME){
-            SDL_Delay(TIME_A_FRAME - (timeCurrent-timePre));
+        // //end
+        frames++;
+        int elapsedTime = SDL_GetTicks() - timeCurrent;
+        if (elapsedTime >= 1000) {
+            std::cout << "FPS: " << frames << std::endl;
+            timeCurrent = SDL_GetTicks();
+            frames = 0;
         }
-        timePre = SDL_GetTicks();
         
     }
 

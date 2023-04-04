@@ -241,22 +241,22 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     }
 
     void init_ve() {
-        int so_day = 25, so_dong = 40;
-        listve = new Ve**[so_day];
-        for (int i = 0; i < so_day; ++i) {
-            listve[i] = new Ve*[so_dong];
+        if(this->so_day == 0 || this->so_dong == 0) throw "Lỗi Khởi Tạo Vé";
+        listve = new Ve**[this->so_day];
+        for (int i = 0; i < this->so_day; ++i) {
+            listve[i] = new Ve*[this->so_dong];
         }
-        for (int i = 0; i < so_day; i++) {
-            for (int j = 0; j < so_dong; j++) {
+        for (int i = 0; i < this->so_day; i++) {
+            for (int j = 0; j < this->so_dong; j++) {
                 listve[i][j] = nullptr;
             }
         }
     }
 
     int dem_so_ve_con_trong() {
-        int so_day = 25, so_dong = 40, count = 0;
-        for (int i = 0; i < so_day; i++) {
-            for (int j = 0; j < so_dong; j++) {
+        int count=0;
+        for (int i = 0; i < this->so_day; i++) {
+            for (int j = 0; j < this->so_dong; j++) {
                 if (this->listve[i][j] == NULL) {
                     count++;
                 }
@@ -265,17 +265,15 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
         return count;
     }
     ChuyenBay() {
-        init_ve();
     }
     ChuyenBay(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
-        init_ve();
+        // init_ve();
         this->set(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb, trang_thai_cb);
     }
     ~ChuyenBay() {
         // cout<<"\ngiai phong bo nho ve\n";
-        int so_day = 25, so_dong = 40;
-        for (int i = 0; i < so_day; ++i) {
-            for (int j = 0; j < so_dong; ++j) {
+        for (int i = 0; i < this->so_day; ++i) {
+            for (int j = 0; j < this->so_dong; ++j) {
                 delete[] listve[i][j];
             }
             delete[] listve[i];
@@ -289,7 +287,7 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     friend std::ostream& operator<<(std::ostream& os, const ChuyenBay& mb);
     friend int compare_ma_cb(const ChuyenBay* mb1, const ChuyenBay* mb2);
 };
-// ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|A01|12321|A02|2344
+// ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|so_day|so_dong|A01|12321|A02|2344
 std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb) {
     is.getline(mb.ma_so_cb, MAX_LENGTH_MA_CB + 1, '|');
     is.getline(mb.so_hieu_mb, MAX_LENGTH_SO_HIEU_MB + 1, '|');
@@ -298,6 +296,11 @@ std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb) {
     is.getline(mb.san_bay_den, MAX_LENGTH_SAN_BAY_DEN + 1, '|');
     is >> mb.trang_thai_cb;
     is.ignore(1);
+    is >> mb.so_day;
+    is.ignore(1);
+    is >> mb.so_dong;
+    is.ignore(1);
+    mb.init_ve();
     // nhập vé
     Ve ve;
     while (is >> ve) {
@@ -308,10 +311,9 @@ std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb) {
     return is;
 }
 std::ostream& operator<<(std::ostream& os, const ChuyenBay& cb) {
-    os << cb.ma_so_cb << "|" << cb.so_hieu_mb << "|" << cb.thoi_gian_bay.to_string() << "|" << cb.san_bay_den << '|' << cb.trang_thai_cb << '|';  // in cả vé
-    int so_day = 25, so_dong = 40;
-    for (int i = 0; i < so_day; i++) {
-        for (int j = 0; j < so_dong; j++) {
+    os << cb.ma_so_cb << "|" << cb.so_hieu_mb << "|" << cb.thoi_gian_bay.to_string() << "|" << cb.san_bay_den << '|' << cb.trang_thai_cb << '|'<< cb.so_day << '|'<< cb.so_dong << '|';  // in cả vé
+    for (int i = 0; i < cb.so_day; i++) {
+        for (int j = 0; j < cb.so_dong; j++) {
             if (cb.listve[i][j] != nullptr) {
                 os << *(cb.listve[i][j]);
             }
