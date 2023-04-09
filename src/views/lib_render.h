@@ -170,12 +170,12 @@ class MyScreen {
     }
 
     void render_table(int n, int* arr,string* name_cot){ //n : số cột, arr: mảng chứa độ rộng từng cột liên tiếp // dùng cho các views
-            SDL_Rect rect = {X_START_TABLE,Y_START_TABLE,0,0};
+            SDL_Rect rect = {0,0,0,0};
             SDL_Rect rect_text;
             for(int i=0; i<n;i++){
-                rect = {rect.x + rect.w , 290,arr[i],HEIGHT_TABLE};
+                rect = {rect.x + rect.w , 50,arr[i],HEIGHT_TABLE};
                 this->render_cot(rect);
-                rect_text = {rect.x,rect.y-50,rect.w,50};
+                rect_text = {rect.x,0,rect.w,50};
                 this->render_Text(name_cot[i],rect_text,{0,0,0},true);
             }
         }
@@ -286,10 +286,12 @@ class Box{
         return next;
     }
     Box* set_hover(const char* file, MyRenderer* renderer){
+        if(this->hover != nullptr) throw "Leak Memory\n";
         this->hover = new MyTexture(file,renderer->get_renderer());
         return this;
     }
     Box* set_clicked(const char* file, MyRenderer* renderer){
+        if(this->clicked != nullptr) throw "Leak Memory\n";
         this->clicked = new MyTexture(file,renderer->get_renderer());
         return this;
     }
@@ -451,3 +453,44 @@ class ListBox{
     }
 };
 
+class Buffer{
+    private:
+        SDL_Texture* mytexture = nullptr; //chứa texture
+        SDL_Rect rect{0,0,0,0};
+        MyRenderer* myrender = nullptr;
+    public:
+        Buffer(){}
+        void set(MyScreen* myscreen, int width_buffer, int height_buffer){
+            this->myrender = myscreen->get_my_renderer();
+            mytexture =  SDL_CreateTexture(myscreen->get_my_renderer()->get_renderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width_buffer, height_buffer);
+            rect.w = width_buffer;
+            rect.h = height_buffer;
+            SDL_SetTextureBlendMode(mytexture, SDL_BLENDMODE_BLEND);
+        }
+        ~Buffer(){
+            SDL_DestroyTexture(mytexture);
+        }
+        void set_vitri(int x, int y){
+            rect.x = x;
+            rect.y = y;
+        }
+        void connect_render_clear(){
+            SDL_SetRenderTarget(this->myrender->get_renderer(), mytexture);
+            SDL_SetRenderDrawColor(this->myrender->get_renderer(), 0, 0, 0, 0);
+            SDL_RenderClear(this->myrender->get_renderer());
+        }
+        void connect_render(){
+            SDL_SetRenderTarget(this->myrender->get_renderer(), mytexture);
+        }
+        void disconnect_render(){
+            SDL_SetRenderTarget(this->myrender->get_renderer(), NULL);
+        }
+        void add(Box* box){
+            SDL_SetRenderTarget(this->myrender->get_renderer(), mytexture);
+            SDL_RenderCopy(this->myrender->get_renderer(), box->get_my_texture()->get_texture(), NULL, &(box->get_rect()));
+            SDL_SetRenderTarget(this->myrender->get_renderer(), NULL);
+        }
+        void render(){
+            SDL_RenderCopy(this->myrender->get_renderer(), this->mytexture, NULL, &rect);
+        }
+};

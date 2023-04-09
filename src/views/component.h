@@ -34,6 +34,8 @@ class Input{
                 }
             }
         }
+
+        
         void connect(MyScreen* mc){
             this->myscreen = mc;
         }
