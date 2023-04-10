@@ -417,7 +417,7 @@ class View_Customer{
 
                 rect.x += rect.w; 
                 rect.w = route_customer_width[4];
-                this->myscreen->render_Text(mb->getPhai(), rect,{0,0,0,255},true);
+                this->myscreen->render_Text(mb->getPhai() ? "Nam" : "Nữ", rect,{0,0,0,255},true);
  
 
 

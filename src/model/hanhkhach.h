@@ -9,13 +9,13 @@ class HanhKhach{
     char so_cmnd[MAX_LENGTH_SO_CMND+1]={};
     char ho[MAX_LENGTH_HO+1]={};
     char ten[MAX_LENGTH_TEN+1]={}; 
-    char phai[MAX_LENGTH_PHAI+1]={};
+    bool phai; // true : nam, false : nữ
     HanhKhach *left = nullptr, *right = nullptr;
-    void set(char * so_cmnd, char * ho, char * ten, char * phai){
+    void set(char * so_cmnd, char * ho, char * ten, bool phai){
         strcpy(this->so_cmnd,so_cmnd);
         strcpy(this->ho,ho);
         strcpy(this->ten,ten);
-        strcpy(this->phai,phai);
+        this->phai = phai;
     }
     public:
     //getter
@@ -28,7 +28,7 @@ class HanhKhach{
     const char* getTen() const {
         return ten;
     }
-    const char* getPhai() const {
+    bool getPhai() const {
         return phai;
     }
     HanhKhach* getLeft() const {
@@ -47,8 +47,8 @@ class HanhKhach{
     void setTen(const char* t) {
         strcpy(ten, t);
     }
-    void setPhai(const char* p) {
-        strcpy(phai, p);
+    void setPhai(bool p) {
+        this->phai = p;
     }
     void setLeft(HanhKhach* l) {
         left = l;
@@ -59,7 +59,7 @@ class HanhKhach{
 
 
     HanhKhach(){}
-    HanhKhach(char * so_cmnd, char * ho, char * ten, char * phai){
+    HanhKhach(char * so_cmnd, char * ho, char * ten, bool phai){
         this->set(so_cmnd,ho,ten,phai);
     }
     int compare_cmnd(char* cmnd){
@@ -73,7 +73,7 @@ std::istringstream& operator>>(std::istringstream& is, HanhKhach& mb){ //0123456
     is.getline(mb.so_cmnd,MAX_LENGTH_SO_CMND+1,'|');
     is.getline(mb.ho,MAX_LENGTH_HO+1,'|');
     is.getline(mb.ten,MAX_LENGTH_TEN+1,'|');
-    is.getline(mb.phai,MAX_LENGTH_PHAI+1);
+    is>>mb.phai;
     return is;
 }
 std::ostream& operator<<(std::ostream& os, const HanhKhach& mb) {
