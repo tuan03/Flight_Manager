@@ -55,7 +55,8 @@ class Flight_Manager{
             if(Time::timeDiffInSeconds(current_time,time) > 3600 * 24 * 365 ){ 
                 return Status("Chỉ Được Lập Chuyến Bay Trong Vòng 365 Ngày");
             }
-            // thêm cái check kể từ lcus haofn thành 12h nữa, còn thiếu :v
+            // có case : tồn tại nhiều chuyến bay đúng quy định với mã máy bay này, // sữa sau
+            // thêm cái check kể từ lúc hoàn thành 12h nữa, còn thiếu
             // ChuyenBay* cb = ds_chuyenbay.find_by_sh_mb_ct(so_hieu_mb);
             // if(cb != nullptr){
             //     if(cb->get_trang_thai_cb() == 3){
@@ -78,7 +79,20 @@ class Flight_Manager{
             }
         }
 
-
+        void rank_slthcb(int mb[], int &n){
+            // sau này khắc phục thêm, bây giờ cứ từ từ
+            n = this->ds_maybay.get_so_luong();
+            int vitrimin;
+            int min;
+            for (int i = 0; i < n-1; i++){
+                vitrimin = i;
+                for (int j = i+1; j < n; j++)
+                    if (mb[j] < mb[vitrimin]) vitrimin=j;
+                min = mb[vitrimin];
+                mb[vitrimin] = mb[i];  
+                mb[i] = min;
+            }
+        }
 
 
         void in_ds_kh( const char* ma_so_cb){

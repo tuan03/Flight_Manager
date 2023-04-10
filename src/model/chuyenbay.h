@@ -383,26 +383,29 @@ class ListChuyenBay {
         }
         return nullptr;  // trả về NULL nếu không tìm thấy chuyến bay
     } 
+
+    // tìm theo số hiệu máy bay sẽ trả về cái mà đang còn vé hoặc hết vé mà không hủy hoặc hoàn thành
     bool find_by_sh_mb(const char* ma_so_mb) { //find cb theo mã máy bay @ return bool
         ChuyenBay* p = head;
         while (p != NULL) {
-            if (strcmp(p->get_so_hieu_mb(), ma_so_mb) == 0) {  // sử dụng hàm getter để lấy mã máy bay
+            if (strcmp(p->get_so_hieu_mb(), ma_so_mb) == 0 && p->get_trang_thai_cb() != 0 && p->get_trang_thai_cb() != 3) {  // sử dụng hàm getter để lấy mã máy bay
                 return true;                                      // trả về chuyến bay nếu tìm thấy
             }
             p = p->get_next();
         }
         return false;  // trả về NULL nếu không tìm thấy chuyến bay
     }
-    ChuyenBay* find_by_ma_cb_ct(const char* ma_so_cb) {
+    ChuyenBay* find_by_ma_cb_ct(const char* ma_so_cb) { 
         ChuyenBay* p = head;
         while (p != NULL) {
-            if (strcmp(p->get_ma_so_cb(), ma_so_cb) == 0) {  // sử dụng hàm getter để lấy mã máy bay
+            if (strcmp(p->get_ma_so_cb(), ma_so_cb) == 0 && p->get_trang_thai_cb() != 0 && p->get_trang_thai_cb() != 3) {  // sử dụng hàm getter để lấy mã máy bay
                 return p;                                      // trả về chuyến bay nếu tìm thấy
             }
             p = p->get_next();
         }
         return nullptr;  // trả về NULL nếu không tìm thấy chuyến bay
     }
+    
     bool find_by_ma_cb(const char* ma_so_cb) {
         ChuyenBay* p = head;
         while (p != NULL) {
