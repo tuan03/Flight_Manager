@@ -299,22 +299,21 @@ class View_Flight{
     
 
     public:
-    View_Flight(Flight_Manager* qlcb, MyScreen* myscreen, Box* prev, Box* next,Box* khung_menu, Box* add, Box* edit, Box* del,Box* khung) {
+    View_Flight(Flight_Manager* qlcb, MyScreen* myscreen, BoxComponents* bc) {
         this->qlcb = qlcb;
         this->myscreen = myscreen;
         current_page = 1;
-        this->prev = prev;
-        this->next = next;
+        this->prev = &(bc->prev);
+        this->next = &(bc->next);
 
-        menu_flight.set(myscreen,khung_menu,edit,del);
-        edit_flight.set(myscreen,khung,edit);
+        menu_flight.set(myscreen, &(bc->khung_menu), &(bc->edit), &(bc->del));
+        edit_flight.set(myscreen, &(bc->khung_add_edit), &(bc->edit));
 
         input_ma_cb.connect(this->myscreen);
         input_ma_cb.connect_data(&(this->ma_cb),MAX_LENGTH_MA_CB);
         input_ma_cb.set_vitri({300,175,300,50});
 
-
-        this->add = add;
+        this->add = &(bc->add);
         this->add->set_rect(X_START_BODY + 1700 - 150, Y_START_BODY, 150,60);
     }
     

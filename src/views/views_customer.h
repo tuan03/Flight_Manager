@@ -295,19 +295,17 @@ class View_Customer{
         string route_customer_name_cot[5]{"STT","Họ","Tên","Số CMND","Giới Tính"};
 
     public:
-    View_Customer(Flight_Manager* qlcb, MyScreen* myscreen, Box* prev, Box* next,Box* khung_menu, Box* add, Box* edit, Box* del,Box* khung) {
+    View_Customer(Flight_Manager* qlcb, MyScreen* myscreen, BoxComponents* bc) {
         this->qlcb = qlcb;
         this->myscreen = myscreen;
         current_page = 1;
-        this->prev = prev;
-        this->next = next;
+        this->prev = &(bc->prev);
+        this->next = &(bc->next);
 
-        menu_customer.set(myscreen,khung_menu,edit,del);
-        edit_customer.set(myscreen,khung,edit);
+        menu_customer.set(myscreen, &(bc->khung_menu), &(bc->edit), &(bc->del));
+        edit_customer.set(myscreen, &(bc->khung_add_edit), &(bc->edit));
 
-
-
-        this->add = add;
+        this->add = &(bc->add);
         this->add->set_rect(X_START_BODY + 1700 - 150, Y_START_BODY, 150,60);
     }
     
@@ -382,8 +380,6 @@ class View_Customer{
         }
         return -1;
     }
-
-
 
    void render_next_prev(){
         SDL_Rect rect;
