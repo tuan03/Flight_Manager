@@ -21,10 +21,13 @@ class Input {
             switch (e.type) {
                 case SDL_KEYDOWN:
                     if (e.key.keysym.sym == SDLK_BACKSPACE) {
+                        std::cout << ">>> run this backspace\n";
+                        std::cout << ">>> this->data >>> " << *data << "\n";
                         (*data).pop_back();
                     }
                     break;
                 case SDL_TEXTINPUT:
+                    cout << ">>> SDL_text 11111111 2312313211 >>> " << *data << "\n";
                     if ((*data).length() < max_length) {
                         if (e.text.text[0] >= '0' && e.text.text[0] <= '9')
                             *data += e.text.text;

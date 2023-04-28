@@ -240,7 +240,6 @@ public:
         SDL_Color textColor = text_color;
         SDL_Surface *textSurface = TTF_RenderUTF8_Blended(myfont->get_font(), text.c_str(), textColor); // thay thành TTF_RenderText_Solid để tối ưu nhưng text sẽ xấu :v // tiếng viêt : TTF_RenderUTF8_Solid
         SDL_Texture *textTexture = SDL_CreateTextureFromSurface(myrenderer->get_renderer(), textSurface);
-
         if (type_center_box == false)
         {
             vitri.w = (textSurface != NULL ? textSurface->w : vitri.w = 0);
@@ -267,7 +266,6 @@ public:
         SDL_Color textColor = text_color;
         SDL_Surface *textSurface = TTF_RenderUTF8_Blended(myfont->get_font(), text, textColor); // thay thành TTF_RenderText_Solid để tối ưu nhưng text sẽ xấu :v // tiếng viêt : TTF_RenderUTF8_Solid
         SDL_Texture *textTexture = SDL_CreateTextureFromSurface(myrenderer->get_renderer(), textSurface);
-
         if (type_center_box == false)
         {
             vitri.w = (textSurface != NULL ? textSurface->w : vitri.w = 0);

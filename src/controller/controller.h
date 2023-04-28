@@ -144,7 +144,7 @@ class Controller {
             frames++;
             int elapsedTime = SDL_GetTicks() - timeCurrent;
             if (elapsedTime >= 1000) {
-                std::cout << "FPS: " << frames << std::endl;
+                // std::cout << "FPS: " << frames << std::endl;
                 timeCurrent = SDL_GetTicks();
                 frames = 0;
             }

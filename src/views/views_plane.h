@@ -208,8 +208,10 @@ class Edit {
         for (int i = 0; i < 4; i++) {
             this->myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
         }
+
         // this->myscreen->render_Text(so_hieu_mb,rect_input[0],{0,0,0},true);
         input_shmb.render();
+
         if (this->da_lap_cb == false) {
             this->myscreen->render_Text(loai_mb, rect_input[1], {0, 0, 0}, true);
         } else {
@@ -259,6 +261,8 @@ class View_Plane {
     string so_hieu_mb = "";
     Input input_so_hieu_mb;
 
+    MayBay* list_mb_dc_render[10];
+
     Buffer table;
     Buffer data;
 
@@ -305,7 +309,6 @@ class View_Plane {
             switch (e.type) {
                 case SDL_MOUSEMOTION:
                     this->vi_tri_hover_on_table = this->get_vitri(this->mouse_X, this->mouse_Y, qlcb->getListMB().get_so_luong());  // 0 - 9
-                    cout << ">>> vi tri con chuot >>> " << this->vi_tri_hover_on_table << "\n";
                     break;
                 case SDL_MOUSEBUTTONDOWN:  // sự kiện nhấn vào các box
                                            // bắt sự kiện nhấn next và prev
@@ -320,6 +323,7 @@ class View_Plane {
                     // end handle
 
                     if (this->vi_tri_hover_on_table != -1) {  // nếu nhấn vào, mà đnag hover vào line trong table thì bật menu.
+                        this->temp = this->list_mb_dc_render[vi_tri_hover_on_table];
                         this->state = Plane::State::MENU;
                     }
                     break;
@@ -354,10 +358,13 @@ class View_Plane {
         int stt = 0;
         int so_line_render = 0;
         MayBay* mb = nullptr;
+        int index = 0;
         for (int i = 0; i < so_may_bay; i++) {
             mb = this->qlcb->getListMB().get_at(i);
             if (Func_Global::check_prefix(mb->getSoHieuMB(), this->so_hieu_mb.c_str())) {
                 if (stt >= start && stt <= end) {
+                    this->list_mb_dc_render[index] = mb;
+                    index++;
                     this->render_line_data(stt, start, mb);
                     so_line_render++;
                 }
@@ -394,7 +401,6 @@ class View_Plane {
         if (state == Plane::State::MENU) {
             menu_plane.render_menu(temp, vi_tri_hover_on_table);
         } else if (state == Plane::State::EDIT) {
-            cout << ">>> dia chi cua plane >>> " << temp << '\n';
             edit_plane.render_menu(temp, this->qlcb);
         }
     }
