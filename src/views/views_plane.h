@@ -128,8 +128,18 @@ class Edit {
 
     bool da_lap_cb = false;
 
+    ListMayBay* danh_sach_mb = nullptr;
+    MayBay* mb_dc_chon = nullptr;
+
+    Thong_Bao thong_bao;
+
+    bool* view_state = nullptr;
+
    public:
-    void set(MyScreen* mc, Box* khung, Box* edit) {
+    void
+    set(MyScreen* mc, Box* khung, Box* edit, Flight_Manager* qlcb, bool* view_state) {
+        this->view_state = view_state;
+        this->danh_sach_mb = &qlcb->getListMB();
         this->myscreen = mc;
         this->khung = khung;
         khung->set_rect(300, 140, 1200, 600);
@@ -176,9 +186,15 @@ class Edit {
                     this->now = true;
                     nut_sua = {255, 255, 255};
                     nut_x = {255, 255, 255};
-                } else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) {
+                } else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) {  //>>> save change button
                     this->now = true;
-                    cout << "click sua\n";
+                    this->mb_dc_chon->setLoaiMB(this->input_loaimb.get_data().c_str());
+                    this->mb_dc_chon->setSoDay(stoi(this->input_soday.get_data()));
+                    this->mb_dc_chon->setSoDong(stoi(this->input_sodong.get_data()));
+                    // thong_bao.set_mess("Ban co chac muon thay doi khong ?");
+                    // thong_bao.warning(*(this->myscreen));
+                    std::cout << ">>> run this\n";
+                    *(this->view_state) = true;
                 }
 
                 break;
@@ -186,10 +202,13 @@ class Edit {
                 quit = true;
                 break;
         }
-        input_shmb.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+        input_loaimb.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+        input_soday.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+        input_sodong.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
     }
 
     void render_menu(MayBay* mb, Flight_Manager* qlcb) {
+        this->mb_dc_chon = mb;
         myscreen->blur_background(150);
         khung->render(myscreen->get_my_renderer());
         this->edit->set_rect(this->vi_tri_nut_sua);
@@ -200,7 +219,7 @@ class Edit {
             so_day = std::to_string(mb->getSoDay());
             so_dong = std::to_string(mb->getSoDong());
 
-            this->da_lap_cb = qlcb->getListCB().find_by_ma_cb_ct(mb->getSoHieuMB()) != nullptr;
+            this->da_lap_cb = qlcb->getListCB().find_by_sh_mb_v2(mb->getSoHieuMB());
 
             this->now = false;
         }
@@ -209,15 +228,13 @@ class Edit {
             this->myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
         }
 
-        // this->myscreen->render_Text(so_hieu_mb,rect_input[0],{0,0,0},true);
-        input_shmb.render();
-
-        if (this->da_lap_cb == false) {
+        if (this->da_lap_cb) {
             this->myscreen->render_Text(loai_mb, rect_input[1], {0, 0, 0}, true);
         } else {
             input_loaimb.render();
         }
 
+        this->myscreen->render_Text(so_hieu_mb, rect_input[0], {0, 0, 0}, true);
         input_soday.render();
         input_sodong.render();
 
@@ -275,6 +292,8 @@ class View_Plane {
     int route_plane_width[5]{150, 250, 600, 250, 250};
     string route_plane_name_cot[6]{"STT", "Số Hiệu MB", "Loại", "Số Dãy", "Số Dòng"};
 
+    bool view_state = false;
+
    public:
     View_Plane(Flight_Manager* qlcb, MyScreen* myscreen, BoxComponents* bc) {
         this->qlcb = qlcb;
@@ -284,7 +303,7 @@ class View_Plane {
         this->next = &(bc->next);
 
         menu_plane.set(myscreen, &(bc->khung_menu), &(bc->edit), &(bc->del));
-        edit_plane.set(myscreen, &(bc->khung_add_edit), &(bc->edit));
+        edit_plane.set(myscreen, &(bc->khung_add_edit), &(bc->edit), this->qlcb, &(this->view_state));
 
         table.set(myscreen, WIDTH_TABLE, HEIGHT_TABLE + 50);
         table.set_vitri(X_START_TABLE, Y_START_TABLE - 50);
@@ -379,8 +398,12 @@ class View_Plane {
             this->myscreen->render_Text("Trống !!!", {X_START_TABLE, Y_START_TABLE, WIDTH_TABLE, HEIGHT_TABLE}, {255, 0, 0}, true);
         }
         data.disconnect_render();
+
+        this->view_state = false;
     }
     void render() {
+        if (view_state) this->getData();  // theo dõi sự thay đổi máy bay trong danh sách máy bay
+
         table.render();  // render table
         if (vi_tri_hover_on_table != -1) {
             myscreen->render_cot({X_START_TABLE, Y_START_TABLE + (vi_tri_hover_on_table)*50, WIDTH_TABLE, 50}, {159, 212, 171});

@@ -174,7 +174,16 @@ class ListMayBay{
 
 
    friend std::ofstream& operator<<(std::ofstream& os, const ListMayBay& list);
+   friend std::ostream& operator<<(std::ostream& os, const ListMayBay& list);
 };
+
+std::ostream& operator<<(std::ostream& os, const ListMayBay& list) {
+   for (int i = 0; i < list.so_luong; i++) {
+        os << *(list.get_at(i)) << "\n";
+   }
+   return os;
+}
+
 std::ofstream& operator<<(std::ofstream& os, const ListMayBay& list) {
     for (int i=0 ; i < list.so_luong; i++) {
         os << *(list.get_at(i)) << "\n";

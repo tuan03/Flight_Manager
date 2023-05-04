@@ -12,6 +12,9 @@ class Input {
     SDL_Rect vitri;
 
    public:
+    string get_data() { return *data; }
+    int get_data_in_number() { return stoi(*data); }
+
     void set(bool logic) {
         this->ok = logic;
     }
@@ -20,14 +23,11 @@ class Input {
         if (this->is_clicked) {
             switch (e.type) {
                 case SDL_KEYDOWN:
-                    if (e.key.keysym.sym == SDLK_BACKSPACE) {
-                        std::cout << ">>> run this backspace\n";
-                        std::cout << ">>> this->data >>> " << *data << "\n";
+                    if (e.key.keysym.sym == SDLK_BACKSPACE && (*data).length() > 0) {
                         (*data).pop_back();
                     }
                     break;
                 case SDL_TEXTINPUT:
-                    cout << ">>> SDL_text 11111111 2312313211 >>> " << *data << "\n";
                     if ((*data).length() < max_length) {
                         if (e.text.text[0] >= '0' && e.text.text[0] <= '9')
                             *data += e.text.text;
@@ -72,10 +72,12 @@ class Thong_Bao {
    private:
     string mess = "";
     Box* man_thong_bao = nullptr;
-    SDL_Rect ok{980, 700, 200, 50};
+    SDL_Rect ok{980, 700, 200, 50};  // ok2
     SDL_Rect huy{600, 700, 200, 50};
     SDL_Color c_ok = {255, 255, 255};
     SDL_Color c_huy = {255, 255, 255};
+    SDL_Rect ok1{790, 700, 200, 50};
+    bool check_tb = true;
 
    public:
     void set_box(Box* box) {
@@ -96,6 +98,9 @@ class Thong_Bao {
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:  // sự kiện nhấn vào các box
+                                       //    if (MyFunc::check_click(mouse_X, mouse_Y, ok1)){}
+                                       //    xử lí xác nhận sửa hay lỗi
+
                 if (MyFunc::check_click(mouse_X, mouse_Y, ok)) {
                     // xử lí bấm oke
                 } else if (MyFunc::check_click(mouse_X, mouse_Y, huy)) {
@@ -107,7 +112,13 @@ class Thong_Bao {
                 break;
         }
     }
-    void render(MyScreen& myscreen) {
+    void warning(MyScreen& myscreen) {
+        man_thong_bao->render(myscreen.get_my_renderer());
+        myscreen.render_cot(ok1, {255, 255, 255});
+        myscreen.render_Text("Đồng Ý", ok1, {0, 0, 0}, true);
+        myscreen.render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
+    }
+    void error(MyScreen& myscreen) {
         man_thong_bao->render(myscreen.get_my_renderer());
         myscreen.render_cot(ok, {255, 255, 255});
         myscreen.render_Text("Đồng Ý", ok, {0, 0, 0}, true);
@@ -115,6 +126,7 @@ class Thong_Bao {
         myscreen.render_Text("Hủy", huy, {0, 0, 0}, true);
     }
 };
+
 class Render_Data {
    private:
    public:

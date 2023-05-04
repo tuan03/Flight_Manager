@@ -99,9 +99,9 @@ class Controller {
 
                 view_plane.handleEvent(e, current_route, menu, is_home, quit);
 
-                view_flight.handleEvent(e, current_route, menu, is_home, quit);
+                // view_flight.handleEvent(e, current_route, menu, is_home, quit);
 
-                view_customer.handleEvent(e, current_route, menu, is_home, quit);
+                // view_customer.handleEvent(e, current_route, menu, is_home, quit);
             }
 
             // render
