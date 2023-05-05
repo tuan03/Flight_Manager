@@ -8,7 +8,7 @@ class Input {
     string* data;
     int max_length = 0;
     bool is_clicked = false;
-    bool ok = true;
+    bool ok_warning = true;
     SDL_Rect vitri;
 
    public:
@@ -16,10 +16,10 @@ class Input {
     int get_data_in_number() { return stoi(*data); }
 
     void set(bool logic) {
-        this->ok = logic;
+        this->ok_warning = logic;
     }
     void handleInput_IN_HOA_SO_KHONG_CACH(SDL_Event e, int x, int y) {
-        if (ok && e.type == SDL_MOUSEBUTTONDOWN) this->is_clicked = MyFunc::check_click(x, y, this->vitri);
+        if (ok_warning && e.type == SDL_MOUSEBUTTONDOWN) this->is_clicked = MyFunc::check_click(x, y, this->vitri);
         if (this->is_clicked) {
             switch (e.type) {
                 case SDL_KEYDOWN:
@@ -72,12 +72,15 @@ class Thong_Bao {
    private:
     string mess = "";
     Box* man_thong_bao = nullptr;
-    SDL_Rect ok{980, 700, 200, 50};  // ok2
+    SDL_Rect ok_warning{980, 700, 200, 50};  // ok2
     SDL_Rect huy{600, 700, 200, 50};
     SDL_Color c_ok = {255, 255, 255};
     SDL_Color c_huy = {255, 255, 255};
-    SDL_Rect ok1{790, 700, 200, 50};
-    bool check_tb = true;
+    SDL_Rect ok_error{790, 700, 200, 50};
+    bool check_tb = false;
+
+    bool is_turn_on_warning = false;
+    bool is_turn_on_error = false;
 
    public:
     void set_box(Box* box) {
@@ -86,25 +89,38 @@ class Thong_Bao {
     void set_mess(string mess) {
         this->mess = mess;
     }
-    void handleEvent(SDL_Event e, int mouse_X, int mouse_Y, bool& quit) {
+    void on_warning() {
+        this->check_tb = false;
+        this->is_turn_on_warning = true;
+    }
+    void on_error() {
+        this->check_tb = false;
+        this->is_turn_on_error = true;
+    }
+    bool get_check_tb() {
+        return this->check_tb;
+    }
+    void handleEvent(SDL_Event e, int mouse_X, int mouse_Y, bool& quit, bool& escape_flag) {
         c_ok = {255, 255, 255};
         c_huy = {255, 255, 255};
         switch (e.type) {
             case SDL_MOUSEMOTION:
-                if (MyFunc::check_click(mouse_X, mouse_Y, ok)) {
+                if (MyFunc::check_click(mouse_X, mouse_Y, ok_warning)) {
                     c_ok = {255, 219, 26};
                 } else if (MyFunc::check_click(mouse_X, mouse_Y, huy)) {
                     c_huy = {255, 219, 26};
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:  // sự kiện nhấn vào các box
-                                       //    if (MyFunc::check_click(mouse_X, mouse_Y, ok1)){}
-                                       //    xử lí xác nhận sửa hay lỗi
-
-                if (MyFunc::check_click(mouse_X, mouse_Y, ok)) {
-                    // xử lí bấm oke
+                if (MyFunc::check_click(mouse_X, mouse_Y, ok_error)) {
+                    this->is_turn_on_error = false;
+                } else if (MyFunc::check_click(mouse_X, mouse_Y, ok_warning)) {
+                    this->is_turn_on_warning = false;
+                    this->check_tb = true;
                 } else if (MyFunc::check_click(mouse_X, mouse_Y, huy)) {
-                    // xử lý bấm hủy
+                    this->is_turn_on_warning = false;
+                    this->is_turn_on_error = false;
+                    escape_flag = false;
                 }
                 break;
             case SDL_QUIT:  // sự kiện nhất thoát
@@ -112,18 +128,23 @@ class Thong_Bao {
                 break;
         }
     }
-    void warning(MyScreen& myscreen) {
-        man_thong_bao->render(myscreen.get_my_renderer());
-        myscreen.render_cot(ok1, {255, 255, 255});
-        myscreen.render_Text("Đồng Ý", ok1, {0, 0, 0}, true);
-        myscreen.render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
-    }
-    void error(MyScreen& myscreen) {
-        man_thong_bao->render(myscreen.get_my_renderer());
-        myscreen.render_cot(ok, {255, 255, 255});
-        myscreen.render_Text("Đồng Ý", ok, {0, 0, 0}, true);
-        myscreen.render_cot(huy, {255, 255, 255});
-        myscreen.render_Text("Hủy", huy, {0, 0, 0}, true);
+    // void render_error(MyScreen& myscreen) {
+    //     if (this->is_turn_on_error) {
+    //         man_thong_bao->render(myscreen.get_my_renderer());
+    //         myscreen.render_cot(ok_error, {255, 255, 255});
+    //         myscreen.render_Text("Đồng Ý", ok_error, {0, 0, 0}, true);
+    //         myscreen.render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
+    //     }
+    // }
+    void render_warning(MyScreen& myscreen) {
+        if (this->is_turn_on_warning) {
+            man_thong_bao->render(myscreen.get_my_renderer());
+            myscreen.render_cot(ok_warning, c_ok);
+            myscreen.render_Text("Đồng Ý", ok_warning, {0, 0, 0}, true);
+            myscreen.render_cot(huy, c_huy);
+            myscreen.render_Text("Hủy", huy, {0, 0, 0}, true);
+            myscreen.render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
+        }
     }
 };
 

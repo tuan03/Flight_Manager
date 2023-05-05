@@ -69,7 +69,7 @@ class Controller {
     void running() {
         View_Plane view_plane(&(this->qlcb), &(this->myscreen), &components_on_route);                                                                                                                                                                                                                                            // khởi tạo view Plane
         View_Flight view_flight(&(this->qlcb), &(this->myscreen), &components_on_route);                                                                                                                                                                                                                                          // khởi tạo view Plane
-        View_Customer view_customer(&(this->qlcb), &(this->myscreen), &components_on_route);                                                                                                                                                                                                                                      // khởi tạo view Plane
+        View_Customer view_customer(&(this->qlcb), &(this->myscreen), &components_on_route);
 
         components_on_route.thong_bao.set_rect(400, 100, 1000, 600);
 

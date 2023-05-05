@@ -15,7 +15,7 @@ class MayBay{
 		int so_lan_bay = 0;
 
 
-		void set(char* sh, char* loai, int day, int dong){
+		void set(const char* sh, const char* loai, int day, int dong){
 			strcpy(this->so_hieu_mb, sh);
 			strcpy(this->loai_mb, loai);
 			this->so_day = day;
@@ -60,7 +60,7 @@ class MayBay{
         this->so_day = so_day;
         this->so_dong = so_dong;
     }
-	MayBay(char* sh, char* loai, int day, int dong){
+	MayBay(const char* sh, const char* loai, int day, int dong){
 		this->set(sh,loai,day,dong);
 	}
 		friend std::istringstream& operator>>(std::istringstream& is, MayBay& mb);
@@ -102,7 +102,7 @@ class ListMayBay{
 			data[so_luong] = mb;
 			so_luong++;
 		}
-		Status add(char* so_hieu_mb, char* loai, int day, int dong){
+		Status add(const char* so_hieu_mb,const char* loai, int day, int dong){
 			if(this->isFull()) return Status("Danh Sách Máy Bay Đã Đầy");
 			if(this->find_mamb(so_hieu_mb) != -1) return Status("Số Hiệu Máy Bay Đã Tồn Tại");
 			if(day*dong < 20 ) return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
@@ -114,7 +114,7 @@ class ListMayBay{
 		}
 
 
-		Status edit(MayBay* mb,char* loai_mb,int day,int dong){
+		Status edit(MayBay* mb,const char* loai_mb,int day,int dong){
 			if(day*dong < 20 ) return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
 			if(day < 1 || day > 26 ) return Status("Số Dãy Không Hợp Lệ (1-26)");
 			if(dong < 1 || dong > 99 ) return Status("Số Dòng Không Hợp Lệ (1-99)");
@@ -146,7 +146,7 @@ class ListMayBay{
 	
 		
 		//find chuyen bay
-		int find_mamb(char* so_hieu_mb){
+		int find_mamb(const char* so_hieu_mb){
 			for(int i = 0; i < so_luong; i++){
 				if(strcmp(data[i]->getSoHieuMB(), so_hieu_mb) == 0){
 					return i;
@@ -154,7 +154,7 @@ class ListMayBay{
 			}
 			return -1; // Trả về false nếu không tìm thấy
 		}
-		MayBay* find_mamb_ct(char* so_hieu_mb){
+		MayBay* find_mamb_ct(const char* so_hieu_mb){
 			for(int i = 0; i < so_luong; i++){
 				if(strcmp(data[i]->getSoHieuMB(), so_hieu_mb) == 0){
 					return data[i];

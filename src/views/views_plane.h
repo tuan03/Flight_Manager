@@ -131,15 +131,19 @@ class Edit {
     ListMayBay* danh_sach_mb = nullptr;
     MayBay* mb_dc_chon = nullptr;
 
-    Thong_Bao thong_bao;
-
     bool* view_state = nullptr;
+
+    Thong_Bao thong_bao;
+    bool toast_result_option = false;
+
+    bool escape_flag = false;
 
    public:
     void
-    set(MyScreen* mc, Box* khung, Box* edit, Flight_Manager* qlcb, bool* view_state) {
+    set(MyScreen* mc, Box* khung, BoxComponents& cpn_on_route, Box* edit, Flight_Manager* qlcb, bool* view_state) {
         this->view_state = view_state;
         this->danh_sach_mb = &qlcb->getListMB();
+        this->thong_bao.set_box(&(cpn_on_route.thong_bao));
         this->myscreen = mc;
         this->khung = khung;
         khung->set_rect(300, 140, 1200, 600);
@@ -165,6 +169,7 @@ class Edit {
     void handleEvent(SDL_Event e, State& state, int mouse_X, int mouse_Y, bool& quit) {
         nut_sua = {255, 255, 255};
         nut_x = {255, 255, 255};
+
         switch (e.type) {
             case SDL_MOUSEMOTION:
                 if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_x)) {
@@ -188,23 +193,37 @@ class Edit {
                     nut_x = {255, 255, 255};
                 } else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) {  //>>> save change button
                     this->now = true;
-                    this->mb_dc_chon->setLoaiMB(this->input_loaimb.get_data().c_str());
-                    this->mb_dc_chon->setSoDay(stoi(this->input_soday.get_data()));
-                    this->mb_dc_chon->setSoDong(stoi(this->input_sodong.get_data()));
-                    // thong_bao.set_mess("Ban co chac muon thay doi khong ?");
-                    // thong_bao.warning(*(this->myscreen));
-                    std::cout << ">>> run this\n";
-                    *(this->view_state) = true;
+                    this->escape_flag = true;
                 }
-
                 break;
             case SDL_QUIT:  // sự kiện nhất thoát
                 quit = true;
                 break;
         }
+
         input_loaimb.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
         input_soday.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
         input_sodong.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+
+        if (this->escape_flag) {
+            thong_bao.set_mess("Ban co chac muon thay doi khong ?");
+            thong_bao.on_warning();
+
+            this->thong_bao.handleEvent(e, mouse_X, mouse_Y, quit, this->escape_flag);
+
+            if (thong_bao.get_check_tb() == false) goto label;
+            std::cout << ">>> run this\n";
+            // Status is_error;
+            // is_error = this->danh_sach_mb->edit(this->mb_dc_chon, this->mb_dc_chon->getLoaiMB(), this->mb_dc_chon->getSoDay(), this->mb_dc_chon->getSoDong());
+
+            std::cout << ">>> input data loai mb >>> " << this->input_loaimb.get_data().c_str() << "\n";
+            this->mb_dc_chon->setLoaiMB(this->input_loaimb.get_data().c_str());
+            this->mb_dc_chon->setSoDay(stoi(this->input_soday.get_data()));
+            this->mb_dc_chon->setSoDong(stoi(this->input_sodong.get_data()));
+            *(this->view_state) = true;
+            this->escape_flag = false;
+        }
+    label:;
     }
 
     void render_menu(MayBay* mb, Flight_Manager* qlcb) {
@@ -239,6 +258,8 @@ class Edit {
         input_sodong.render();
 
         this->render_button_xoa_sua();
+
+        this->thong_bao.render_warning(*(this->myscreen));  // render thong bao
     }
     void render_confirm_xoa() {
         SDL_Rect rect;
@@ -303,7 +324,7 @@ class View_Plane {
         this->next = &(bc->next);
 
         menu_plane.set(myscreen, &(bc->khung_menu), &(bc->edit), &(bc->del));
-        edit_plane.set(myscreen, &(bc->khung_add_edit), &(bc->edit), this->qlcb, &(this->view_state));
+        edit_plane.set(myscreen, &(bc->khung_add_edit), *bc, &(bc->edit), this->qlcb, &(this->view_state));
 
         table.set(myscreen, WIDTH_TABLE, HEIGHT_TABLE + 50);
         table.set_vitri(X_START_TABLE, Y_START_TABLE - 50);
