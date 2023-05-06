@@ -15,6 +15,8 @@
 #include<ctime>
 #include <chrono>
 
+#include "time.h"
+
 
 
 
@@ -45,6 +47,10 @@ using namespace std;
 #define FILE_PATH_DATA_HANH_KHACH "src/data/data_hanh_khach.txt"
 #define FILE_PATH_DATA_MAY_BAY "src/data/data_may_bay.txt"
 
+#define FILE_PATH_DATA_CHUYEN_BAY_BACKUP "src/data/data_chuyen_bay_(backup).txt"
+#define FILE_PATH_DATA_HANH_KHACH_BACKUP "src/data/data_hanh_khach_(backup).txt"
+#define FILE_PATH_DATA_MAY_BAY_BACKUP "src/data/data_may_bay_(backup).txt"
+
 
 #define X_START_BODY 50
 #define Y_START_BODY 150
@@ -64,7 +70,6 @@ using namespace std;
 
 
 namespace Func_Global{
-
 
 bool is_nam_nhuan(int year){ return (year % 4 == 0) && (year % 100 != 0 || year % 400 == 0); }
 
@@ -102,6 +107,7 @@ bool check_prefix(const char* parent, const char * child){
     return true;
 }
 }
+
 
 
 
