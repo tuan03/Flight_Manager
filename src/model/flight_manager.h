@@ -33,6 +33,19 @@ class Flight_Manager{
             File_Handling::write<ListChuyenBay>(FILE_PATH_DATA_CHUYEN_BAY,FILE_PATH_DATA_CHUYEN_BAY_BACKUP,ds_chuyenbay);
         }
 
+
+    Status del_mb(const char* soHieuMB){
+    		int index = this->ds_maybay.find_mamb(soHieuMB);
+    		if (index == -1) {
+                return Status("Không Tìm Thấy Máy Bay.");
+            }
+				if(this->ds_chuyenbay.find_by_sh_mb_v2(soHieuMB) == true) return Status("Xóa Thất Bại, Máy Bay Đã Lập Chuyến Bay.");
+			    this->ds_maybay.del(index);
+                return Status("Xóa Thành Công.", Status_Name::SUCCESS);
+		}
+
+
+
     Status add_cb(char* ma_so_cb, int minute, int hour, int day, int month, int year, char* san_bay_den, char* so_hieu_mb) {
 
             if(ds_chuyenbay.find_by_ma_cb(ma_so_cb)){

@@ -129,18 +129,15 @@ class ListMayBay{
 		
 
 
-		// void xoaMayBay(char* soHieuMB){
-    	// 	int index = find_mamb(soHieuMB);
-    	// 	if (index != -1) {
-		// 		if(!checkcomplete()){
-		// 	    delete data[index];
-		// 	    for (int i = index; i < so_luong - 1; i++) {
-		// 		data[i] = data[i + 1];
-		// 	       }
-		// 	    so_luong--;
-    	// 	    } 
-		// 	}
-		// }
+		void del(int index){
+    		if (index >=0 && index < so_luong) {
+			    delete data[index];
+			    for (int i = index; i < so_luong - 1; i++) {
+				data[i] = data[i + 1];
+			       }
+			    so_luong--;
+			}
+		}
 
 		void print(){
             for(int i = 0; i < so_luong; i++){

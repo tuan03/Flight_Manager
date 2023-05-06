@@ -68,8 +68,30 @@ using namespace std;
 //{232,186,236,255}
 
 
-
+/**
+ * @brief Method in file Global.h
+ * 
+ */
 namespace Func_Global{
+
+int get_line(int x, int y, int so_luong, int current_page){
+    if (x >= X_START_TABLE && x <= X_START_TABLE + WIDTH_TABLE && y >= Y_START_TABLE && y <= Y_START_TABLE + HEIGHT_TABLE)
+    {
+        int vitri = (y - Y_START_TABLE) / 50;
+        if (current_page == (so_luong / 10) + 1)
+        {
+            if (vitri < so_luong % 10)
+            {
+                return vitri;
+            }
+        }
+        else
+        {
+            return vitri;
+        }
+    }
+    return -1;
+}
 
 bool is_nam_nhuan(int year){ return (year % 4 == 0) && (year % 100 != 0 || year % 400 == 0); }
 
