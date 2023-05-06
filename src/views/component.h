@@ -51,9 +51,13 @@ class Input {
     void set_vitri(SDL_Rect rect) {
         this->vitri = rect;
     }
-    void render() {
+    void render(bool type_red = false) {
         SDL_Rect box_input{vitri.x + 3, vitri.y + 3, vitri.w - 6, vitri.h - 6};
+        if(type_red == true){
+            myscreen->render_cot(vitri, {255, 0, 0},{255,0,0});
+        } else {
         myscreen->render_cot(vitri, {0, 0, 0});
+        }
         if (this->is_clicked)
             myscreen->render_cot(box_input);
         else
@@ -72,78 +76,49 @@ class Thong_Bao {
    private:
     string mess = "";
     Box* man_thong_bao = nullptr;
-    SDL_Rect ok_warning{980, 700, 200, 50};  // ok2
-    SDL_Rect huy{600, 700, 200, 50};
+    SDL_Rect ok{790, 700, 200, 50};  // ok2
     SDL_Color c_ok = {255, 255, 255};
-    SDL_Color c_huy = {255, 255, 255};
-    SDL_Rect ok_error{790, 700, 200, 50};
-    bool check_tb = false;
+    MyScreen* myscreen = nullptr;
 
-    bool is_turn_on_warning = false;
-    bool is_turn_on_error = false;
-
+    bool flag = false;
    public:
+   void connect_screen(MyScreen& myscreen){
+    this->myscreen = &myscreen;
+   }
     void set_box(Box* box) {
         this->man_thong_bao = box;
     }
     void set_mess(string mess) {
         this->mess = mess;
     }
-    void on_warning() {
-        this->check_tb = false;
-        this->is_turn_on_warning = true;
+    void on(){
+        this->flag = true;
     }
-    void on_error() {
-        this->check_tb = false;
-        this->is_turn_on_error = true;
+    bool is_display(){
+        return flag;
     }
-    bool get_check_tb() {
-        return this->check_tb;
-    }
-    void handleEvent(SDL_Event e, int mouse_X, int mouse_Y, bool& quit, bool& escape_flag) {
+    void handleEvent(SDL_Event e, int mouse_X, int mouse_Y) {
         c_ok = {255, 255, 255};
-        c_huy = {255, 255, 255};
         switch (e.type) {
             case SDL_MOUSEMOTION:
-                if (MyFunc::check_click(mouse_X, mouse_Y, ok_warning)) {
+                if (MyFunc::check_click(mouse_X, mouse_Y, ok)) {
                     c_ok = {255, 219, 26};
-                } else if (MyFunc::check_click(mouse_X, mouse_Y, huy)) {
-                    c_huy = {255, 219, 26};
-                }
+                } 
                 break;
             case SDL_MOUSEBUTTONDOWN:  // sự kiện nhấn vào các box
-                if (MyFunc::check_click(mouse_X, mouse_Y, ok_error)) {
-                    this->is_turn_on_error = false;
-                } else if (MyFunc::check_click(mouse_X, mouse_Y, ok_warning)) {
-                    this->is_turn_on_warning = false;
-                    this->check_tb = true;
-                } else if (MyFunc::check_click(mouse_X, mouse_Y, huy)) {
-                    this->is_turn_on_warning = false;
-                    this->is_turn_on_error = false;
-                    escape_flag = false;
+                if (MyFunc::check_click(mouse_X, mouse_Y, ok)) {
+                    flag = false;
                 }
-                break;
-            case SDL_QUIT:  // sự kiện nhất thoát
-                quit = true;
                 break;
         }
     }
-    // void render_error(MyScreen& myscreen) {
-    //     if (this->is_turn_on_error) {
-    //         man_thong_bao->render(myscreen.get_my_renderer());
-    //         myscreen.render_cot(ok_error, {255, 255, 255});
-    //         myscreen.render_Text("Đồng Ý", ok_error, {0, 0, 0}, true);
-    //         myscreen.render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
-    //     }
-    // }
-    void render_warning(MyScreen& myscreen) {
-        if (this->is_turn_on_warning) {
-            man_thong_bao->render(myscreen.get_my_renderer());
-            myscreen.render_cot(ok_warning, c_ok);
-            myscreen.render_Text("Đồng Ý", ok_warning, {0, 0, 0}, true);
-            myscreen.render_cot(huy, c_huy);
-            myscreen.render_Text("Hủy", huy, {0, 0, 0}, true);
-            myscreen.render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
+    void render() {
+        if(flag){
+        if(myscreen == nullptr) throw "MyScreen is NULL\n";
+            man_thong_bao->render(myscreen->get_my_renderer());
+            myscreen->render_cot(ok, c_ok);
+            myscreen->render_Text("Đồng Ý", ok, {0, 0, 0}, true);
+            myscreen->render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
         }
     }
 };

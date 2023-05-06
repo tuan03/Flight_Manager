@@ -34,11 +34,7 @@ class Flight_Manager {
         write(FILE_PATH_DATA_CHUYEN_BAY, ds_chuyenbay);
     }
 
-    void duyet_danh_sach_may_bay(){
-         for(int i = 0; i < this->ds_maybay.so_luong; i++){
-				cout<<*data[i]<<'\n';
-			}
-    }
+
 
 
     Status add_cb(char* ma_so_cb, int minute, int hour, int day, int month, int year, char* san_bay_den, char* so_hieu_mb) {

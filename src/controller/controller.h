@@ -13,6 +13,7 @@ class Controller {
     MyScreen myscreen;
     Flight_Manager qlcb;
     ListBox menu;
+    Thong_Bao thong_bao;
 
     int route_plane_width[5]{
         150,
@@ -47,11 +48,15 @@ class Controller {
         //load img vào các thành phần con
         c_components.load_img(myscreen);
         //end
+        thong_bao.connect_screen(myscreen);
+        thong_bao.set_box(&(c_components.thong_bao));
+        thong_bao.on();
+        thong_bao.set_mess("Are You Oke?");
     }
 
     void running() {
         //Khởi tạo các route
-        View_Plane view_plane(&(this->qlcb), &(this->myscreen), c_components);                                                                                                                                                                                                                                            // khởi tạo view Plane
+        View_Plane view_plane(&(this->qlcb), &(this->myscreen), c_components, thong_bao);                                                                                                                                                                                                                                            // khởi tạo view Plane
         // View_Flight view_flight(&(this->qlcb), &(this->myscreen), c_components);                                                                                                                                                                                                                                          // khởi tạo view Plane
         // View_Customer view_customer(&(this->qlcb), &(this->myscreen), c_components);
         //end
@@ -63,7 +68,7 @@ class Controller {
         Uint32 timePre = SDL_GetTicks();      // tạo fps
         int frames = 0;
         Box* get_box_hover = nullptr;             // để lấy lấy box đang hover, null nếu khoogn trên box nào
-        Name_Box current_hover = Name_Box::NONE;  // route đnag hover
+        Name_Box current_hover = Name_Box::NONE;  // route đnag hover trên thanh menu
         Name_Box current_route = Name_Box::NONE;  // route hiện tại đang ở
         int mouse_X, mouse_Y;
         while (!quit) {
@@ -81,15 +86,23 @@ class Controller {
                         current_hover = Name_Box::NONE;
                     }
                 }
+                if(thong_bao.is_display()){
+                thong_bao.handleEvent(e,mouse_X,mouse_Y);
+                } else {
                 if (is_home && e.type == SDL_MOUSEBUTTONDOWN) {  // sự kiện nhấn vào các box
-                    if (current_hover != Name_Box::NONE) current_route = current_hover;
+                    if ((current_hover != Name_Box::NONE) && (current_route != current_hover)) { 
+                        current_route = current_hover; //chuyển route
                 }
-                //bắt sự kiện rout Plane
-                view_plane.handleEvent(e, current_route, menu, is_home, quit);
-
+                }
+                //bắt sự kiện route Plane
+                if(current_route == Name_Box::PLANE){
+                view_plane.handleEvent(e, is_home,mouse_X,mouse_Y);
+                }
+                
                 // view_flight.handleEvent(e, current_route, menu, is_home, quit);
 
                 // view_customer.handleEvent(e, current_route, menu, is_home, quit);
+                }
             }
 
             // render
@@ -113,9 +126,11 @@ class Controller {
                     break;
 
                 default:
-                    c_components.plane_at_homepage.render(myscreen.get_my_renderer());  // rename
+                    // c_components.plane_at_homepage.render(myscreen.get_my_renderer());  // rename
+                    
                     break;
             }
+            thong_bao.render();
 
             SDL_RenderPresent(myscreen.get_my_renderer()->get_renderer());
             // render

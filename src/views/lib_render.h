@@ -303,7 +303,7 @@ public:
     }
 };
 /**
- * @brief Chưa các định nghĩa về các Route.
+ * @brief Chứa tên các Route.
  * Bao gồm: NONE , PLANE, FLIGHT, CUSTOMER, TICKET, THONGKE.
  * 
  */

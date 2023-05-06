@@ -44,6 +44,18 @@ class MayBay{
             so_dong = dong;
         }
 
+	//edit
+
+		Status edit(const char* loai_mb,int day,int dong){
+			if(day*dong < 20 ) return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
+			if(day < 1 || day > 26 ) return Status("Số Dãy Không Hợp Lệ (1-26)");
+			if(dong < 1 || dong > 99 ) return Status("Số Dòng Không Hợp Lệ (1-99)");
+            this->setLoaiMB(loai_mb);
+			this->setSoDay(day);
+			this->setSoDong(dong);
+			return Status("Sửa Máy Bay Thành Công !",Status_Name::SUCCESS);
+		}
+
 	//
 	MayBay(){
 
@@ -114,15 +126,7 @@ class ListMayBay{
 		}
 
 
-		Status edit(MayBay* mb,const char* loai_mb,int day,int dong){
-			if(day*dong < 20 ) return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
-			if(day < 1 || day > 26 ) return Status("Số Dãy Không Hợp Lệ (1-26)");
-			if(dong < 1 || dong > 99 ) return Status("Số Dòng Không Hợp Lệ (1-99)");
-            mb->setLoaiMB(loai_mb);
-			mb->setSoDay(day);
-			mb->setSoDong(dong);
-			return Status("Sửa Máy Bay Thành Công !",Status_Name::SUCCESS);
-		}
+		
 
 
 		// void xoaMayBay(char* soHieuMB){
