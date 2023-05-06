@@ -155,15 +155,49 @@ class Render_Data {
     }
 };
 
-struct BoxComponents {
-    Box prev;
-    Box next;
-    Box plane_at_homepage;
-    Box khung_menu;
-    Box edit;
-    Box add;
-    Box del;
-    Box khung_add_edit;
-    Box thong_bao;
+/**
+ * @note Buộc phải gọi hàm Load_img trước
+ * 
+ */
+struct Child_Component {
+    Box plane_at_homepage; //máy bay ở homepage
+    Box prev; //nút Prev
+    Box next; //nút Next
+    Box edit; // nút edit
+    Box add; // nút add
+    Box del; // nút xóa
+    Box khung_menu; // khung menu
+    Box khung_add_edit; // khung để add hoặc edit
+    Box thong_bao; // khung thông báo
+    void load_img(MyScreen& myscreen){
+        plane_at_homepage.create("src/views/img/plane_img.png", myscreen.get_my_renderer());  // rename
+        plane_at_homepage.set_rect(500, 190, 800, 700);
+
+        // prev
+        prev.create("src/views/img/prev.png", myscreen.get_my_renderer());  // renanme
+        prev.set_rect(760, 815, 80, 80);        
+        prev.set_hover("src/views/img/prev1.png", myscreen.get_my_renderer());
+        //end prev
+
+        //start next
+        next.create("src/views/img/next.png", myscreen.get_my_renderer());
+        next.set_rect(960, 815, 80, 80);
+        next.set_hover("src/views/img/next1.png", myscreen.get_my_renderer());
+        //end next
+
+
+        edit.create("src/views/img/edit.png", myscreen.get_my_renderer());
+        add.create("src/views/img/add.png", myscreen.get_my_renderer());
+        add.set_rect(X_START_BODY + 1700 - 150, Y_START_BODY, 150, 60);
+        del.create("src/views/img/del.png", myscreen.get_my_renderer());
+
+
+        khung_menu.create("src/views/img/khung_menu.png", myscreen.get_my_renderer());
+        khung_add_edit.create("src/views/img/khung.png", myscreen.get_my_renderer());
+        SDL_Rect vt_khung_add_edit = MyFunc::center_Rect(850,450,{X_START_BODY,Y_START_BODY, 1700, 580});
+        khung_add_edit.set_rect(vt_khung_add_edit);
+        thong_bao.create("src/views/img/thong_bao.png", myscreen.get_my_renderer());
+        thong_bao.set_rect(vt_khung_add_edit);
+    }
 };
 #endif

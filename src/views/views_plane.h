@@ -15,14 +15,11 @@ enum State {
 class Menu {
    private:
     MyScreen* myscreen = nullptr;
-    Box* khung_menu = nullptr;
+    Child_Component* child_components = nullptr;
     SDL_Rect vi_tri_nut_x = {1250, 210, 50, 50};  // vị trí nút quit
     SDL_Color nut_xoa = {255, 255, 255};          // màu rgb
     SDL_Color nut_sua = {255, 255, 255};
     SDL_Color nut_x = {255, 255, 255};
-
-    Box* edit = nullptr;
-    Box* del = nullptr;
 
    public:
     void handleEvent(SDL_Event e, State& state, int mouse_X, int mouse_Y, bool& quit) {
@@ -33,9 +30,9 @@ class Menu {
             case SDL_MOUSEMOTION:
                 if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_x)) {
                     nut_x = {255, 219, 26};
-                } else if (edit->is_in_box(mouse_X, mouse_Y)) {
+                } else if (this->child_components->edit.is_in_box(mouse_X, mouse_Y)) {
                     nut_sua = {255, 219, 26};
-                } else if (del->is_in_box(mouse_X, mouse_Y)) {
+                } else if (this->child_components->del.is_in_box(mouse_X, mouse_Y)) {
                     nut_xoa = {255, 219, 26};
                 }
 
@@ -43,9 +40,9 @@ class Menu {
             case SDL_MOUSEBUTTONDOWN:  // sự kiện nhấn vào các box
                 if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_x)) {
                     state = State::HOME;
-                } else if (edit->is_in_box(mouse_X, mouse_Y)) {  //
+                } else if (this->child_components->edit.is_in_box(mouse_X, mouse_Y)) {  //
                     state = State::EDIT;                         // chuyển sang trang edit
-                } else if (del->is_in_box(mouse_X, mouse_Y)) {
+                } else if (this->child_components->del.is_in_box(mouse_X, mouse_Y)) {
                     cout << "Click xoa\n";  // xử lí sự kiện xóa
                 }
 
@@ -55,36 +52,34 @@ class Menu {
                 break;
         }
     }
-    void set(MyScreen* mc, Box* khung_menu, Box* edit, Box* del) {
+    void set(MyScreen* mc, Child_Component& c_p) {
         this->myscreen = mc;
-        this->khung_menu = khung_menu;
-        this->edit = edit;
-        this->del = del;
+        this->child_components = &c_p;
     }
 
     void render_menu(MayBay* mb, int vt) {
         // render khung menu
         SDL_Rect rect = {700, Y_START_TABLE + vt * 50 - 280, 300, 300};
-        khung_menu->set_rect(rect);
-        khung_menu->render(myscreen->get_my_renderer());
+        this->child_components->khung_menu.set_rect(rect);
+        this->child_components->khung_menu.render(myscreen->get_my_renderer());
         // end
 
         SDL_Rect rect_2 = {rect.x + 75, rect.y + 60, 150, 60};
-        edit->set_rect(rect_2);  // đặt vị trí theo khung menu
+        this->child_components->edit.set_rect(rect_2);  // đặt vị trí theo khung menu
         rect_2.y += 30;
         this->vi_tri_nut_x = {960, rect_2.y, 50, 50};
         rect_2.y += 60;
-        del->set_rect(rect_2);  // đặt vị trí theo khung menu
+        this->child_components->del.set_rect(rect_2);  // đặt vị trí theo khung menu
         this->render_button_xoa_sua_thoat();
     }
     void render_button_xoa_sua_thoat() {
         //
-        myscreen->render_cot(del->get_rect(), nut_xoa);   // render nền
-        myscreen->render_cot(edit->get_rect(), nut_sua);  // render nền
+        myscreen->render_cot(this->child_components->del.get_rect(), nut_xoa);   // render nền
+        myscreen->render_cot(this->child_components->edit.get_rect(), nut_sua);  // render nền
         // tại nút edit và xóa có nền trong suốt cho nên màu nên sẽ phụ thuộc lớp ô vuông ở phía dưới nó, cụ thể là 2 ô vuông ở trên
 
-        this->edit->render(this->myscreen->get_my_renderer());  // render nút edit
-        this->del->render(this->myscreen->get_my_renderer());   // render nút delete
+        this->child_components->edit.render(this->myscreen->get_my_renderer());  // render nút edit
+        this->child_components->del.render(this->myscreen->get_my_renderer());   // render nút delete
         myscreen->render_cot(vi_tri_nut_x, nut_x);              // render nút thoát x
         myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
     }
@@ -101,9 +96,8 @@ class Del {
 };
 class Edit {
    private:
-    MyScreen* myscreen;
-    Box* khung;
-    Box* edit;
+    MyScreen* myscreen = nullptr;
+    Child_Component* child_components = nullptr;
     SDL_Rect vi_tri_nut_x = {1250, 210, 50, 50};
     SDL_Rect vi_tri_nut_sua = {950, 450, 150, 60};
     SDL_Color nut_sua = {255, 255, 255};
@@ -140,15 +134,13 @@ class Edit {
 
    public:
     void
-    set(MyScreen* mc, Box* khung, BoxComponents& cpn_on_route, Box* edit, Flight_Manager* qlcb, bool* view_state) {
+    set(MyScreen* mc, Flight_Manager* qlcb, bool* view_state, Child_Component& c_p) {
+        this->child_components = &c_p;
         this->view_state = view_state;
         this->danh_sach_mb = &qlcb->getListMB();
-        this->thong_bao.set_box(&(cpn_on_route.thong_bao));
+        this->thong_bao.set_box(&(c_p.thong_bao));
         this->myscreen = mc;
-        this->khung = khung;
-        khung->set_rect(300, 140, 1200, 600);
         this->vi_tri_nut_sua = {825, 515, 120, 60};
-        this->edit = edit;
 
         input_shmb.connect(mc);
         input_loaimb.connect(mc);
@@ -229,8 +221,8 @@ class Edit {
     void render_menu(MayBay* mb, Flight_Manager* qlcb) {
         this->mb_dc_chon = mb;
         myscreen->blur_background(150);
-        khung->render(myscreen->get_my_renderer());
-        this->edit->set_rect(this->vi_tri_nut_sua);
+        this->child_components->khung_add_edit.render(myscreen->get_my_renderer());
+        this->child_components->edit.set_rect(this->vi_tri_nut_sua);
 
         if (this->now == true) {
             so_hieu_mb = mb->getSoHieuMB();
@@ -271,7 +263,7 @@ class Edit {
     void render_button_xoa_sua() {
         myscreen->render_cot(vi_tri_nut_sua, nut_sua);
 
-        this->edit->render(this->myscreen->get_my_renderer());
+        this->child_components->edit.render(this->myscreen->get_my_renderer());
         myscreen->render_cot(vi_tri_nut_x, nut_x);
         myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
     }
@@ -287,10 +279,7 @@ class View_Plane {
     int current_page;      // phân trang hiện tại
     Flight_Manager* qlcb;  //
     MyScreen* myscreen;    //
-    Box* prev;             // nút prev
-    Box* next;             // nút next
-    Box* add = nullptr;    // nút add
-
+    Child_Component& c_components;
     int mouse_X, mouse_Y;                     // vị trí chuột
     Plane::State state = Plane::State::HOME;  // mặc định ở Child_Route Home
     Plane::Menu menu_plane;                   // route menu
@@ -316,15 +305,14 @@ class View_Plane {
     bool view_state = false;
 
    public:
-    View_Plane(Flight_Manager* qlcb, MyScreen* myscreen, BoxComponents* bc) {
+    View_Plane(Flight_Manager* qlcb, MyScreen* myscreen, Child_Component& cp): c_components{cp} {
         this->qlcb = qlcb;
         this->myscreen = myscreen;
         current_page = 1;
-        this->prev = &(bc->prev);
-        this->next = &(bc->next);
 
-        menu_plane.set(myscreen, &(bc->khung_menu), &(bc->edit), &(bc->del));
-        edit_plane.set(myscreen, &(bc->khung_add_edit), *bc, &(bc->edit), this->qlcb, &(this->view_state));
+        menu_plane.set(myscreen, this->c_components);
+        edit_plane.set(myscreen, this->qlcb, &(this->view_state),this->c_components);
+
 
         table.set(myscreen, WIDTH_TABLE, HEIGHT_TABLE + 50);
         table.set_vitri(X_START_TABLE, Y_START_TABLE - 50);
@@ -337,9 +325,6 @@ class View_Plane {
         input_so_hieu_mb.connect(this->myscreen);
         input_so_hieu_mb.connect_data(&(this->so_hieu_mb), MAX_LENGTH_SO_HIEU_MB);
         input_so_hieu_mb.set_vitri({300, 175, 300, 50});
-
-        this->add = &(bc->add);
-        this->add->set_rect(X_START_BODY + 1700 - 150, Y_START_BODY, 150, 60);
     }
 
     void handleEvent(SDL_Event e, Name_Box& current_route, ListBox& menu, bool& is_home, bool& quit) {
@@ -352,11 +337,11 @@ class View_Plane {
                     break;
                 case SDL_MOUSEBUTTONDOWN:  // sự kiện nhấn vào các box
                                            // bắt sự kiện nhấn next và prev
-                    if (current_page > 1 && prev->is_in_box(mouse_X, mouse_Y)) {
+                    if (current_page > 1 && this->c_components.prev.is_in_box(mouse_X, mouse_Y)) {
                         this->current_page -= 1;
                         getData();
                     }
-                    if (current_page < ((this->so_luong_data - 1) / 10) + 1 && next->is_in_box(mouse_X, mouse_Y)) {
+                    if (current_page < ((this->so_luong_data - 1) / 10) + 1 && this->c_components.next.is_in_box(mouse_X, mouse_Y)) {
                         current_page += 1;
                         getData();
                     }
@@ -366,10 +351,6 @@ class View_Plane {
                         this->temp = this->list_mb_dc_render[vi_tri_hover_on_table];
                         this->state = Plane::State::MENU;
                     }
-                    break;
-
-                case SDL_QUIT:  // sự kiện nhất thoát
-                    quit = true;
                     break;
             }
 
@@ -433,7 +414,7 @@ class View_Plane {
 
         data.render();  // render data
 
-        this->add->render(this->myscreen->get_my_renderer());  // render nút add
+        this->c_components.add.render(this->myscreen->get_my_renderer());  // render nút add
 
         // this->render_data(); // render bảng dữ liệu
 
@@ -464,8 +445,8 @@ class View_Plane {
 
     void render_next_prev() {
         SDL_Rect rect;
-        next->render(myscreen->get_my_renderer(), next->is_in_box(mouse_X, mouse_Y) ? 1 : 0);
-        prev->render(myscreen->get_my_renderer(), prev->is_in_box(mouse_X, mouse_Y) ? 1 : 0);
+        this->c_components.next.render(myscreen->get_my_renderer(), this->c_components.next.is_in_box(mouse_X, mouse_Y) ? 1 : 0);
+        this->c_components.prev.render(myscreen->get_my_renderer(), this->c_components.prev.is_in_box(mouse_X, mouse_Y) ? 1 : 0);
         rect = {840, 825, 120, 50};
         myscreen->render_Text(std::to_string(current_page) + "/" + std::to_string(((this->so_luong_data - 1) / 10) + 1), rect, {0, 0, 0, 255}, true);
     }

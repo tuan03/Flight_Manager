@@ -1,15 +1,15 @@
 #pragma once
 #include "../header.h"
 #include "../views/component.h"
-#include "../views/views_customer.h"
-#include "../views/views_flight.h"
+// #include "../views/views_customer.h"
+// #include "../views/views_flight.h"
 #include "../views/views_plane.h"
 #include "../views/views_thongke.h"
 #include "../views/views_ticket.h"
-
+//BoxComponents components_on_route
 class Controller {
    private:
-    BoxComponents components_on_route;
+    Child_Component c_components;
     MyScreen myscreen;
     Flight_Manager qlcb;
     ListBox menu;
@@ -36,42 +36,26 @@ class Controller {
 
    public:
     Controller() : myscreen{WIDTH_SCREEN, HEIGHT_SCREEN, "Quản Lí Chuyến Bay", "src/views/font/Arial.ttf", 24} {
-        components_on_route.plane_at_homepage.create("src/views/img/plane_img.png", myscreen.get_my_renderer());  // rename
-        components_on_route.plane_at_homepage.set_rect(500, 190, 800, 700);                                       // rename
-
         menu.connect_my_renderer(myscreen.get_my_renderer());
         menu.insert("src/views/img/plane1.png", {50, 25, 300, 100}, Name_Box::PLANE)->set_hover("src/views/img/plane2.png", myscreen.get_my_renderer())->set_clicked("src/views/img/plane3.png", myscreen.get_my_renderer());
         menu.insert("src/views/img/chuyenbay1.jpg", {400, 25, 300, 100}, Name_Box::FLIGHT)->set_hover("src/views/img/chuyenbay2.jpg", myscreen.get_my_renderer())->set_clicked("src/views/img/chuyenbay3.jpg", myscreen.get_my_renderer());
         menu.insert("src/views/img/custom1.jpg", {750, 25, 300, 100}, Name_Box::CUSTOMER)->set_hover("src/views/img/custom2.jpg", myscreen.get_my_renderer())->set_clicked("src/views/img/custom3.jpg", myscreen.get_my_renderer());
         menu.insert("src/views/img/ve1.jpg", {1100, 25, 300, 100}, Name_Box::TICKET)->set_hover("src/views/img/ve2.jpg", myscreen.get_my_renderer())->set_clicked("src/views/img/ve3.jpg", myscreen.get_my_renderer());
         menu.insert("src/views/img/thongke1.jpg", {1450, 25, 300, 100}, Name_Box::THONGKE)->set_hover("src/views/img/thongke2.jpg", myscreen.get_my_renderer())->set_clicked("src/views/img/thongke3.jpg", myscreen.get_my_renderer());
-
         menu.insert("src/views/img/body.png", {X_START_BODY, Y_START_BODY, 1700, 780});
 
-        components_on_route.prev.create("src/views/img/prev.png", myscreen.get_my_renderer());  // renanme
-        components_on_route.prev.set_rect(760, 815, 80, 80);
-        components_on_route.prev.set_hover("src/views/img/prev1.png", myscreen.get_my_renderer());
-
-        components_on_route.next.create("src/views/img/next.png", myscreen.get_my_renderer());
-        components_on_route.next.set_rect(960, 815, 80, 80);
-        components_on_route.next.set_hover("src/views/img/next1.png", myscreen.get_my_renderer());
-
-        components_on_route.khung_menu.create("src/views/img/khung_menu.png", myscreen.get_my_renderer());
-
-        components_on_route.edit.create("src/views/img/edit.png", myscreen.get_my_renderer());
-        components_on_route.add.create("src/views/img/add.png", myscreen.get_my_renderer());
-        components_on_route.del.create("src/views/img/del.png", myscreen.get_my_renderer());
-
-        components_on_route.khung_add_edit.create("src/views/img/khung.png", myscreen.get_my_renderer());
-        components_on_route.thong_bao.create("src/views/img/thong_bao.png", myscreen.get_my_renderer());
+        //load img vào các thành phần con
+        c_components.load_img(myscreen);
+        //end
     }
 
     void running() {
-        View_Plane view_plane(&(this->qlcb), &(this->myscreen), &components_on_route);                                                                                                                                                                                                                                            // khởi tạo view Plane
-        View_Flight view_flight(&(this->qlcb), &(this->myscreen), &components_on_route);                                                                                                                                                                                                                                          // khởi tạo view Plane
-        View_Customer view_customer(&(this->qlcb), &(this->myscreen), &components_on_route);
-
-        components_on_route.thong_bao.set_rect(400, 100, 1000, 600);
+        //Khởi tạo các route
+        View_Plane view_plane(&(this->qlcb), &(this->myscreen), c_components);                                                                                                                                                                                                                                            // khởi tạo view Plane
+        // View_Flight view_flight(&(this->qlcb), &(this->myscreen), c_components);                                                                                                                                                                                                                                          // khởi tạo view Plane
+        // View_Customer view_customer(&(this->qlcb), &(this->myscreen), c_components);
+        //end
+        
 
         bool quit = false;  // điều kiện thoát chương trình
         SDL_Event e;
@@ -84,6 +68,10 @@ class Controller {
         int mouse_X, mouse_Y;
         while (!quit) {
             while (SDL_PollEvent(&e) != 0) {
+                if (e.type == SDL_QUIT){  // sự kiện nhất thoát
+                    quit = true;
+                    break;
+                }
                 if (e.type == SDL_MOUSEMOTION) {
                     SDL_GetMouseState(&mouse_X, &mouse_Y);
                     get_box_hover = menu.checkClick(mouse_X, mouse_Y);
@@ -96,7 +84,7 @@ class Controller {
                 if (is_home && e.type == SDL_MOUSEBUTTONDOWN) {  // sự kiện nhấn vào các box
                     if (current_hover != Name_Box::NONE) current_route = current_hover;
                 }
-
+                //bắt sự kiện rout Plane
                 view_plane.handleEvent(e, current_route, menu, is_home, quit);
 
                 // view_flight.handleEvent(e, current_route, menu, is_home, quit);
@@ -107,18 +95,16 @@ class Controller {
             // render
             SDL_SetRenderDrawColor(myscreen.get_my_renderer()->get_renderer(), 255, 255, 255, 0);
             SDL_RenderClear(myscreen.get_my_renderer()->get_renderer());
-
             menu.render_list_ver2(current_hover, current_route);  // render thanh menu
             switch (current_route) {
                 case Name_Box::PLANE:
                     view_plane.render();
                     break;
                 case Name_Box::FLIGHT:
-                    view_flight.render();
-
+                    // view_flight.render();
                     break;
                 case Name_Box::CUSTOMER:
-                    view_customer.render();
+                    // view_customer.render();
                     break;
                 case Name_Box::TICKET:
                     break;
@@ -127,7 +113,7 @@ class Controller {
                     break;
 
                 default:
-                    components_on_route.plane_at_homepage.render(myscreen.get_my_renderer());  // rename
+                    c_components.plane_at_homepage.render(myscreen.get_my_renderer());  // rename
                     break;
             }
 

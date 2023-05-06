@@ -65,6 +65,7 @@ using namespace std;
 
 namespace Func_Global{
 
+
 bool is_nam_nhuan(int year){ return (year % 4 == 0) && (year % 100 != 0 || year % 400 == 0); }
 
 bool isValidDate(int day, int month, int year) {

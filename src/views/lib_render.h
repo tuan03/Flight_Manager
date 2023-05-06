@@ -5,7 +5,10 @@
 #include "views_error.h"
 #define FPS 60
 #define TIME_A_FRAME (1000 / FPS)
-
+/**
+ * @brief Method in file lib_render.h
+ * 
+ */
 namespace MyFunc
 {
     bool check_click(int x, int y, SDL_Rect rect)
@@ -15,6 +18,17 @@ namespace MyFunc
             return true;
         }
         return false;
+    }
+    /**
+     * @brief Để lấy vị trí của K sao cho center 1 Rect nào đó
+     * 
+     * @param w chiều rộng của K
+     * @param h chiều cao của K
+     * @param contain Rect chứa K
+     * @return SDL_Rect center
+     */
+    SDL_Rect center_Rect(int w, int h, SDL_Rect contain){
+        return {(contain.x + (contain.w/2))-w/2,(contain.y + (contain.h/2))-h/2, w,h};
     }
 }
 class SDLInit
