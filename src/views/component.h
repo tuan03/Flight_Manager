@@ -1,7 +1,6 @@
 #ifndef VIEWS_COMPONENT_H
 #define VIEWS_COMPONENT_H
 #include "../header.h"
-#include "views.h"
 /**
  * @brief Method in file component.h
  * 
@@ -11,6 +10,42 @@ namespace Func_Render{
 }
 
 
+class Choose{
+    private:
+    MyScreen* myscreen;
+    bool data = false;
+    Box* v1 = nullptr;
+    Box* v2 = nullptr;
+    SDL_Rect vt{0,0,0,0};
+    public:
+    void connect(MyScreen* mc) {
+        this->myscreen = mc;
+    }
+    void set_box(Box* b1, Box* b2){
+        v1 = b1;
+        v2 = b2;
+    }
+    void set_vitri(SDL_Rect rect){
+        vt = rect;
+    }
+    void handle_choose(SDL_Event e, int x, int y) {
+            if (e.type == SDL_MOUSEBUTTONDOWN) {
+                if(MyFunc::check_click(x,y,vt)){
+                    data = !data;
+                }
+            }
+        }
+    void render(){
+        v1->set_rect(vt);
+        v2->set_rect(vt);
+        if(!data){
+            v1->render(myscreen->get_my_renderer());
+        } else {
+            v2->render(myscreen->get_my_renderer());
+        }
+    }
+
+};
 
 
 class Input {
@@ -130,8 +165,12 @@ class Thong_Bao {
    private:
     string mess = "";
     Box* man_thong_bao = nullptr;
-    SDL_Rect ok{790, 700, 200, 50};  // ok2
+    SDL_Rect ok{790, 700, 200, 50};
     SDL_Color c_ok = {255, 255, 255};
+
+    SDL_Rect vt_next{790 + 200, 700, 200, 50};
+    SDL_Rect vt_huy{790 - 200, 700, 200, 50};
+
     MyScreen* myscreen = nullptr;
 
     bool flag = false;
@@ -175,6 +214,15 @@ class Thong_Bao {
             myscreen->render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
         }
     }
+    void render_canhbao() {
+        if(flag){
+        if(myscreen == nullptr) throw "MyScreen is NULL\n";
+            man_thong_bao->render(myscreen->get_my_renderer());
+            myscreen->render_cot(ok, c_ok);
+            myscreen->render_Text("Đồng Ý", ok, {0, 0, 0}, true);
+            myscreen->render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
+        }
+    }
 };
 
 class Render_Data {
@@ -189,6 +237,8 @@ class Render_Data {
  * 
  */
 struct Child_Component {
+    Box pick;
+    Box unpick;
     Box plane_at_homepage; //máy bay ở homepage
     Box prev; //nút Prev
     Box next; //nút Next
@@ -220,6 +270,8 @@ struct Child_Component {
         add.set_rect(X_START_BODY + 1700 - 150, Y_START_BODY, 150, 60);
         del.create("src/views/img/del.png", myscreen.get_my_renderer());
 
+        pick.create("src/views/img/chon.png", myscreen.get_my_renderer());
+        unpick.create("src/views/img/bt.png", myscreen.get_my_renderer());
 
         khung_menu.create("src/views/img/khung_menu.png", myscreen.get_my_renderer());
         khung_add_edit.create("src/views/img/khung.png", myscreen.get_my_renderer());
@@ -280,94 +332,5 @@ class Global_Variable{
 
 
 
-
-
-
-
-
-class Form
-{
-private:
-    Global_Variable *global = nullptr;
-
-    SDL_Color nut_xoa = {255, 255, 255}; // màu rgb
-    SDL_Color nut_sua = {255, 255, 255};
-    MayBay *current = nullptr;
-    bool *flag_re_render_in_home = nullptr;
-
-public:
-    void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
-    {
-        nut_xoa = {255, 255, 255};
-        nut_sua = {255, 255, 255};
-        switch (e.type)
-        {
-        case SDL_MOUSEMOTION:
-            if (this->global->get_c_component().edit.is_in_box(mouse_X, mouse_Y))
-            {
-                nut_sua = {255, 219, 26};
-            }
-            else if (this->global->get_c_component().del.is_in_box(mouse_X, mouse_Y))
-            {
-                nut_xoa = {255, 219, 26};
-            }
-            break;
-        case SDL_MOUSEBUTTONDOWN:                                                        // sự kiện nhấn vào các box
-            if (!this->global->get_c_component().khung_menu.is_in_box(mouse_X, mouse_Y)) // bấm bên ngoài menu sẽ thoát
-            {
-                state = Position::HOME;
-            }
-            else if (this->global->get_c_component().edit.is_in_box(mouse_X, mouse_Y)) // nhấn vào Box edit
-            {                                                                          //
-                state = Position::EDIT;                                                // chuyển sang trang edit
-            }
-            else if (this->global->get_c_component().del.is_in_box(mouse_X, mouse_Y)) // nhấn vào Box xóa
-            {
-                Status result;
-                result = this->global->get_qlcb().del_mb(this->current->getSoHieuMB());
-                global->get_thong_bao().set_mess(result.mess);
-                global->get_thong_bao().on();
-                if (result.get_status() == Status_Name::SUCCESS)
-                {
-                    *(this->flag_re_render_in_home) = true;
-                    state = Position::HOME;
-                }
-            }
-            break;
-        }
-    }
-    void set(Global_Variable &global, bool *flag)
-    {
-        this->flag_re_render_in_home = flag;
-        this->global = &global;
-    }
-
-    void render_menu(MayBay *mb, int vt)
-    {
-        this->current = mb;
-        // render khung menu
-        SDL_Rect rect = {700, Y_START_TABLE + vt * 50 - 280, 300, 300};
-        this->global->get_c_component().khung_menu.set_rect(rect);
-        this->global->get_c_component().khung_menu.render(global->get_myscreen().get_my_renderer());
-        // end
-
-        SDL_Rect rect_2 = {rect.x + 75, rect.y + 60, 150, 60};
-        this->global->get_c_component().edit.set_rect(rect_2); // đặt vị trí theo khung menu
-        rect_2.y += 30;
-        rect_2.y += 60;
-        this->global->get_c_component().del.set_rect(rect_2); // đặt vị trí theo khung menu
-        this->render_button_xoa_sua_thoat();
-    }
-    void render_button_xoa_sua_thoat()
-    {
-        //
-        global->get_myscreen().render_cot(this->global->get_c_component().del.get_rect(), nut_xoa);  // render nền
-        global->get_myscreen().render_cot(this->global->get_c_component().edit.get_rect(), nut_sua); // render nền
-        // tại nút edit và xóa có nền trong suốt cho nên màu nên sẽ phụ thuộc lớp ô vuông ở phía dưới nó, cụ thể là 2 ô vuông ở trên
-
-        this->global->get_c_component().edit.render(global->get_myscreen().get_my_renderer()); // render nút edit
-        this->global->get_c_component().del.render(global->get_myscreen().get_my_renderer());  // render nút delete
-    }
-};
 
 #endif

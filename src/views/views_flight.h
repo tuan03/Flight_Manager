@@ -1,8 +1,8 @@
 #ifndef VIEWS_FLIGHT_H
 #define VIEWS_FLIGHT_H
-#include"../header.h"
-#include"component.h"
 
+#include "../header.h"
+#include "component.h"
 
 namespace Flight
 {
@@ -18,109 +18,131 @@ namespace Flight
     class Menu
     {
     private:
-        MyScreen *myscreen = nullptr;
-        Child_Component *child_components = nullptr;
+        Global_Variable *global = nullptr;
+
         SDL_Color nut_xoa = {255, 255, 255}; // màu rgb
         SDL_Color nut_sua = {255, 255, 255};
+        SDL_Color nut_datve = {255, 255, 255};
+        SDL_Color nut_xemhk = {255, 255, 255};
+        SDL_Rect vt_nut_datve = {0,0,0,0};
+        SDL_Rect vt_nut_xemhk = {0,0,0,0};
+        SDL_Rect vt_nut_huy = {0,0,0,0};
+        SDL_Rect vt_nut_sua = {0,0,0,0};
+        ChuyenBay *current = nullptr;
+        bool *flag_re_render_in_home = nullptr;
 
-        Flight_Manager* qlcb = nullptr;
-        ChuyenBay* current = nullptr;
-        Thong_Bao* thong_bao = nullptr;
-        bool* flag_re_render_in_home = nullptr;
+        Box *khung_menu = nullptr;
+        MyScreen *myscreen = nullptr;
+
     public:
+        void set(Global_Variable &global, bool *flag)
+        {
+            this->flag_re_render_in_home = flag;
+            this->global = &global;
+
+            khung_menu = &(global.get_c_component().khung_menu); // tuannnnn
+            myscreen = &(global.get_myscreen());
+        }
+
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
         {
             nut_xoa = {255, 255, 255};
             nut_sua = {255, 255, 255};
+            nut_datve = {255, 255, 255};
+            nut_xemhk = {255, 255, 255};
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                if (this->child_components->edit.is_in_box(mouse_X, mouse_Y))
+                if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_sua))
                 {
                     nut_sua = {255, 219, 26};
                 }
-                else if (this->child_components->del.is_in_box(mouse_X, mouse_Y))
+                else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_huy))
                 {
                     nut_xoa = {255, 219, 26};
                 }
+                else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_datve))
+                {
+                    nut_datve = {255, 219, 26};
+                }
+                else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_xemhk))
+                {
+                    nut_xemhk = {255, 219, 26};
+                }
                 break;
-            case SDL_MOUSEBUTTONDOWN:                                                // sự kiện nhấn vào các box
-                if (!this->child_components->khung_menu.is_in_box(mouse_X, mouse_Y)) // bấm bên ngoài menu sẽ thoát
+            case SDL_MOUSEBUTTONDOWN:                         // sự kiện nhấn vào các box
+                if (!khung_menu->is_in_box(mouse_X, mouse_Y)) // bấm bên ngoài menu sẽ thoát
                 {
                     state = Position::HOME;
                 }
-                else if (this->child_components->edit.is_in_box(mouse_X, mouse_Y)) // nhấn vào Box edit
-                {                                                                  //
-                    state = Position::EDIT;                                        // chuyển sang trang edit
-                }
-                else if (this->child_components->del.is_in_box(mouse_X, mouse_Y)) // nhấn vào Box xóa
+                else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_datve))
                 {
-                    Status result("tb");
-                    // result = this->qlcb->del_mb(this->current->getSoHieuMB());
-                    thong_bao->set_mess(result.mess);
-                    thong_bao->on();
+                    // chuyển qua route đặt vé
+                }
+                else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_xemhk))
+                {
+                    // chuyển qua route xem list hk
+                }
+                else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_sua)) // nhấn vào Box edit
+                {                                           //
+                    state = Position::EDIT;                 // chuyển sang trang edit
+                }
+                else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_huy)) // nhấn vào Box xóa
+                {
+                    Status result;
+                    // result = this->global->get_qlcb().del_mb(this->current->getSoHieuMB());
+                    global->get_thong_bao().set_mess(result.mess);
+                    global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
                     {
                         *(this->flag_re_render_in_home) = true;
                         state = Position::HOME;
                     }
-                    
                 }
                 break;
             }
         }
-        void set(MyScreen *mc,Flight_Manager* qlcb,bool* flag, Child_Component &c_p, Thong_Bao &thong_bao)
-        {
-            this->flag_re_render_in_home = flag;
-            this->qlcb = qlcb;
-            this->myscreen = mc;
-            this->thong_bao = &thong_bao;
-            this->child_components = &c_p;
-        }
 
-        void render_menu(ChuyenBay *mb, int vt)
+        void render_menu(ChuyenBay *cb, int vt)
         {
-            this->current = mb;
+
+            this->current = cb;
             // render khung menu
-            SDL_Rect rect = {700, Y_START_TABLE + vt * 50 - 280, 300, 300};
-            this->child_components->khung_menu.set_rect(rect);
-            this->child_components->khung_menu.render(myscreen->get_my_renderer());
+            SDL_Rect rect = {700, Y_START_TABLE + vt * 50 - 280, 300, 400};
+            khung_menu->set_rect(rect);
+            khung_menu->render(myscreen->get_my_renderer());
             // end
+            int width = 150;
+            int height = 50;
+            vt_nut_datve = MyFunc::center_Rect(width,height,{rect.x, rect.y+50, rect.w, 50});
+            vt_nut_xemhk = MyFunc::center_Rect(width,height,{rect.x, rect.y+120, rect.w, 50});
+            vt_nut_sua = MyFunc::center_Rect(width,height,{rect.x, rect.y+190, rect.w, 50});
+            vt_nut_huy = MyFunc::center_Rect(width,height,{rect.x, rect.y+260, rect.w, 50});
 
-            SDL_Rect rect_2 = {rect.x + 75, rect.y + 60, 150, 60};
-            this->child_components->edit.set_rect(rect_2); // đặt vị trí theo khung menu
-            rect_2.y += 30;
-            rect_2.y += 60;
-            this->child_components->del.set_rect(rect_2); // đặt vị trí theo khung menu
-            this->render_button_xoa_sua_thoat();
-        }
-        void render_button_xoa_sua_thoat()
-        {
-            //
-            myscreen->render_cot(this->child_components->del.get_rect(), nut_xoa);  // render nền
-            myscreen->render_cot(this->child_components->edit.get_rect(), nut_sua); // render nền
+
+            myscreen->render_cot(vt_nut_datve, nut_datve);  // render nền
+            myscreen->render_Text("Đặt Vé",vt_nut_datve,{0,0,0},true);
+
+            myscreen->render_cot(vt_nut_xemhk, nut_xemhk);  // render nền
+            myscreen->render_Text("DS HK",vt_nut_xemhk,{0,0,0},true);
+
+            myscreen->render_cot(vt_nut_sua, nut_sua);  // render nền
+            myscreen->render_Text("Sửa Thông Tin",vt_nut_sua,{0,0,0},true);
+            
+            myscreen->render_cot(vt_nut_huy, nut_xoa); // render nền
+            myscreen->render_Text("Hủy Chuyến",vt_nut_huy,{0,0,0},true);
+
             // tại nút edit và xóa có nền trong suốt cho nên màu nên sẽ phụ thuộc lớp ô vuông ở phía dưới nó, cụ thể là 2 ô vuông ở trên
 
-            this->child_components->edit.render(this->myscreen->get_my_renderer()); // render nút edit
-            this->child_components->del.render(this->myscreen->get_my_renderer());  // render nút delete
         }
-    };
-    class Del
-    {
-    private:
-        MyScreen *myscreen;
-        /*
-        stt -1
-        so luong data -1
-        ĐK: máy bay phải đang ko thực hiện chuyến bay
-        */
-    public:
+
+        
     };
     class Edit
     {
     private:
-        MyScreen *myscreen = nullptr;
-        Child_Component *child_components = nullptr;
+        Global_Variable *global = nullptr;
+
         SDL_Rect vi_tri_nut_x = {1250, 210, 50, 50};
         SDL_Rect vi_tri_nut_sua = {950, 450, 150, 60};
         SDL_Color nut_sua = {255, 255, 255};
@@ -131,11 +153,6 @@ namespace Flight
         Input input_soday;
         Input input_sodong;
 
-        string so_hieu_mb = "";
-        string loai_mb = "";
-        string so_day = "";
-        string so_dong = "";
-
         bool now = true; // flag để gán 1 lần cho tất cả
 
         string name_field[4] = {"Số hiệu Máy Bay", "Loại", "Số Dãy", "Số Dòng"};
@@ -145,32 +162,33 @@ namespace Flight
 
         bool da_lap_cb = false;
 
-        Flight_Manager *qlcb = nullptr;
-        ChuyenBay *target_maybay = nullptr;
-        Thong_Bao *thong_bao = nullptr;
+        ChuyenBay *target_chuyenbay = nullptr;
 
         bool *flag_re_render_in_home = nullptr;
 
+        MyScreen *myscreen = nullptr;
+        Box *khung_add_edit = nullptr;
+
     public:
         void
-        set(MyScreen *mc, Flight_Manager *qlcb, bool *flag, Child_Component &c_p, Thong_Bao &thong_bao)
+        set(Global_Variable &global, bool *flag)
         {
+            this->global = &global;
+            this->myscreen = &(global.get_myscreen());
+            khung_add_edit = &(global.get_c_component().khung_add_edit);
+
             this->flag_re_render_in_home = flag;
-            this->thong_bao = &thong_bao;
-            this->child_components = &c_p;
-            this->qlcb = qlcb;
-            this->myscreen = mc;
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
-            input_shmb.connect(mc);
-            input_loaimb.connect(mc);
-            input_soday.connect(mc);
-            input_sodong.connect(mc);
+            input_shmb.connect(&(global.get_myscreen()));
+            input_loaimb.connect(&(global.get_myscreen()));
+            input_soday.connect(&(global.get_myscreen()));
+            input_sodong.connect(&(global.get_myscreen()));
 
-            input_shmb.connect_data(&so_hieu_mb, MAX_LENGTH_SO_HIEU_MB);
-            input_loaimb.connect_data(&loai_mb, MAX_LENGTH_LOAI_MAY_BAY);
-            input_soday.connect_data(&so_day, 3);
-            input_sodong.connect_data(&so_dong, 3);
+            input_shmb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
+            input_loaimb.set_max_length(MAX_LENGTH_LOAI_MAY_BAY);
+            input_soday.set_max_length(3);
+            input_sodong.set_max_length(3);
 
             input_shmb.set_vitri(rect_input[0]);
             input_loaimb.set_vitri(rect_input[1]);
@@ -208,16 +226,16 @@ namespace Flight
                 {
                     state = Position::MENU;
                     this->now = true;
-                    this->target_maybay = nullptr;
+                    this->target_chuyenbay = nullptr;
                     nut_sua = {255, 255, 255};
                     nut_x = {255, 255, 255};
                 }
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
                 {
-                    Status result ("ok");
-                    // = this->target_maybay->edit(loai_mb.c_str(), std::stoi(so_day), std::stoi(so_dong));
-                    thong_bao->set_mess(result.mess);
-                    thong_bao->on();
+                    Status result ;
+                    //= this->target_chuyenbay->edit(this->input_loaimb.get_data().c_str(), std::stoi(this->input_soday.get_data()), std::stoi(this->input_sodong.get_data()));
+                    global->get_thong_bao().set_mess(result.mess);
+                    global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
                     {
                         *(this->flag_re_render_in_home) = true;
@@ -230,53 +248,50 @@ namespace Flight
             input_soday.handleInput_so(e, mouse_X, mouse_Y);
             input_sodong.handleInput_so(e, mouse_X, mouse_Y);
         }
-        void set_target(ChuyenBay *mb)
+        void set_target(ChuyenBay *cb)
         {
             if (this->now == true)
             {
-                this->target_maybay = mb;
-                // this->so_hieu_mb = mb->getSoHieuMB();
-                // this->loai_mb = mb->getLoaiMB();
-                // this->so_day = std::to_string(mb->getSoDay());
-                // this->so_dong = std::to_string(mb->getSoDong());
-
-                // this->da_lap_cb = qlcb->getListCB().find_by_sh_mb_v2(mb->getSoHieuMB());
+                this->target_chuyenbay = cb;
+                // this->input_shmb.set_data(mb->getSoHieuMB());
+                // this->input_loaimb.set_data(mb->getLoaiMB());
+                // this->input_soday.set_data(std::to_string(mb->getSoDay()));
+                // this->input_sodong.set_data(std::to_string(mb->getSoDong()));
+                // this->da_lap_cb = global->get_qlcb().getListCB().find_by_sh_mb_v2(mb->getSoHieuMB());
                 this->now = false;
             }
         }
-        void render_menu(ChuyenBay *mb, Flight_Manager *qlcb)
+        void render_menu(ChuyenBay *cb)
         {
-            set_target(mb);
+
+            set_target(cb);
             myscreen->blur_background(150);
-            this->child_components->khung_add_edit.render(myscreen->get_my_renderer());
-            this->child_components->edit.set_rect(this->vi_tri_nut_sua);
+            khung_add_edit->render(myscreen->get_my_renderer());
 
             for (int i = 0; i < 4; i++)
             {
-                this->myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
+                myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
             }
 
             if (this->da_lap_cb)
             {
-                this->myscreen->render_Text(loai_mb, rect_input[1], {0, 0, 0}, true);
+                myscreen->render_Text(input_loaimb.get_data(), rect_input[1], {0, 0, 0}, true);
             }
             else
             {
                 input_loaimb.render();
             }
 
-            this->myscreen->render_Text(so_hieu_mb, rect_input[0], {0, 0, 0}, true);
+            myscreen->render_Text(input_shmb.get_data(), rect_input[0], {0, 0, 0}, true);
             input_soday.render();
             input_sodong.render();
 
             this->render_button_xoa_sua();
         }
-
         void render_button_xoa_sua()
         {
             myscreen->render_cot(vi_tri_nut_sua, nut_sua);
-
-            this->child_components->edit.render(this->myscreen->get_my_renderer());
+            myscreen->render_Text("OK", vi_tri_nut_sua, {0, 0, 0}, true);
             myscreen->render_cot(vi_tri_nut_x, nut_x);
             myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
         }
@@ -284,8 +299,7 @@ namespace Flight
     class Add
     {
     private:
-        MyScreen *myscreen = nullptr;
-        Child_Component *child_components = nullptr;
+        Global_Variable *global = nullptr;
         SDL_Rect vi_tri_nut_x = {1250, 210, 50, 50};
         SDL_Rect vi_tri_nut_sua = {950, 450, 150, 60};
         SDL_Color nut_sua = {255, 255, 255};
@@ -296,11 +310,6 @@ namespace Flight
         Input input_soday;
         Input input_sodong;
 
-        string so_hieu_mb = "";
-        string loai_mb = "";
-        string so_day = "";
-        string so_dong = "";
-
         bool now = true; // flag để gán 1 lần cho tất cả
 
         string name_field[4] = {"Số hiệu Máy Bay", "Loại", "Số Dãy", "Số Dòng"};
@@ -310,31 +319,32 @@ namespace Flight
 
         bool da_lap_cb = false;
 
-        Flight_Manager *qlcb = nullptr;
-        Thong_Bao *thong_bao = nullptr;
-
         bool *flag_re_render_in_home = nullptr;
+        MyScreen *myscreen = nullptr;
+        Box *khung_add_edit = nullptr;
+        Box *edit = nullptr;
 
     public:
         void
-        set(MyScreen *mc, Flight_Manager *qlcb, bool *flag, Child_Component &c_p, Thong_Bao &thong_bao)
+        set(Global_Variable &global, bool *flag)
         {
+            this->global = &global;
+            khung_add_edit = &(global.get_c_component().khung_add_edit);
+            edit = &(global.get_c_component().edit);
+            myscreen = &(global.get_myscreen());
+
             this->flag_re_render_in_home = flag;
-            this->thong_bao = &thong_bao;
-            this->child_components = &c_p;
-            this->qlcb = qlcb;
-            this->myscreen = mc;
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
-            input_shmb.connect(mc);
-            input_loaimb.connect(mc);
-            input_soday.connect(mc);
-            input_sodong.connect(mc);
+            input_shmb.connect(&(global.get_myscreen()));
+            input_loaimb.connect(&(global.get_myscreen()));
+            input_soday.connect(&(global.get_myscreen()));
+            input_sodong.connect(&(global.get_myscreen()));
 
-            input_shmb.connect_data(&so_hieu_mb, MAX_LENGTH_SO_HIEU_MB);
-            input_loaimb.connect_data(&loai_mb, MAX_LENGTH_LOAI_MAY_BAY);
-            input_soday.connect_data(&so_day, 3);
-            input_sodong.connect_data(&so_dong, 3);
+            input_shmb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
+            input_loaimb.set_max_length(MAX_LENGTH_LOAI_MAY_BAY);
+            input_soday.set_max_length(3);
+            input_sodong.set_max_length(3);
 
             input_shmb.set_vitri(rect_input[0]);
             input_loaimb.set_vitri(rect_input[1]);
@@ -378,9 +388,9 @@ namespace Flight
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
                 {
                     Status result;
-                    result = this->qlcb->getListMB().add(so_hieu_mb.c_str(),loai_mb.c_str(), std::stoi(so_day), std::stoi(so_dong));
-                    thong_bao->set_mess(result.mess);
-                    thong_bao->on();
+                    // result = global->get_qlcb().getListMB().add(input_shmb.get_data().c_str(), input_loaimb.get_data().c_str(), std::stoi(input_soday.get_data()), std::stoi(input_sodong.get_data()));
+                    global->get_thong_bao().set_mess(result.mess);
+                    global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
                     {
                         now = true;
@@ -389,30 +399,33 @@ namespace Flight
                 }
                 break;
             }
-            input_shmb.handleInput_IN_HOA_SO_KHONG_CACH(e,mouse_X,mouse_Y);
+            input_shmb.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
             input_loaimb.handleInput_IN_HOA_SO_CO_CACH(e, mouse_X, mouse_Y);
             input_soday.handleInput_so(e, mouse_X, mouse_Y);
             input_sodong.handleInput_so(e, mouse_X, mouse_Y);
         }
-        void reset_data(){
-            this->so_hieu_mb = "";
-            this->loai_mb = "";
-            this->so_day = "";
-            this->so_dong = "";
-        }
-        void render_menu(Flight_Manager *qlcb)
+        void reset_data()
         {
-            if(this->now){
-            this->reset_data();
-            now = false;
+            input_loaimb.reset_data();
+            input_shmb.reset_data();
+            input_soday.reset_data();
+            input_sodong.reset_data();
+        }
+        void render_menu()
+        {
+            if (this->now)
+            {
+                this->reset_data();
+                now = false;
             }
+
             myscreen->blur_background(150);
-            this->child_components->khung_add_edit.render(myscreen->get_my_renderer());
-            this->child_components->edit.set_rect(this->vi_tri_nut_sua);
+            khung_add_edit->render(myscreen->get_my_renderer());
+            edit->set_rect(this->vi_tri_nut_sua);
 
             for (int i = 0; i < 4; i++)
             {
-                this->myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
+                myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
             }
 
             input_shmb.render();
@@ -422,19 +435,11 @@ namespace Flight
 
             this->render_button_xoa_sua();
         }
-        void render_confirm_xoa()
-        {
-            SDL_Rect rect;
-            rect = {700, 310, 400, 200};
-            myscreen->render_cot(rect, COLOR_MENU_CHILD);
-            myscreen->render_Text("Xác nhận xóa ?", rect, {0, 0, 0}, true);
-        }
-
         void render_button_xoa_sua()
         {
             myscreen->render_cot(vi_tri_nut_sua, nut_sua);
 
-            this->child_components->edit.render(this->myscreen->get_my_renderer());
+            edit->render(myscreen->get_my_renderer());
             myscreen->render_cot(vi_tri_nut_x, nut_x);
             myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
         }
@@ -444,85 +449,67 @@ namespace Flight
 class View_Flight
 {
 private:
-    int current_page;              // phân trang hiện tại
-    Flight_Manager *qlcb;          // model
-    MyScreen *myscreen;            // engine render
-    Child_Component &c_components; // thành phần con
-    int mouse_X, mouse_Y;          // vị trí chuột
-    string so_hieu_mb = "";
-    Input input_so_hieu_mb;
+    
+    Global_Variable &global;
+
+    Input input_ma_so_cb;
+    Input input_noi_den;
+    Input input_time;
+    Choose input_con_ve;
+
     Buffer table;
     Buffer data;
 
     bool flag = false;
+    bool& flag2;
 
     Flight::Position state = Flight::Position::HOME; // mặc định ở Child_Route Home
 
     Flight::Menu menu_flight; // route menu
     Flight::Edit edit_flight; // route edit
-    Flight::Add add_flight; // route edit
+    Flight::Add add_flight;   // route edit
 
-    ChuyenBay *list_mb_dc_render[10];
-
-    int vi_tri_hover_on_table = -1; // vị trí hover trên table data Máy Bay tính từ 0 - 9
-
+    ChuyenBay *list_cb_dc_render[10];
     ChuyenBay *temp = nullptr; // lấy con trỏ máy bay ở vị trí đang hover rồi click
 
-    int so_luong_data = 0; // số lượng máy bay
+    int vi_tri_hover_on_table = -1; // vị trí hover trên table data Máy Bay tính từ 0 - 9
+    int so_luong_data = 0;          // số lượng máy bay
+    int current_page;               // phân trang hiện tại
+    int mouse_X, mouse_Y;           // vị trí chuột
 
     int route_flight_width[7]{100, 200, 200, 450, 200, 200, 150};
     string route_flight_name_cot[7]{"STT", "Mã Số CB", "Sân Bay Đến", "Thời Gian Bay", "Trạng Thái", "Số Hiệu MB", "Trạng Thái Vé"};
 
-    SDL_Color nut_add {255,255,255};
+    SDL_Color nut_add{255, 255, 255};
+
 public:
-    View_Flight(Flight_Manager *qlcb, MyScreen *myscreen, Child_Component &cp, Thong_Bao &thong_bao) : c_components{cp}
-    {
-        this->qlcb = qlcb;
-        this->myscreen = myscreen;
-        current_page = 1;
-
-        menu_flight.set(myscreen,this->qlcb,&flag, this->c_components,thong_bao);
-        edit_flight.set(myscreen, this->qlcb, &flag, this->c_components, thong_bao);
-        add_flight.set(myscreen, this->qlcb, &flag, this->c_components, thong_bao);
-
-        table.set(myscreen, WIDTH_TABLE, HEIGHT_TABLE + 50);
-        table.set_vitri(X_START_TABLE, Y_START_TABLE - 50);
-        this->createTable();
-
-        data.set(myscreen, WIDTH_TABLE, HEIGHT_TABLE);
-        data.set_vitri(X_START_TABLE, Y_START_TABLE);
-
-        this->getData();
-
-        input_so_hieu_mb.connect(this->myscreen);
-        input_so_hieu_mb.connect_data(&(this->so_hieu_mb), MAX_LENGTH_SO_HIEU_MB);
-        input_so_hieu_mb.set_vitri({300, 175, 300, 50});
-    }
+    View_Flight(Global_Variable &gb, bool& flag_re_render_from_thread);
 
     void handleEvent(SDL_Event e, bool &is_home, int mouse_X, int mouse_Y)
     {
         this->mouse_X = mouse_X;
         this->mouse_Y = mouse_Y;
-        nut_add = {255,255,255};
+        nut_add = {255, 255, 255};
         if (this->state == Flight::Position::HOME)
         {
             is_home = true;
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                if(this->c_components.add.is_in_box(mouse_X,mouse_Y)){
+                if (global.get_c_component().add.is_in_box(mouse_X, mouse_Y))
+                {
                     nut_add = {255, 219, 26};
                 }
-                this->vi_tri_hover_on_table = Func_Global::get_line(this->mouse_X, this->mouse_Y, qlcb->getListCB().get_so_luong_cb(),this->current_page); // 0 - 9
+                this->vi_tri_hover_on_table = Func_Global::get_line(this->mouse_X, this->mouse_Y, this->so_luong_data, this->current_page); // 0 - 9
                 break;
             case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
                                       // bắt sự kiện nhấn next và prev
-                if (current_page > 1 && this->c_components.prev.is_in_box(mouse_X, mouse_Y))
+                if (current_page > 1 && global.get_c_component().prev.is_in_box(mouse_X, mouse_Y))
                 {
                     this->current_page -= 1;
                     this->re_render_data();
                 }
-                if (current_page < ((this->so_luong_data - 1) / 10) + 1 && this->c_components.next.is_in_box(mouse_X, mouse_Y))
+                if (current_page < ((this->so_luong_data - 1) / 10) + 1 && global.get_c_component().next.is_in_box(mouse_X, mouse_Y))
                 {
                     current_page += 1;
                     this->re_render_data();
@@ -531,16 +518,20 @@ public:
 
                 if (this->vi_tri_hover_on_table != -1)
                 { // nếu nhấn vào, mà đnag hover vào line trong table thì bật menu.
-                    this->temp = this->list_mb_dc_render[vi_tri_hover_on_table];
+                    this->temp = this->list_cb_dc_render[vi_tri_hover_on_table];
                     this->state = Flight::Position::MENU;
                 }
-                if(this->c_components.add.is_in_box(mouse_X,mouse_Y)){
+                if (global.get_c_component().add.is_in_box(mouse_X, mouse_Y))
+                {
                     state = Flight::Position::ADD;
                 }
                 break;
             }
 
-            input_so_hieu_mb.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+            input_ma_so_cb.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+            input_noi_den.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+            input_time.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+            input_con_ve.handle_choose(e, mouse_X, mouse_Y);
             if (e.type == SDL_KEYDOWN || e.type == SDL_TEXTINPUT)
                 this->re_render_data();
         }
@@ -563,27 +554,36 @@ public:
     }
     void render()
     {
+        
         this->follow_flag();
 
         table.render(); // render table
         if (vi_tri_hover_on_table != -1)
         {
-            myscreen->render_cot({X_START_TABLE, Y_START_TABLE + (vi_tri_hover_on_table)*50, WIDTH_TABLE, 50}, {159, 212, 171});
+            this->global.get_myscreen().render_cot({X_START_TABLE, Y_START_TABLE + (vi_tri_hover_on_table)*50, WIDTH_TABLE, 50}, {159, 212, 171});
         }
-
 
         data.render(); // render data
 
-        this->myscreen->render_cot(this->c_components.add.get_rect(),nut_add);
-        this->c_components.add.render(this->myscreen->get_my_renderer()); // render nút add
+        this->global.get_myscreen().render_cot(this->global.get_c_component().add.get_rect(), nut_add);
+        this->global.get_c_component().add.render(this->global.get_myscreen().get_my_renderer()); // render nút add
 
-        // this->render_data(); // render bảng dữ liệu
+        this->global.get_c_component().render_next_prev(mouse_X, mouse_Y, current_page, so_luong_data, &(this->global.get_myscreen()));
 
-        c_components.render_next_prev(mouse_X,mouse_Y,current_page,so_luong_data,myscreen);
+        SDL_Rect rect_temp{100, 175, 150, 50}; // ô input : 300,175,300,50
+        this->global.get_myscreen().render_Text("Mã CB:", rect_temp, {0, 0, 0}, true);
+        input_ma_so_cb.render(); // render ô input nhập số hiệu máy bay
+        SDL_Rect rect_sbd{950, 175, 150, 50}; 
+        this->global.get_myscreen().render_Text("Nơi Đến:", rect_sbd, {0, 0, 0}, true);
+        input_noi_den.render();
+        SDL_Rect rect_time{500, 175, 100, 50};
+        this->global.get_myscreen().render_Text("Time:", rect_time, {0, 0, 0}, true);
+        input_time.render();
 
-        SDL_Rect rect_temp{150, 175, 150, 50}; // ô input : 300,175,300,50
-        this->myscreen->render_Text("Số Hiệu MB:", rect_temp, {0, 0, 0}, true);
-        input_so_hieu_mb.render(); // render ô input nhập số hiệu máy bay
+        SDL_Rect rect_conve{1300, 175, 100, 50};
+        this->global.get_myscreen().render_Text("Còn Vé:", rect_conve, {0, 0, 0}, true);
+        input_con_ve.render();
+
 
         if (state == Flight::Position::MENU)
         {
@@ -591,11 +591,11 @@ public:
         }
         else if (state == Flight::Position::EDIT)
         {
-            edit_flight.render_menu(temp, this->qlcb);
+            edit_flight.render_menu(temp);
         }
         else if (state == Flight::Position::ADD)
         {
-            add_flight.render_menu(this->qlcb);
+            add_flight.render_menu();
         }
     }
 
@@ -603,58 +603,90 @@ public:
     void getData() // đưa data vào bộ đệm
     {
         data.connect_render_clear();
-        ListChuyenBay* list = &(this->qlcb->getListCB());
+
+        ListChuyenBay *list_cb = &(this->global.get_qlcb().getListCB());
+
         int start = (this->current_page - 1) * 10;
         int end = start + 9; // 0 - 9 là 10
         int stt = 0;
         int so_line_render = 0;
-        ChuyenBay *cb = nullptr;
         int index = 0;
-        
-        ChuyenBay* current = list->get_head();
-        while (current != nullptr)
+        for (ChuyenBay* current = list_cb->get_head(); current != nullptr; current = current->get_next())
         {
-            if (stt >= start && stt <= end)
+            if (Func_Global::check_prefix(current->get_ma_so_cb(), this->input_ma_so_cb.get_data().c_str()) && Func_Global::check_prefix(current->get_san_bay_den(), this->input_noi_den.get_data().c_str()) && Func_Global::check_prefix(current->get_thoi_gian_bay().to_string().c_str(), this->input_time.get_data().c_str()))
+            {
+                if (stt >= start && stt <= end)
                 {
-                    this->list_mb_dc_render[index++] = current;
+                    this->list_cb_dc_render[index++] = current;
                     this->render_line_data(stt, start, current);
                     so_line_render++;
                 }
-            stt++;
-            current = current->get_next();
+                stt++;
+            }
         }
         this->so_luong_data = stt;
         if (so_line_render == 0)
         {
-            this->myscreen->render_Text("Trống !!!", {X_START_TABLE, Y_START_TABLE, WIDTH_TABLE, HEIGHT_TABLE}, {255, 0, 0}, true);
+            this->global.get_myscreen().render_Text("Trống !!!", {X_START_TABLE, Y_START_TABLE, WIDTH_TABLE, HEIGHT_TABLE}, {255, 0, 0}, true);
         }
         data.disconnect_render();
     }
-    
-    
     void re_render_data();
     void follow_flag();
-    void createTable(); // vẽ ra viền bảng
+    void createTable();                                    // vẽ ra viền bảng
     void render_line_data(int stt, int start, ChuyenBay *cb); // render 1 linedata Máy Bay
 };
+View_Flight::View_Flight(Global_Variable &gb,bool& flag_re_render_from_thread) : global{gb}, flag2{flag_re_render_from_thread}
+{
+    current_page = 1;
 
+    menu_flight.set(global, &flag);
+    edit_flight.set(global, &flag);
+    add_flight.set(global, &flag);
+
+    table.set(&(global.get_myscreen()), WIDTH_TABLE, HEIGHT_TABLE + 50);
+    table.set_vitri(X_START_TABLE, Y_START_TABLE - 50);
+    this->createTable();
+
+    data.set(&(global.get_myscreen()), WIDTH_TABLE, HEIGHT_TABLE);
+    data.set_vitri(X_START_TABLE, Y_START_TABLE);
+    this->getData();
+    input_ma_so_cb.connect(&(global.get_myscreen()));
+    input_ma_so_cb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
+    input_ma_so_cb.set_vitri({250, 175, 200, 50});
+
+    input_noi_den.connect(&(global.get_myscreen()));
+    input_noi_den.set_max_length(MAX_LENGTH_SAN_BAY_DEN);
+    input_noi_den.set_vitri({1100,175,150,50});
+
+    input_time.connect(&(global.get_myscreen()));
+    input_time.set_max_length(MAX_LENGTH_TIME_STRING);
+    input_time.set_vitri({600,175,300,50});
+
+    input_con_ve.connect(&(global.get_myscreen()));
+    input_con_ve.set_box(&(global.get_c_component().unpick),&(global.get_c_component().pick));
+    input_con_ve.set_vitri({1400,175,50,50});
+
+
+}
 void View_Flight::re_render_data()
 {
     this->flag = true;
 }
 void View_Flight::follow_flag()
 {
-    if (this->flag == true)
+    if (this->flag || this->flag2)
     {
         this->getData();
         this->flag = false;
+        this->flag2 = false;
     }
 }
 
 void View_Flight::createTable() // vẽ ra viền bảng
 {
     table.connect_render_clear();
-    myscreen->render_table(7, route_flight_width, route_flight_name_cot);
+    this->global.get_myscreen().render_table(7, route_flight_width, route_flight_name_cot);
     table.disconnect_render();
 }
 
@@ -662,33 +694,32 @@ void View_Flight::render_line_data(int stt, int start, ChuyenBay *cb) // render 
 {
     SDL_Rect rect;
     rect = {0, 0 + (stt - start) * 50, route_flight_width[0], 50};
-    this->myscreen->render_Text(std::to_string((stt) + 1), rect, {0, 0, 0, 255}, true);
+    this->global.get_myscreen().render_Text(std::to_string((stt) + 1), rect, {0, 0, 0, 255}, true);
 
     rect.x += rect.w;
     rect.w = route_flight_width[1];
-    this->myscreen->render_Text(cb->get_ma_so_cb(), rect, {0, 0, 0, 255}, true);
+    this->global.get_myscreen().render_Text(cb->get_ma_so_cb(), rect, {0, 0, 0, 255}, true);
 
     rect.x += rect.w;
     rect.w = route_flight_width[2];
-    this->myscreen->render_Text(cb->get_san_bay_den(), rect, {0, 0, 0, 255}, true);
+    this->global.get_myscreen().render_Text(cb->get_san_bay_den(), rect, {0, 0, 0, 255}, true);
 
     rect.x += rect.w;
     rect.w = route_flight_width[3];
-    this->myscreen->render_Text(cb->get_thoi_gian_bay().to_string(), rect, {0, 0, 0, 255}, true);
+    this->global.get_myscreen().render_Text(cb->get_thoi_gian_bay().to_string(), rect, {0, 0, 0, 255}, true);
 
     rect.x += rect.w;
     rect.w = route_flight_width[4];
-    this->myscreen->render_Text(std::to_string(cb->get_trang_thai_cb()), rect, {0, 0, 0, 255}, true);
+    this->global.get_myscreen().render_Text(std::to_string(cb->get_trang_thai_cb()), rect, {0, 0, 0, 255}, true);
 
-     rect.x += rect.w;
+    rect.x += rect.w;
     rect.w = route_flight_width[5];
-    this->myscreen->render_Text(cb->get_so_hieu_mb(), rect, {0, 0, 0, 255}, true);
+    this->global.get_myscreen().render_Text(cb->get_so_hieu_mb(), rect, {0, 0, 0, 255}, true);
 
-     rect.x += rect.w;
+    rect.x += rect.w;
     rect.w = route_flight_width[6];
-    this->myscreen->render_Text("Còn vé :3", rect, {0, 0, 0, 255}, true);
+    this->global.get_myscreen().render_Text("Còn vé :v", rect, {0, 0, 0, 255}, true);
 }
-
 
 
 #endif

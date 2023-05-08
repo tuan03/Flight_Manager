@@ -22,7 +22,27 @@ namespace Plane
         SDL_Color nut_sua = {255, 255, 255};
         MayBay* current = nullptr;
         bool* flag_re_render_in_home = nullptr;
+
+        Box* khung_menu = nullptr; 
+        Box* edit = nullptr; 
+        Box* del = nullptr;
+        MyScreen* myscreen = nullptr;
     public:
+     void set(Global_Variable& global,bool* flag)
+        {
+            this->flag_re_render_in_home = flag;
+            this->global = &global;
+
+
+            khung_menu = &(global.get_c_component().khung_menu); //tuannnnn
+            edit = &(global.get_c_component().edit); 
+            del = &(global.get_c_component().del);
+            myscreen = &(global.get_myscreen());
+
+
+        }
+
+
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
         {
             nut_xoa = {255, 255, 255};
@@ -30,25 +50,25 @@ namespace Plane
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                if (this->global->get_c_component().edit.is_in_box(mouse_X, mouse_Y))
+                if (edit->is_in_box(mouse_X, mouse_Y))
                 {
                     nut_sua = {255, 219, 26};
                 }
-                else if (this->global->get_c_component().del.is_in_box(mouse_X, mouse_Y))
+                else if (del->is_in_box(mouse_X, mouse_Y))
                 {
                     nut_xoa = {255, 219, 26};
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:                                                // sự kiện nhấn vào các box
-                if (!this->global->get_c_component().khung_menu.is_in_box(mouse_X, mouse_Y)) // bấm bên ngoài menu sẽ thoát
+                if (!khung_menu->is_in_box(mouse_X, mouse_Y)) // bấm bên ngoài menu sẽ thoát
                 {
                     state = Position::HOME;
                 }
-                else if (this->global->get_c_component().edit.is_in_box(mouse_X, mouse_Y)) // nhấn vào Box edit
+                else if (edit->is_in_box(mouse_X, mouse_Y)) // nhấn vào Box edit
                 {                                                                  //
                     state = Position::EDIT;                                        // chuyển sang trang edit
                 }
-                else if (this->global->get_c_component().del.is_in_box(mouse_X, mouse_Y)) // nhấn vào Box xóa
+                else if (del->is_in_box(mouse_X, mouse_Y)) // nhấn vào Box xóa
                 {
                     Status result;
                     result = this->global->get_qlcb().del_mb(this->current->getSoHieuMB());
@@ -64,49 +84,38 @@ namespace Plane
                 break;
             }
         }
-        void set(Global_Variable& global,bool* flag)
-        {
-            this->flag_re_render_in_home = flag;
-            this->global = &global;
-        }
+       
 
         void render_menu(MayBay *mb, int vt)
         {
+            
+
+
             this->current = mb;
             // render khung menu
             SDL_Rect rect = {700, Y_START_TABLE + vt * 50 - 280, 300, 300};
-            this->global->get_c_component().khung_menu.set_rect(rect);
-            this->global->get_c_component().khung_menu.render(global->get_myscreen().get_my_renderer());
+            khung_menu->set_rect(rect);
+            khung_menu->render(myscreen->get_my_renderer());
             // end
 
             SDL_Rect rect_2 = {rect.x + 75, rect.y + 60, 150, 60};
-            this->global->get_c_component().edit.set_rect(rect_2); // đặt vị trí theo khung menu
+            edit->set_rect(rect_2); // đặt vị trí theo khung menu
             rect_2.y += 30;
             rect_2.y += 60;
-            this->global->get_c_component().del.set_rect(rect_2); // đặt vị trí theo khung menu
+            del->set_rect(rect_2); // đặt vị trí theo khung menu
             this->render_button_xoa_sua_thoat();
         }
         void render_button_xoa_sua_thoat()
         {
+
             //
-            global->get_myscreen().render_cot(this->global->get_c_component().del.get_rect(), nut_xoa);  // render nền
-            global->get_myscreen().render_cot(this->global->get_c_component().edit.get_rect(), nut_sua); // render nền
+            myscreen->render_cot(del->get_rect(), nut_xoa);  // render nền
+            myscreen->render_cot(edit->get_rect(), nut_sua); // render nền
             // tại nút edit và xóa có nền trong suốt cho nên màu nên sẽ phụ thuộc lớp ô vuông ở phía dưới nó, cụ thể là 2 ô vuông ở trên
 
-            this->global->get_c_component().edit.render(global->get_myscreen().get_my_renderer()); // render nút edit
-            this->global->get_c_component().del.render(global->get_myscreen().get_my_renderer());  // render nút delete
+            edit->render(myscreen->get_my_renderer()); // render nút edit
+            del->render(myscreen->get_my_renderer());  // render nút delete
         }
-    };
-    class Del
-    {
-    private:
-        MyScreen *myscreen;
-        /*
-        stt -1
-        so luong data -1
-        ĐK: máy bay phải đang ko thực hiện chuyến bay
-        */
-    public:
     };
     class Edit
     {
@@ -136,11 +145,17 @@ namespace Plane
 
         bool *flag_re_render_in_home = nullptr;
 
+        MyScreen* myscreen = nullptr;
+        Box* khung_add_edit = nullptr;
     public:
         void
         set(Global_Variable& global, bool *flag)
         {
             this->global = &global;
+            this->myscreen = &(global.get_myscreen());
+            khung_add_edit = &(global.get_c_component().khung_add_edit);
+
+
             this->flag_re_render_in_home = flag;
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
@@ -227,46 +242,38 @@ namespace Plane
         }
         void render_menu(MayBay *mb)
         {
+            
+
             set_target(mb);
-            global->get_myscreen().blur_background(150);
-            this->global->get_c_component().khung_add_edit.render(global->get_myscreen().get_my_renderer());
-            this->global->get_c_component().edit.set_rect(this->vi_tri_nut_sua);
+            myscreen->blur_background(150);
+            khung_add_edit->render(myscreen->get_my_renderer());
 
             for (int i = 0; i < 4; i++)
             {
-                global->get_myscreen().render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
+                myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
             }
 
             if (this->da_lap_cb)
             {
-                global->get_myscreen().render_Text(input_loaimb.get_data(), rect_input[1], {0, 0, 0}, true);
+                myscreen->render_Text(input_loaimb.get_data(), rect_input[1], {0, 0, 0}, true);
             }
             else
             {
                 input_loaimb.render();
             }
 
-            global->get_myscreen().render_Text(input_shmb.get_data(), rect_input[0], {0, 0, 0}, true);
+            myscreen->render_Text(input_shmb.get_data(), rect_input[0], {0, 0, 0}, true);
             input_soday.render();
             input_sodong.render();
 
             this->render_button_xoa_sua();
         }
-        void render_confirm_xoa()
-        {
-            SDL_Rect rect;
-            rect = {700, 310, 400, 200};
-            global->get_myscreen().render_cot(rect, COLOR_MENU_CHILD);
-            global->get_myscreen().render_Text("Xác nhận xóa ?", rect, {0, 0, 0}, true);
-        }
-
         void render_button_xoa_sua()
         {
-            global->get_myscreen().render_cot(vi_tri_nut_sua, nut_sua);
-
-            this->global->get_c_component().edit.render(this->global->get_myscreen().get_my_renderer());
-            global->get_myscreen().render_cot(vi_tri_nut_x, nut_x);
-            global->get_myscreen().render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
+            myscreen->render_cot(vi_tri_nut_sua, nut_sua);
+            myscreen->render_Text("OK",vi_tri_nut_sua,{0,0,0}, true);
+            myscreen->render_cot(vi_tri_nut_x, nut_x);
+            myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
         }
     };
     class Add
@@ -293,12 +300,19 @@ namespace Plane
         bool da_lap_cb = false;
 
         bool *flag_re_render_in_home = nullptr;
+        MyScreen* myscreen = nullptr;
+        Box* khung_add_edit = nullptr;
+        Box* edit = nullptr;
 
     public:
         void
         set(Global_Variable& global, bool *flag)
         {
             this->global = &global;
+            khung_add_edit = &(global.get_c_component().khung_add_edit);
+            edit = &(global.get_c_component().edit);
+            myscreen = &(global.get_myscreen());
+
             this->flag_re_render_in_home = flag;
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
@@ -382,13 +396,16 @@ namespace Plane
             this->reset_data();
             now = false;
             }
-            global->get_myscreen().blur_background(150);
-            this->global->get_c_component().khung_add_edit.render(global->get_myscreen().get_my_renderer());
-            this->global->get_c_component().edit.set_rect(this->vi_tri_nut_sua);
+
+            
+
+            myscreen->blur_background(150);
+            khung_add_edit->render(myscreen->get_my_renderer());
+            edit->set_rect(this->vi_tri_nut_sua);
 
             for (int i = 0; i < 4; i++)
             {
-                global->get_myscreen().render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
+                myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
             }
 
             input_shmb.render();
@@ -398,21 +415,13 @@ namespace Plane
 
             this->render_button_xoa_sua();
         }
-        void render_confirm_xoa()
-        {
-            SDL_Rect rect;
-            rect = {700, 310, 400, 200};
-            global->get_myscreen().render_cot(rect, COLOR_MENU_CHILD);
-            global->get_myscreen().render_Text("Xác nhận xóa ?", rect, {0, 0, 0}, true);
-        }
-
         void render_button_xoa_sua()
         {
-            global->get_myscreen().render_cot(vi_tri_nut_sua, nut_sua);
+            myscreen->render_cot(vi_tri_nut_sua, nut_sua);
 
-            this->global->get_c_component().edit.render(global->get_myscreen().get_my_renderer());
-            global->get_myscreen().render_cot(vi_tri_nut_x, nut_x);
-            global->get_myscreen().render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
+            edit->render(myscreen->get_my_renderer());
+            myscreen->render_cot(vi_tri_nut_x, nut_x);
+            myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
         }
     };
 } // namespace Plane
@@ -465,7 +474,7 @@ public:
                 if(global.get_c_component().add.is_in_box(mouse_X,mouse_Y)){
                     nut_add = {255, 219, 26};
                 }
-                this->vi_tri_hover_on_table = Func_Global::get_line(this->mouse_X, this->mouse_Y, global.get_qlcb().getListMB().get_so_luong(),this->current_page); // 0 - 9
+                this->vi_tri_hover_on_table = Func_Global::get_line(this->mouse_X, this->mouse_Y, this->so_luong_data,this->current_page); // 0 - 9
                 break;
             case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
                                       // bắt sự kiện nhấn next và prev
@@ -552,7 +561,7 @@ public:
     void getData() // đưa data vào bộ đệm
     {
         data.connect_render_clear();
-        ListMayBay* list_mb = this->global.get_qlcb().getListMB();
+        ListMayBay* list_mb = &(this->global.get_qlcb().getListMB());
         int so_may_bay = list_mb->get_so_luong();
         int start = (this->current_page - 1) * 10;
         int end = start + 9; // 0 - 9 là 10

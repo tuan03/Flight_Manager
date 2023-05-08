@@ -1,12 +1,14 @@
 #pragma once
 #include "../header.h"
 #include "../views/component.h"
-// #include "../views/views_customer.h"
-// #include "../views/views_flight.h"
+#include "../views/views_customer.h"
+#include "../views/views_flight.h"
 #include "../views/views_plane.h"
 #include "../views/views_thongke.h"
 #include "../views/views_ticket.h"
 //BoxComponents components_on_route
+
+#include "../model/thread_update_status_cb.h"
 
 class Controller {
    private:
@@ -41,14 +43,23 @@ class Controller {
 
     void running() {
         //Khởi tạo các route
+        bool flag_re_render_list_cb = false;
         View_Plane view_plane(global);  
-        // View_Flight view_flight(global);                                                                                                                                                                                                                                          // khởi tạo view Plane
-        // View_Flight view_flight(&(this->qlcb), &(this->myscreen), c_components);                                                                                                                                                                                                                                          // khởi tạo view Plane
-        // View_Customer view_customer(&(this->qlcb), &(this->myscreen), c_components);
+        View_Flight view_flight(global,flag_re_render_list_cb);                                                                                                                                                                                                                                                                                 // khởi tạo view Plane
+        View_Customer view_customer(global);
         //end
+        std::mutex myMutex;
+        bool quit = false;  // điều kiện thoát chương trình
+
         
 
-        bool quit = false;  // điều kiện thoát chương trình
+        Time current_time;
+        current_time.get_current_time();
+        std::thread thread_update_time(update_time,std::ref(current_time),std::ref(quit),std::ref(myMutex));
+        std::thread thread_update_status_cb(run_list,std::ref(this->global.get_qlcb().getListCB()),std::ref(current_time),std::ref(flag_re_render_list_cb),std::ref(quit),std::ref(myMutex));
+        
+
+       
         SDL_Event e;
         Uint32 timeCurrent = SDL_GetTicks();  // tại fps
         Uint32 timePre = SDL_GetTicks();      // tạo fps
@@ -60,7 +71,9 @@ class Controller {
         while (!quit) {
             while (SDL_PollEvent(&e) != 0) {
                 if (e.type == SDL_QUIT){  // sự kiện nhất thoát
+                    myMutex.lock();
                     quit = true;
+                    myMutex.unlock();
                     break;
                 }
                 if (e.type == SDL_MOUSEMOTION) {
@@ -84,7 +97,9 @@ class Controller {
                 if(current_route == Name_Box::PLANE){
                 view_plane.handleEvent(e, is_home,mouse_X,mouse_Y);
                 } else if(current_route == Name_Box::FLIGHT){
-                // view_flight.handleEvent(e, is_home,mouse_X,mouse_Y);
+                view_flight.handleEvent(e, is_home,mouse_X,mouse_Y);
+                } else if(current_route == Name_Box::CUSTOMER){
+                view_customer.handleEvent(e, is_home,mouse_X,mouse_Y);
                 }
                 
                 // view_flight.handleEvent(e, current_route, menu, is_home, quit);
@@ -102,10 +117,10 @@ class Controller {
                     view_plane.render();
                     break;
                 case Name_Box::FLIGHT:
-                    // view_flight.render();
+                    view_flight.render();
                     break;
                 case Name_Box::CUSTOMER:
-                    // view_customer.render();
+                    view_customer.render();
                     break;
                 case Name_Box::TICKET:
                     break;
@@ -138,6 +153,9 @@ class Controller {
                 frames = 0;
             }
         }
+
+        thread_update_status_cb.join();
+        thread_update_time.join();
     }
     ~Controller() {
     }

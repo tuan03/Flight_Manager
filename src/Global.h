@@ -12,6 +12,9 @@
 #include<cmath>
 #include <cstdio>
 
+#include <thread>
+#include <mutex>
+
 #include<ctime>
 #include <chrono>
 

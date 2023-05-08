@@ -51,8 +51,14 @@ class Time {
         this->month = parts->tm_mon + 1;
         this->day = parts->tm_mday;
     }
-    // Hàm tính khoảng cách thời gian giữa 2 mốc thời gian (trong đơn vị giây)
-    static double timeDiffInSeconds(Time t1, Time t2) { // trả về time : t2 - t1 
+   /**
+    * @brief Hàm tính khoảng cách giữa 2 mốc thời gian
+    * 
+    * @param t1 thời gian A
+    * @param t2 thời gian B
+    * @return số giây B - A 
+    */
+    static double timeDiffInSeconds(Time t1, Time t2) { 
         struct tm time1, time2;
         time1.tm_sec = 0;
         time1.tm_hour = t1.hour;
