@@ -44,14 +44,31 @@ class Flight_Manager{
                 return Status("Xóa Thành Công.", Status_Name::SUCCESS);
 		}
 
+     Status edit_chuyen_bay(ChuyenBay* cb, int minute, int hour, int day, int month, int year, const char* san_bay_den, const char* so_hieu_mb) {
+        //check error
+         Time thoi_gian_bay(minute,hour,day,month,year);
+        if(!thoi_gian_bay.isValidDate()) return Status("Ngày Giờ Không Hợp Lệ !");
+        if (cb->get_trang_thai_cb() == 2 || cb->get_trang_thai_cb() == 3) return Status("Không thể sửa thông tin của chuyến bay đang bay hoặc hoàn tất");
+        MayBay* mb = this->ds_maybay.find_mamb_ct(so_hieu_mb);
+        if (mb == nullptr) return Status("Số hiệu máy bay không tồn tại");
+        Time current_time;
+        current_time.get_current_time();
+        double difference = Time::timeDiffInSeconds(current_time, thoi_gian_bay);
+        if (difference <= 60*60*2) return Status("Thời gian lập chuyến bay phải lớn hơn thòi gian hiện tại 2 giờ");
+        if (difference > 60*60 * 24 * 365) return Status("Thời gian lập chuyến bay chỉ được phép trong vòng 365 ngày");
+        //edit
+        cb->set_thoi_gian_bay(thoi_gian_bay);
+        cb->set_san_bay_den(san_bay_den);
+        cb->set_so_hieu_mb(so_hieu_mb);
+        return Status("Sửa thông tin chuyến bay thành công", Status_Name::SUCCESS);
+    }
 
-
-    Status add_cb(char* ma_so_cb, int minute, int hour, int day, int month, int year, char* san_bay_den, char* so_hieu_mb) {
+    Status add_cb(const char* ma_so_cb, int minute, int hour, int day, int month, int year, const char* san_bay_den,const char* so_hieu_mb) {
 
             if(ds_chuyenbay.find_by_ma_cb(ma_so_cb)){
                 return Status("Mã Chuyến Bay Đã Tồn Tại");
             }
-            if(!ds_maybay.find_mamb(so_hieu_mb)){
+            if(ds_maybay.find_mamb(so_hieu_mb) == -1){
                 return Status("Số Hiệu Máy Bay Không Tồn tại");
             }
             Time time(minute,hour,day,month,year);

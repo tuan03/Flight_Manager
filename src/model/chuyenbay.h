@@ -16,6 +16,14 @@ class Time {
     int year;
 
    public:
+   //getter
+    int get_minute() { return this->minute; }
+    int get_hour() { return this->hour; }
+    int get_day() { return this->day; }
+    int get_month() { return this->month; }
+    int get_year() { return this->year; }
+
+
     std::string to_string() const {  // hh:mm-dd/mm/yyyy
         std::stringstream ss;
         std::tm timeinfo = {};
@@ -203,7 +211,7 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     int so_dong = 0;
 
 
-    void set(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
+    void set(const char* ma_so_cb, Time thoi_gian_bay,const char* san_bay_den, const char* so_hieu_mb, int trang_thai_cb) {
         strcpy(this->ma_so_cb, ma_so_cb);
         strcpy(this->san_bay_den, san_bay_den);
         strcpy(this->so_hieu_mb, so_hieu_mb);
@@ -223,11 +231,11 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     
 
     // Setter
-    void set_ma_so_cb(char* ma_so_cb) { strcpy(this->ma_so_cb, ma_so_cb); }
+    void set_ma_so_cb(const char* ma_so_cb) { strcpy(this->ma_so_cb, ma_so_cb); }
     void set_thoi_gian_bay(Time thoi_gian_bay) { this->thoi_gian_bay = thoi_gian_bay; }
-    void set_san_bay_den(char* san_bay_den) { strcpy(this->san_bay_den, san_bay_den); }
+    void set_san_bay_den(const char* san_bay_den) { strcpy(this->san_bay_den, san_bay_den); }
     void set_trang_thai_cb(int trang_thai_cb) { this->trang_thai_cb = trang_thai_cb; }
-    void set_so_hieu_mb(char* so_hieu_mb) { strcpy(this->so_hieu_mb, so_hieu_mb); }
+    void set_so_hieu_mb(const char* so_hieu_mb) { strcpy(this->so_hieu_mb, so_hieu_mb); }
     void set_next(ChuyenBay* next) { this->next = next; }
 
 
@@ -272,7 +280,7 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     }
     ChuyenBay() {
     }
-    ChuyenBay(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb, int trang_thai_cb) {
+    ChuyenBay(const char* ma_so_cb, Time thoi_gian_bay,const char* san_bay_den,const char* so_hieu_mb, int trang_thai_cb) {
         // init_ve();
         this->set(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb, trang_thai_cb);
     }
@@ -286,7 +294,7 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
         }
         delete[] listve;
     }
-    int compare_macb(char* macb) {  // return -1: cb này < cb2, 0: cb này == cb2, 1: cb này > cb2
+    int compare_macb(const char* macb) {  // return -1: cb này < cb2, 0: cb này == cb2, 1: cb này > cb2
         return strcmp(this->ma_so_cb, macb);
     }
     friend std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb);

@@ -222,9 +222,9 @@ namespace Plane
                 break;
             }
 
-            input_loaimb.handleInput_IN_HOA_SO_CO_CACH(e, mouse_X, mouse_Y);
-            input_soday.handleInput_so(e, mouse_X, mouse_Y);
-            input_sodong.handleInput_so(e, mouse_X, mouse_Y);
+            input_loaimb.handleInput_Name(e, mouse_X, mouse_Y);
+            input_soday.handleInput_Num(e, mouse_X, mouse_Y);
+            input_sodong.handleInput_Num(e, mouse_X, mouse_Y);
         }
         void set_target(MayBay *mb)
         {
@@ -379,10 +379,10 @@ namespace Plane
                 }
                 break;
             }
-            input_shmb.handleInput_IN_HOA_SO_KHONG_CACH(e,mouse_X,mouse_Y);
-            input_loaimb.handleInput_IN_HOA_SO_CO_CACH(e, mouse_X, mouse_Y);
-            input_soday.handleInput_so(e, mouse_X, mouse_Y);
-            input_sodong.handleInput_so(e, mouse_X, mouse_Y);
+            input_shmb.handleInput_ID(e,mouse_X,mouse_Y);
+            input_loaimb.handleInput_Name(e, mouse_X, mouse_Y);
+            input_soday.handleInput_Num(e, mouse_X, mouse_Y);
+            input_sodong.handleInput_Num(e, mouse_X, mouse_Y);
         }
         void reset_data(){
             input_loaimb.reset_data();
@@ -501,7 +501,7 @@ public:
                 break;
             }
 
-            input_so_hieu_mb.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+            input_so_hieu_mb.handleInput_ID(e, mouse_X, mouse_Y);
             if (e.type == SDL_KEYDOWN || e.type == SDL_TEXTINPUT)
                 this->re_render_data();
         }

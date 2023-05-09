@@ -105,10 +105,9 @@ namespace Flight
 
         void render_menu(ChuyenBay *cb, int vt)
         {
-
             this->current = cb;
             // render khung menu
-            SDL_Rect rect = {700, Y_START_TABLE + vt * 50 - 280, 300, 400};
+            SDL_Rect rect = {700 - 150, Y_START_TABLE + vt * 50 - 330, 300, 400};
             khung_menu->set_rect(rect);
             khung_menu->render(myscreen->get_my_renderer());
             // end
@@ -144,20 +143,28 @@ namespace Flight
         Global_Variable *global = nullptr;
 
         SDL_Rect vi_tri_nut_x = {1250, 210, 50, 50};
-        SDL_Rect vi_tri_nut_sua = {950, 450, 150, 60};
+        SDL_Rect vi_tri_nut_sua = {825, 530, 120, 60};
         SDL_Color nut_sua = {255, 255, 255};
         SDL_Color nut_x = {255, 255, 255};
 
-        Input input_shmb;
-        Input input_loaimb;
-        Input input_soday;
-        Input input_sodong;
+        Input input_so_hieu_mb;
+        Input input_san_bay_den;
+        Input input_tgb_hour;
+        Input input_tgb_minute;
+        Input input_tgb_day;
+        Input input_tgb_month;
+        Input input_tgb_year;
 
         bool now = true; // flag để gán 1 lần cho tất cả
 
-        string name_field[4] = {"Số hiệu Máy Bay", "Loại", "Số Dãy", "Số Dòng"};
-        SDL_Rect rect_field[4] = {{530, 300, 240, 50}, {530, 350, 240, 50}, {530, 400, 240, 50}, {530, 450, 240, 50}};
-        SDL_Rect rect_input[4] = {{770, 300, 500, 50}, {770, 350, 500, 50}, {770, 400, 500, 50}, {770, 450, 500, 50}};
+        SDL_Rect rect_input_time[5] = {{770, 400, 50, 50}, {840, 400, 50, 50}, {950, 400, 50, 50}, {1020, 400, 50, 50}, {1090, 400, 180, 50}};
+        string name_field_time[4] = {":", "-", "/", "/"};
+        SDL_Rect rect_field_time[4] = {{710, 400, 240, 50}, {800, 400, 240, 50}, {890, 400, 240, 50}, {960, 400, 240, 50}};
+
+
+        string name_field[4] = {"Mã Chuyến Bay:", "Nơi Đến:", "Thời Gian Bay:" , "Số Hiệu Máy Bay:"};
+        SDL_Rect rect_field[4] = {{530, 280, 240, 50}, {530, 340, 240, 50}, {530, 400, 240, 50}, {530, 460, 240, 50}};
+        SDL_Rect rect_input[4] = {{770, 280, 500, 50}, {770, 340, 500, 50}, {770, 400, 500, 50}, {770, 460, 500, 50}};
         int current_click_input = -1;
 
         bool da_lap_cb = false;
@@ -178,22 +185,34 @@ namespace Flight
             khung_add_edit = &(global.get_c_component().khung_add_edit);
 
             this->flag_re_render_in_home = flag;
-            this->vi_tri_nut_sua = {825, 515, 120, 60};
 
-            input_shmb.connect(&(global.get_myscreen()));
-            input_loaimb.connect(&(global.get_myscreen()));
-            input_soday.connect(&(global.get_myscreen()));
-            input_sodong.connect(&(global.get_myscreen()));
+            input_so_hieu_mb.connect(&(global.get_myscreen()));
+            input_san_bay_den.connect(&(global.get_myscreen()));
+            input_tgb_day.connect(&(global.get_myscreen()));
+            input_tgb_hour.connect(&(global.get_myscreen()));
+            input_tgb_minute.connect(&(global.get_myscreen()));
+            input_tgb_month.connect(&(global.get_myscreen()));
+            input_tgb_year.connect(&(global.get_myscreen()));
 
-            input_shmb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
-            input_loaimb.set_max_length(MAX_LENGTH_LOAI_MAY_BAY);
-            input_soday.set_max_length(3);
-            input_sodong.set_max_length(3);
+            input_so_hieu_mb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
+            input_san_bay_den.set_max_length(MAX_LENGTH_SAN_BAY_DEN);
+            input_tgb_hour.set_max_length(2);
+            input_tgb_minute.set_max_length(2);
+            input_tgb_day.set_max_length(2);
+            input_tgb_month.set_max_length(2);
+            input_tgb_year.set_max_length(4);
 
-            input_shmb.set_vitri(rect_input[0]);
-            input_loaimb.set_vitri(rect_input[1]);
-            input_soday.set_vitri(rect_input[2]);
-            input_sodong.set_vitri(rect_input[3]);
+            // input_.set_vitri(rect_input[0]);
+
+            input_san_bay_den.set_vitri(rect_input[1]);
+
+             input_tgb_hour.set_vitri(rect_input_time[0]);  // tg
+        input_tgb_minute.set_vitri(rect_input_time[1]);  // tg
+        input_tgb_day.set_vitri(rect_input_time[2]);  // tg
+        input_tgb_month.set_vitri(rect_input_time[3]);  // tg
+        input_tgb_year.set_vitri(rect_input_time[4]);  // tg
+
+            input_so_hieu_mb.set_vitri(rect_input[3]);    
         }
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
@@ -232,8 +251,7 @@ namespace Flight
                 }
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
                 {
-                    Status result ;
-                    //= this->target_chuyenbay->edit(this->input_loaimb.get_data().c_str(), std::stoi(this->input_soday.get_data()), std::stoi(this->input_sodong.get_data()));
+                    Status result = this->global->get_qlcb().edit_chuyen_bay(target_chuyenbay,std::stoi(input_tgb_minute.get_data()),std::stoi(input_tgb_hour.get_data()),std::stoi(input_tgb_day.get_data()),std::stoi(input_tgb_month.get_data()),std::stoi(input_tgb_year.get_data()),input_san_bay_den.get_data().c_str(),input_so_hieu_mb.get_data().c_str());
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
@@ -244,47 +262,53 @@ namespace Flight
                 break;
             }
 
-            input_loaimb.handleInput_IN_HOA_SO_CO_CACH(e, mouse_X, mouse_Y);
-            input_soday.handleInput_so(e, mouse_X, mouse_Y);
-            input_sodong.handleInput_so(e, mouse_X, mouse_Y);
+            input_san_bay_den.handleInput_ID(e,mouse_X,mouse_Y);
+            input_so_hieu_mb.handleInput_ID(e,mouse_X,mouse_Y);
+            input_tgb_day.handleInput_Num(e,mouse_X,mouse_Y);
+            input_tgb_hour.handleInput_Num(e,mouse_X,mouse_Y);
+            input_tgb_minute.handleInput_Num(e,mouse_X,mouse_Y);
+            input_tgb_month.handleInput_Num(e,mouse_X,mouse_Y);
+            input_tgb_year.handleInput_Num(e,mouse_X,mouse_Y);
         }
         void set_target(ChuyenBay *cb)
         {
             if (this->now == true)
             {
                 this->target_chuyenbay = cb;
-                // this->input_shmb.set_data(mb->getSoHieuMB());
-                // this->input_loaimb.set_data(mb->getLoaiMB());
-                // this->input_soday.set_data(std::to_string(mb->getSoDay()));
-                // this->input_sodong.set_data(std::to_string(mb->getSoDong()));
-                // this->da_lap_cb = global->get_qlcb().getListCB().find_by_sh_mb_v2(mb->getSoHieuMB());
+                input_san_bay_den.set_data(cb->get_san_bay_den());
+                input_so_hieu_mb.set_data(cb->get_so_hieu_mb());
+                input_tgb_day.set_data(std::to_string(cb->get_thoi_gian_bay().get_day()));
+                input_tgb_month.set_data(std::to_string(cb->get_thoi_gian_bay().get_month()));
+                input_tgb_year.set_data(std::to_string(cb->get_thoi_gian_bay().get_year()));
+                input_tgb_hour.set_data(std::to_string(cb->get_thoi_gian_bay().get_hour()));
+                input_tgb_minute.set_data(std::to_string(cb->get_thoi_gian_bay().get_minute()));
                 this->now = false;
             }
         }
         void render_menu(ChuyenBay *cb)
         {
-
             set_target(cb);
             myscreen->blur_background(150);
             khung_add_edit->render(myscreen->get_my_renderer());
 
+            for (int i = 0; i < 4; i++) {  // tg
+            this->myscreen->render_Text(name_field_time[i], rect_field_time[i], {0, 0, 0}, true);
+        }
+            
             for (int i = 0; i < 4; i++)
             {
                 myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
-            }
+            }         
+                myscreen->render_Text(cb->get_ma_so_cb(), rect_input[0], {0, 0, 0}, true);
+          
 
-            if (this->da_lap_cb)
-            {
-                myscreen->render_Text(input_loaimb.get_data(), rect_input[1], {0, 0, 0}, true);
-            }
-            else
-            {
-                input_loaimb.render();
-            }
-
-            myscreen->render_Text(input_shmb.get_data(), rect_input[0], {0, 0, 0}, true);
-            input_soday.render();
-            input_sodong.render();
+            input_san_bay_den.render();
+            input_so_hieu_mb.render();
+            input_tgb_day.render();
+            input_tgb_month.render();
+            input_tgb_year.render();
+            input_tgb_hour.render();
+            input_tgb_minute.render();
 
             this->render_button_xoa_sua();
         }
@@ -296,60 +320,88 @@ namespace Flight
             myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
         }
     };
-    class Add
+   
+    
+ class Add
     {
     private:
         Global_Variable *global = nullptr;
+
         SDL_Rect vi_tri_nut_x = {1250, 210, 50, 50};
-        SDL_Rect vi_tri_nut_sua = {950, 450, 150, 60};
+        SDL_Rect vi_tri_nut_sua = {825, 530, 120, 60};
         SDL_Color nut_sua = {255, 255, 255};
         SDL_Color nut_x = {255, 255, 255};
 
-        Input input_shmb;
-        Input input_loaimb;
-        Input input_soday;
-        Input input_sodong;
+        Input input_ma_cb;
+        Input input_so_hieu_mb;
+        Input input_san_bay_den;
+        Input input_tgb_hour;
+        Input input_tgb_minute;
+        Input input_tgb_day;
+        Input input_tgb_month;
+        Input input_tgb_year;
 
         bool now = true; // flag để gán 1 lần cho tất cả
 
-        string name_field[4] = {"Số hiệu Máy Bay", "Loại", "Số Dãy", "Số Dòng"};
-        SDL_Rect rect_field[4] = {{530, 300, 240, 50}, {530, 350, 240, 50}, {530, 400, 240, 50}, {530, 450, 240, 50}};
-        SDL_Rect rect_input[4] = {{770, 300, 500, 50}, {770, 350, 500, 50}, {770, 400, 500, 50}, {770, 450, 500, 50}};
+        SDL_Rect rect_input_time[5] = {{770, 400, 50, 50}, {840, 400, 50, 50}, {950, 400, 50, 50}, {1020, 400, 50, 50}, {1090, 400, 180, 50}};
+        string name_field_time[4] = {":", "-", "/", "/"};
+        SDL_Rect rect_field_time[4] = {{710, 400, 240, 50}, {800, 400, 240, 50}, {890, 400, 240, 50}, {960, 400, 240, 50}};
+
+
+        string name_field[4] = {"Mã Chuyến Bay:", "Nơi Đến:", "Thời Gian Bay:" , "Số Hiệu Máy Bay:"};
+        SDL_Rect rect_field[4] = {{530, 280, 240, 50}, {530, 340, 240, 50}, {530, 400, 240, 50}, {530, 460, 240, 50}};
+        SDL_Rect rect_input[4] = {{770, 280, 500, 50}, {770, 340, 500, 50}, {770, 400, 500, 50}, {770, 460, 500, 50}};
         int current_click_input = -1;
 
         bool da_lap_cb = false;
 
+        ChuyenBay *target_chuyenbay = nullptr;
+
         bool *flag_re_render_in_home = nullptr;
+
         MyScreen *myscreen = nullptr;
         Box *khung_add_edit = nullptr;
-        Box *edit = nullptr;
 
     public:
         void
         set(Global_Variable &global, bool *flag)
         {
             this->global = &global;
+            this->myscreen = &(global.get_myscreen());
             khung_add_edit = &(global.get_c_component().khung_add_edit);
-            edit = &(global.get_c_component().edit);
-            myscreen = &(global.get_myscreen());
 
             this->flag_re_render_in_home = flag;
-            this->vi_tri_nut_sua = {825, 515, 120, 60};
 
-            input_shmb.connect(&(global.get_myscreen()));
-            input_loaimb.connect(&(global.get_myscreen()));
-            input_soday.connect(&(global.get_myscreen()));
-            input_sodong.connect(&(global.get_myscreen()));
+            input_so_hieu_mb.connect(&(global.get_myscreen()));
+            input_san_bay_den.connect(&(global.get_myscreen()));
+            input_tgb_day.connect(&(global.get_myscreen()));
+            input_tgb_hour.connect(&(global.get_myscreen()));
+            input_tgb_minute.connect(&(global.get_myscreen()));
+            input_tgb_month.connect(&(global.get_myscreen()));
+            input_tgb_year.connect(&(global.get_myscreen()));
+            input_ma_cb.connect(&(global.get_myscreen()));
 
-            input_shmb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
-            input_loaimb.set_max_length(MAX_LENGTH_LOAI_MAY_BAY);
-            input_soday.set_max_length(3);
-            input_sodong.set_max_length(3);
+            input_so_hieu_mb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
+            input_san_bay_den.set_max_length(MAX_LENGTH_SAN_BAY_DEN);
+            input_tgb_hour.set_max_length(2);
+            input_tgb_minute.set_max_length(2);
+            input_tgb_day.set_max_length(2);
+            input_tgb_month.set_max_length(2);
+            input_tgb_year.set_max_length(4);
+            input_ma_cb.set_max_length(MAX_LENGTH_MA_CB);
 
-            input_shmb.set_vitri(rect_input[0]);
-            input_loaimb.set_vitri(rect_input[1]);
-            input_soday.set_vitri(rect_input[2]);
-            input_sodong.set_vitri(rect_input[3]);
+            input_ma_cb.set_vitri(rect_input[0]);
+
+            input_san_bay_den.set_vitri(rect_input[1]);
+
+             input_tgb_hour.set_vitri(rect_input_time[0]);  // tg
+        input_tgb_minute.set_vitri(rect_input_time[1]);  // tg
+        input_tgb_day.set_vitri(rect_input_time[2]);  // tg
+        input_tgb_month.set_vitri(rect_input_time[3]);  // tg
+        input_tgb_year.set_vitri(rect_input_time[4]);  // tg
+
+            input_so_hieu_mb.set_vitri(rect_input[3]);   
+
         }
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
@@ -387,63 +439,79 @@ namespace Flight
                 }
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
                 {
-                    Status result;
-                    // result = global->get_qlcb().getListMB().add(input_shmb.get_data().c_str(), input_loaimb.get_data().c_str(), std::stoi(input_soday.get_data()), std::stoi(input_sodong.get_data()));
+                    Status result = this->global->get_qlcb().add_cb(input_ma_cb.get_data().c_str(),std::stoi(input_tgb_minute.get_data()),std::stoi(input_tgb_hour.get_data()),std::stoi(input_tgb_day.get_data()),std::stoi(input_tgb_month.get_data()),std::stoi(input_tgb_year.get_data()),input_san_bay_den.get_data().c_str(),input_so_hieu_mb.get_data().c_str());
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
                     {
-                        now = true;
                         *(this->flag_re_render_in_home) = true;
+                        state = Position::HOME;
                     }
                 }
                 break;
             }
-            input_shmb.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
-            input_loaimb.handleInput_IN_HOA_SO_CO_CACH(e, mouse_X, mouse_Y);
-            input_soday.handleInput_so(e, mouse_X, mouse_Y);
-            input_sodong.handleInput_so(e, mouse_X, mouse_Y);
+            input_ma_cb.handleInput_ID(e,mouse_X,mouse_Y);
+            input_san_bay_den.handleInput_ID(e,mouse_X,mouse_Y);
+            input_so_hieu_mb.handleInput_ID(e,mouse_X,mouse_Y);
+            input_tgb_day.handleInput_Num(e,mouse_X,mouse_Y);
+            input_tgb_hour.handleInput_Num(e,mouse_X,mouse_Y);
+            input_tgb_minute.handleInput_Num(e,mouse_X,mouse_Y);
+            input_tgb_month.handleInput_Num(e,mouse_X,mouse_Y);
+            input_tgb_year.handleInput_Num(e,mouse_X,mouse_Y);
         }
         void reset_data()
         {
-            input_loaimb.reset_data();
-            input_shmb.reset_data();
-            input_soday.reset_data();
-            input_sodong.reset_data();
+            if (this->now == true)
+            {
+                input_ma_cb.reset_data();
+                input_san_bay_den.reset_data();
+                input_so_hieu_mb.reset_data();
+                input_tgb_day.reset_data();
+                input_tgb_month.reset_data();
+                input_tgb_year.reset_data();
+                input_tgb_hour.reset_data();
+                input_tgb_minute.reset_data();
+                this->now = false;
+            }
         }
         void render_menu()
         {
-            if (this->now)
-            {
-                this->reset_data();
-                now = false;
-            }
-
+            reset_data();
             myscreen->blur_background(150);
             khung_add_edit->render(myscreen->get_my_renderer());
-            edit->set_rect(this->vi_tri_nut_sua);
 
+            for (int i = 0; i < 4; i++) {  // tg
+            this->myscreen->render_Text(name_field_time[i], rect_field_time[i], {0, 0, 0}, true);
+        }
+            
             for (int i = 0; i < 4; i++)
             {
                 myscreen->render_Text(name_field[i], rect_field[i], {0, 0, 0}, true);
-            }
-
-            input_shmb.render();
-            input_loaimb.render();
-            input_soday.render();
-            input_sodong.render();
+            }         
+             
+            input_ma_cb.render();
+            input_san_bay_den.render();
+            input_so_hieu_mb.render();
+            input_tgb_day.render();
+            input_tgb_month.render();
+            input_tgb_year.render();
+            input_tgb_hour.render();
+            input_tgb_minute.render();
 
             this->render_button_xoa_sua();
         }
         void render_button_xoa_sua()
         {
             myscreen->render_cot(vi_tri_nut_sua, nut_sua);
-
-            edit->render(myscreen->get_my_renderer());
+            myscreen->render_Text("OK", vi_tri_nut_sua, {0, 0, 0}, true);
             myscreen->render_cot(vi_tri_nut_x, nut_x);
             myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
         }
     };
+   
+
+
+
 } // namespace Flight
 
 class View_Flight
@@ -528,9 +596,9 @@ public:
                 break;
             }
 
-            input_ma_so_cb.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
-            input_noi_den.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
-            input_time.handleInput_IN_HOA_SO_KHONG_CACH(e, mouse_X, mouse_Y);
+            input_ma_so_cb.handleInput_ID(e, mouse_X, mouse_Y);
+            input_noi_den.handleInput_ID(e, mouse_X, mouse_Y);
+            input_time.handleInput_Name(e, mouse_X, mouse_Y); // cần thay đổi
             input_con_ve.handle_choose(e, mouse_X, mouse_Y);
             if (e.type == SDL_KEYDOWN || e.type == SDL_TEXTINPUT)
                 this->re_render_data();
@@ -710,7 +778,13 @@ void View_Flight::render_line_data(int stt, int start, ChuyenBay *cb) // render 
 
     rect.x += rect.w;
     rect.w = route_flight_width[4];
-    this->global.get_myscreen().render_Text(std::to_string(cb->get_trang_thai_cb()), rect, {0, 0, 0, 255}, true);
+    string status;
+    int tt = cb->get_trang_thai_cb();
+    if(tt == 0) this->global.get_myscreen().render_Text("Đã Hủy", rect, {0, 0, 0, 255}, true);
+    else if(tt == 1) this->global.get_myscreen().render_Text("Còn Vé", rect, {0, 0, 0, 255}, true);
+    else if(tt == 2) this->global.get_myscreen().render_Text("Hết Vé", rect, {0, 0, 0, 255}, true);
+    else if(tt == 3) this->global.get_myscreen().render_Text("Hoàn Thành", rect, {0, 0, 0, 255}, true);
+    
 
     rect.x += rect.w;
     rect.w = route_flight_width[5];
