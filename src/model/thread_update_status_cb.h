@@ -11,7 +11,7 @@ void update_time(Time& time,bool& quit,std::mutex& myMutex){
     {
         myMutex.lock();
         time.get_current_time();
-        cout<<time.to_string()<<'\n';
+        // cout<<time.to_string()<<'\n';
         myMutex.unlock();
         std::this_thread::sleep_for(std::chrono::seconds(1)); // độ trễ 10s, giúp tối ưu hiệu suất
     }

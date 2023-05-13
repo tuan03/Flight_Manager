@@ -38,7 +38,7 @@ class Controller {
         menu.insert("src/views/img/custom1.jpg", {750, 25, 300, 100}, Name_Box::CUSTOMER)->set_hover("src/views/img/custom2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/custom3.jpg", global.get_myscreen().get_my_renderer());
         menu.insert("src/views/img/ve1.jpg", {1100, 25, 300, 100}, Name_Box::TICKET)->set_hover("src/views/img/ve2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/ve3.jpg", global.get_myscreen().get_my_renderer());
         menu.insert("src/views/img/thongke1.jpg", {1450, 25, 300, 100}, Name_Box::THONGKE)->set_hover("src/views/img/thongke2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/thongke3.jpg", global.get_myscreen().get_my_renderer());
-        menu.insert("src/views/img/body.png", {X_START_BODY, Y_START_BODY, 1700, 780});
+        menu.insert("src/views/img/body.png", {X_START_BODY, Y_START_BODY, W_BODY, H_BODY});
     }
 
     void running() {
@@ -101,10 +101,6 @@ class Controller {
                 } else if(current_route == Name_Box::CUSTOMER){
                 view_customer.handleEvent(e, is_home,mouse_X,mouse_Y);
                 }
-                
-                // view_flight.handleEvent(e, current_route, menu, is_home, quit);
-
-                // view_customer.handleEvent(e, current_route, menu, is_home, quit);
                 }
             }
 

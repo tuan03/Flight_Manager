@@ -36,6 +36,18 @@ class Time {
         ss << std::put_time(&timeinfo, "%H:%M-%d/%m/%Y");
         return ss.str();
     }
+    std::string to_string_dd_mm_yyyy_hh_mm() const {  // hh:mm-dd/mm/yyyy
+        std::stringstream ss;
+        std::tm timeinfo = {};
+        timeinfo.tm_year = year - 1900;  // năm bắt đầu từ 1900
+        timeinfo.tm_mon = month - 1;     // tháng bắt đầu từ 0
+        timeinfo.tm_mday = day;
+        timeinfo.tm_hour = hour;
+        timeinfo.tm_min = minute;
+        // In ra chuỗi theo định dạng hh:mm-dd/mm/yyyy
+        ss << std::put_time(&timeinfo, "%d/%m/%Y %H:%M");
+        return ss.str();
+    }
     Time() {
     }
     Time(int m, int h, int d, int month, int y) {
@@ -127,10 +139,10 @@ class Ve {
 
    public:
     // getter
-    char* getSoVe() {
+    const char* getSoVe() {
         return so_ve;
     }
-    char* getSoCMND() {
+    const char* getSoCMND() {
         return so_cmnd;
     }
     int getSoDay() {
@@ -148,10 +160,10 @@ class Ve {
         return -1;
     }
     // setter
-    void setSoVe(char* sv) {
+    void setSoVe(const char* sv) {
         strncpy(so_ve, sv, MAX_LENGTH_SO_VE + 1);
     }
-    void setSoCMND(char* scmnd) {
+    void setSoCMND(const char* scmnd) {
         strncpy(so_cmnd, scmnd, MAX_LENGTH_SO_CMND + 1);
     }
 
@@ -161,11 +173,11 @@ class Ve {
         strncpy(so_ve, ve.so_ve, MAX_LENGTH_SO_VE + 1);
         strncpy(so_cmnd, ve.so_cmnd, MAX_LENGTH_SO_CMND + 1);
     }
-    Ve(char* sv, char* scmnd) {
+    Ve(const char* sv,const char* scmnd) {
         strcpy(so_ve, sv);
         strcpy(so_cmnd, scmnd);
     }
-    Ve(int day, int dong, char* scmnd) {
+    Ve(int day, int dong,const char* scmnd) {
         fomatMaVe(day, dong);
         strcpy(so_cmnd, scmnd);
     }
@@ -181,20 +193,175 @@ class Ve {
         }
         this->so_ve[3] = 0;
     }
-
-    friend std::ostream& operator<<(std::ostream& os, const Ve& mb);
-    friend std::istringstream& operator>>(std::istringstream& is, Ve& ve);
 };
-std::ostream& operator<<(std::ostream& os, const Ve& mb) {
-    os << mb.so_ve << '-' << mb.so_cmnd << ';';
+
+
+
+
+
+class ListVe{
+    private:
+        Ve*** list = nullptr;
+
+        // chỉ số tạm
+        int so_day = 0;
+        int so_dong = 0;
+    public:
+    ListVe(){
+
+    }
+    const Ve* const* const* getList() const {
+        return list;
+    }
+    int get_so_day(){
+        return so_day;
+    }
+    int get_so_dong(){
+        return so_dong;
+    }
+    int get_total_ve(){
+        return so_day*so_dong;
+    }
+    const char* get_cmnd(int i, int j){
+        if(list[i][j] == nullptr){
+            return "Empty";
+        }
+        return list[i][j]->getSoCMND();
+    }
+    int get_ve_da_ban(){
+        int count=0;
+        for (int i = 0; i < this->so_day; i++) {
+            for (int j = 0; j < this->so_dong; j++) {
+                if (this->list[i][j] != nullptr) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    ~ListVe(){
+        for (int i = 0; i < this->so_day; ++i) {
+            for (int j = 0; j < this->so_dong; ++j) {
+                delete list[i][j];
+            }
+            delete[] list[i];
+        }
+        delete[] list;
+    }
+    bool check_empty(int so_day, int so_dong){ // true nếu empty
+        return list[so_day][so_dong] == nullptr;
+    }
+    void edit(int so_day_new, int so_dong_new){ // chỉnh sửa số vé
+        if(so_day_new < this->so_day || so_dong_new < this->so_dong) throw "Error : Can't Edit\n";
+        if(so_day == so_day_new && so_dong == so_dong_new) return;
+
+        Ve*** new_list = new Ve**[so_day_new];
+        for (int i = 0; i < so_day_new; ++i) {
+            new_list[i] = new Ve*[so_dong_new];
+        }
+        for (int i = 0; i < so_day_new; i++) {
+            for (int j = 0; j < so_dong_new; j++) {
+                new_list[i][j] = nullptr;
+            }
+        }
+
+        for (int i = 0; i < this->so_day; i++) {
+            for (int j = 0; j < this->so_dong; j++) {
+                new_list[i][j] = list[i][j];
+            }
+        }
+
+
+        for (int i = 0; i < this->so_day; ++i) {
+            for (int j = 0; j < this->so_dong; ++j) {
+                delete list[i][j];
+            }
+            delete[] list[i];
+        }
+        delete[] list;
+
+        this->so_day = so_day_new;
+        this->so_dong = so_dong_new;
+        this->list = new_list;
+    }
+
+
+
+    void init_ve(int so_day, int so_dong){ // khởi tạo vé
+        this->so_day = so_day;
+        this->so_dong = so_dong;
+        if(this->so_day < 0 || this->so_dong < 0) throw "Error : Init Ticket\n";
+
+        list = new Ve**[this->so_day];
+        for (int i = 0; i < this->so_day; ++i) {
+            list[i] = new Ve*[this->so_dong];
+        }
+        for (int i = 0; i < this->so_day; i++) {
+            for (int j = 0; j < this->so_dong; j++) {
+                list[i][j] = nullptr;
+            }
+        }
+    }
+
+    int so_ve_trong() {
+        int count=0;
+        for (int i = 0; i < this->so_day; i++) {
+            for (int j = 0; j < this->so_dong; j++) {
+                if (this->list[i][j] == nullptr) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    Status add_ve(int so_day, int so_dong, const char* cmnd ) {  // hàm này để thêm vé từ file data nên sẽ không cần check đã tồn tại
+        if(so_day < 0 || so_dong < 0 || so_day >= this->so_day || so_dong >= this->so_dong) return Status("Số Dãy Hoặc Số Dòng Không Hợp Lệ");
+        list[so_day][so_dong] = new Ve(so_day,so_dong,cmnd);
+        return Status("Đặt Vé Thành Công",Status_Name::SUCCESS);
+    }
+
+    friend std::istringstream& operator>>(std::istringstream& is, ListVe& lv);
+    friend std::ofstream& operator<<(std::ofstream& os, const ListVe& lv);
+};
+std::ofstream& operator<<(std::ofstream& os, const ListVe& lv){
+    os<<'|'<<lv.so_day<<'|'<<lv.so_dong;
+    for (int i = 0; i < lv.so_day; i++) {
+            for (int j = 0; j < lv.so_dong; j++) {
+                if((lv.list)[i][j] != nullptr){
+                    os<<'|'<<i<<'|'<<j<<'|'<<(lv.list)[i][j]->getSoCMND();
+                }
+            }
+    }
     return os;
 }
-
-std::istringstream& operator>>(std::istringstream& is, Ve& ve) {
-    is.getline(ve.so_ve, MAX_LENGTH_SO_VE + 1, '-');
-    is.getline(ve.so_cmnd, MAX_LENGTH_SO_CMND + 1, ';');
+std::istringstream& operator>>(std::istringstream& is,ListVe& lv) { // |so_day|so_dong|1|1|12321|1|2|2344
+    int so_day;
+    int so_dong;
+    char* cmnd;
+    char pc;
+    is.ignore(1);
+    is >> so_day;
+    is.ignore(1);
+    is >> so_dong;
+    lv.init_ve(so_day,so_dong);
+    is.ignore(1);
+    while (is >> so_day >> pc >> so_dong >> pc) {
+        if (!is.getline(cmnd, MAX_LENGTH_SO_CMND + 1, '|')) {
+            break;
+        }
+        lv.add_ve(so_day, so_dong, cmnd);
+    }
     return is;
 }
+
+
+
+
+
+
+
+
 
 class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|ve1-cmnd;ve2-cmnd
    private:
@@ -203,12 +370,9 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     char san_bay_den[MAX_LENGTH_SAN_BAY_DEN + 1];
     int trang_thai_cb; //0: hủy chuyến, 1: còn vé, 2: hết vé,3: hoàn tất 
     char so_hieu_mb[MAX_LENGTH_SO_HIEU_MB + 1];
-    Ve*** listve;  // cần fix
+    ListVe list_ve;
     ChuyenBay* next = NULL;
 
-    //chỉ số tạm
-    int so_day = 0;
-    int so_dong = 0;
 
 
     void set(const char* ma_so_cb, Time thoi_gian_bay,const char* san_bay_den, const char* so_hieu_mb, int trang_thai_cb) {
@@ -221,12 +385,12 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     }
    public:
     // Getter
-    char* get_ma_so_cb() { return this->ma_so_cb; }
+    const char* get_ma_so_cb() { return this->ma_so_cb; }
     Time get_thoi_gian_bay() { return this->thoi_gian_bay; }
-    char* get_san_bay_den() { return this->san_bay_den; }
+    const char* get_san_bay_den() { return this->san_bay_den; }
     int get_trang_thai_cb() { return this->trang_thai_cb; }
-    char* get_so_hieu_mb() { return this->so_hieu_mb; }
-    Ve*** get_listve() { return this->listve; }
+    const char* get_so_hieu_mb() { return this->so_hieu_mb; }
+    ListVe& get_listve() { return this->list_ve; }
     ChuyenBay* get_next() { return this->next; }
     
 
@@ -239,45 +403,6 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     void set_next(ChuyenBay* next) { this->next = next; }
 
 
-    // void set_time(char* time){
-    //     thoi_gian_bay.set(time);
-    // }
-    // void add_ve(int day,int dong,char* cmnd){
-    //     listve[day-1 ] = new Ve(day,dong,cmnd);
-    // }
-    // void add_ve(char* mave,char* cmnd){
-    //     char* s = &mave[1];
-    //     if(listve[mave[0]-'A' + std::stoi(s) - 1 ]  == nullptr)
-    //     listve[mave[0]-'A' + std::stoi(s) - 1 ] = new Ve(mave,cmnd);
-    // }
-    void add_ve(Ve& ve) {  // hàm này để thêm vé từ file data nên sẽ không cần check đã tồn tại
-        listve[ve.getSoDay() - 1][ve.getSoDong() - 1] = new Ve(ve);
-    }
-
-    void init_ve() {
-        if(this->so_day == 0 || this->so_dong == 0) throw "Lỗi Khởi Tạo Vé";
-        listve = new Ve**[this->so_day];
-        for (int i = 0; i < this->so_day; ++i) {
-            listve[i] = new Ve*[this->so_dong];
-        }
-        for (int i = 0; i < this->so_day; i++) {
-            for (int j = 0; j < this->so_dong; j++) {
-                listve[i][j] = nullptr;
-            }
-        }
-    }
-
-    int dem_so_ve_con_trong() {
-        int count=0;
-        for (int i = 0; i < this->so_day; i++) {
-            for (int j = 0; j < this->so_dong; j++) {
-                if (this->listve[i][j] == NULL) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
     ChuyenBay() {
     }
     ChuyenBay(const char* ma_so_cb, Time thoi_gian_bay,const char* san_bay_den,const char* so_hieu_mb, int trang_thai_cb) {
@@ -286,53 +411,33 @@ class ChuyenBay {  // ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_tha
     }
     ~ChuyenBay() {
         // cout<<"\ngiai phong bo nho ve\n";
-        for (int i = 0; i < this->so_day; ++i) {
-            for (int j = 0; j < this->so_dong; ++j) {
-                delete[] listve[i][j];
-            }
-            delete[] listve[i];
-        }
-        delete[] listve;
     }
     int compare_macb(const char* macb) {  // return -1: cb này < cb2, 0: cb này == cb2, 1: cb này > cb2
         return strcmp(this->ma_so_cb, macb);
     }
     friend std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb);
-    friend std::ostream& operator<<(std::ostream& os, const ChuyenBay& mb);
+    friend std::ofstream& operator<<(std::ofstream& os, const ChuyenBay& mb);
     friend int compare_ma_cb(const ChuyenBay* mb1, const ChuyenBay* mb2);
 };
-// ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai|so_day|so_dong|A01|12321|A02|2344
+// ma_so_cb|so_hieu_mb|hh:mm-dd/mm/yyyy|san_bay_den|trang_thai
 std::istringstream& operator>>(std::istringstream& is, ChuyenBay& mb) {
-    is.getline(mb.ma_so_cb, MAX_LENGTH_MA_CB + 1, '|');
+    string ma_so_cb;
+    getline(is,ma_so_cb,'|');
     is.getline(mb.so_hieu_mb, MAX_LENGTH_SO_HIEU_MB + 1, '|');
     is >> mb.thoi_gian_bay;
     is.ignore(1);
     is.getline(mb.san_bay_den, MAX_LENGTH_SAN_BAY_DEN + 1, '|');
     is >> mb.trang_thai_cb;
-    is.ignore(1);
-    is >> mb.so_day;
-    is.ignore(1);
-    is >> mb.so_dong;
-    is.ignore(1);
-    mb.init_ve();
-    // nhập vé
-    Ve ve;
-    while (is >> ve) {
-        mb.add_ve(ve);
-    }
-    // std::cout<<mb<<'\n';
+    mb.set_ma_so_cb(ma_so_cb.c_str());
+    is>>mb.list_ve;
+    
+    
 
     return is;
 }
-std::ostream& operator<<(std::ostream& os, const ChuyenBay& cb) {
-    os << cb.ma_so_cb << "|" << cb.so_hieu_mb << "|" << cb.thoi_gian_bay.to_string() << "|" << cb.san_bay_den << '|' << cb.trang_thai_cb << '|'<< cb.so_day << '|'<< cb.so_dong << '|';  // in cả vé
-    for (int i = 0; i < cb.so_day; i++) {
-        for (int j = 0; j < cb.so_dong; j++) {
-            if (cb.listve[i][j] != nullptr) {
-                os << *(cb.listve[i][j]);
-            }
-        }
-    }
+std::ofstream& operator<<(std::ofstream& os, const ChuyenBay& cb) {
+    os << cb.ma_so_cb << "|" << cb.so_hieu_mb << "|" << cb.thoi_gian_bay.to_string() << "|" << cb.san_bay_den << '|' << cb.trang_thai_cb ;
+    os << cb.list_ve; //in list vé
     return os;
 }
 int compare_ma_cb(const ChuyenBay* mb1,const ChuyenBay* mb2){
@@ -378,7 +483,7 @@ class ListChuyenBay {
         }
     }
     //end
-    void add(char* ma_so_cb, Time thoi_gian_bay, char* san_bay_den, char* so_hieu_mb) {
+    void add(const char* ma_so_cb, Time thoi_gian_bay,const char* san_bay_den,const char* so_hieu_mb) {
             ChuyenBay* new_chuyenbay = new ChuyenBay(ma_so_cb, thoi_gian_bay, san_bay_den, so_hieu_mb, 1);
             insert_order(new_chuyenbay);
         }
@@ -458,13 +563,13 @@ class ListChuyenBay {
     ChuyenBay* get_head(){
         return this->head;
     }
-    void print() {
-        ChuyenBay* current = head;
-        while (current != nullptr) {
-            cout << *current << "\n";
-            current = current->get_next();
-        }
-    }
+    // void print() {
+    //     ChuyenBay* current = head;
+    //     while (current != nullptr) {
+    //         cout << *current << "\n";
+    //         current = current->get_next();
+    //     }
+    // }
     ~ListChuyenBay() {
             ChuyenBay* current = head;
             ChuyenBay* next = nullptr;
@@ -477,14 +582,7 @@ class ListChuyenBay {
     }
 
     friend std::ofstream& operator<<(std::ofstream& os, const ListChuyenBay& list);
-    friend std::ostream& operator<<(std::ostream& os, const ListChuyenBay& list);
 };
-std::ostream& operator<<(std::ostream& os, const ListChuyenBay& list) {
-    for (ChuyenBay* current = list.head; current != nullptr; current = current->get_next()) {
-        os << *current << "\n";
-    }
-    return os;
-}
 std::ofstream& operator<<(std::ofstream& os, const ListChuyenBay& list) {
     for (ChuyenBay* current = list.head; current != nullptr; current = current->get_next()) {
         os << *current << "\n";

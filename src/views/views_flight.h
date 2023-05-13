@@ -3,18 +3,10 @@
 
 #include "../header.h"
 #include "component.h"
+#include "views_ticket.h"
 
 namespace Flight
 {
-    enum Position
-    {
-        HOME,
-        MENU,
-        EDIT,
-        DELETE,
-        ADD
-    };
-
     class Menu
     {
     private:
@@ -77,11 +69,11 @@ namespace Flight
                 }
                 else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_datve))
                 {
-                    // chuyển qua route đặt vé
+                    state = Position::DATVE;
                 }
                 else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_xemhk))
                 {
-                    // chuyển qua route xem list hk
+                    state = Position::XEM_HK;
                 }
                 else if (MyFunc::check_click(mouse_X,mouse_Y,vt_nut_sua)) // nhấn vào Box edit
                 {                                           //
@@ -186,33 +178,13 @@ namespace Flight
 
             this->flag_re_render_in_home = flag;
 
-            input_so_hieu_mb.connect(&(global.get_myscreen()));
-            input_san_bay_den.connect(&(global.get_myscreen()));
-            input_tgb_day.connect(&(global.get_myscreen()));
-            input_tgb_hour.connect(&(global.get_myscreen()));
-            input_tgb_minute.connect(&(global.get_myscreen()));
-            input_tgb_month.connect(&(global.get_myscreen()));
-            input_tgb_year.connect(&(global.get_myscreen()));
-
-            input_so_hieu_mb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
-            input_san_bay_den.set_max_length(MAX_LENGTH_SAN_BAY_DEN);
-            input_tgb_hour.set_max_length(2);
-            input_tgb_minute.set_max_length(2);
-            input_tgb_day.set_max_length(2);
-            input_tgb_month.set_max_length(2);
-            input_tgb_year.set_max_length(4);
-
-            // input_.set_vitri(rect_input[0]);
-
-            input_san_bay_den.set_vitri(rect_input[1]);
-
-             input_tgb_hour.set_vitri(rect_input_time[0]);  // tg
-        input_tgb_minute.set_vitri(rect_input_time[1]);  // tg
-        input_tgb_day.set_vitri(rect_input_time[2]);  // tg
-        input_tgb_month.set_vitri(rect_input_time[3]);  // tg
-        input_tgb_year.set_vitri(rect_input_time[4]);  // tg
-
-            input_so_hieu_mb.set_vitri(rect_input[3]);    
+            input_so_hieu_mb.set(&(global.get_myscreen()), MAX_LENGTH_SO_HIEU_MB,rect_input[3]);
+            input_san_bay_den.set(&(global.get_myscreen()),MAX_LENGTH_SAN_BAY_DEN,rect_input[1]);
+            input_tgb_day.set(&(global.get_myscreen()),2,rect_input_time[2]);
+            input_tgb_hour.set(&(global.get_myscreen()),2,rect_input_time[0]);
+            input_tgb_minute.set(&(global.get_myscreen()),2,rect_input_time[1]);
+            input_tgb_month.set(&(global.get_myscreen()),2,rect_input_time[3]);
+            input_tgb_year.set(&(global.get_myscreen()),4,rect_input_time[4]);
         }
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
@@ -372,35 +344,20 @@ namespace Flight
 
             this->flag_re_render_in_home = flag;
 
-            input_so_hieu_mb.connect(&(global.get_myscreen()));
-            input_san_bay_den.connect(&(global.get_myscreen()));
-            input_tgb_day.connect(&(global.get_myscreen()));
-            input_tgb_hour.connect(&(global.get_myscreen()));
-            input_tgb_minute.connect(&(global.get_myscreen()));
-            input_tgb_month.connect(&(global.get_myscreen()));
-            input_tgb_year.connect(&(global.get_myscreen()));
-            input_ma_cb.connect(&(global.get_myscreen()));
+            input_ma_cb.set(&(global.get_myscreen()),MAX_LENGTH_MA_CB,rect_input[0]);
+            input_san_bay_den.set(&(global.get_myscreen()),MAX_LENGTH_SAN_BAY_DEN,rect_input[1]);
+            input_tgb_hour.set(&(global.get_myscreen()),2,rect_input_time[0]);
+            input_tgb_minute.set(&(global.get_myscreen()),2,rect_input_time[1]);
+            input_tgb_day.set(&(global.get_myscreen()),2,rect_input_time[2]);
+            input_tgb_month.set(&(global.get_myscreen()),2,rect_input_time[3]);
+            input_tgb_year.set(&(global.get_myscreen()),4,rect_input_time[4]);
+            input_so_hieu_mb.set(&(global.get_myscreen()), MAX_LENGTH_SO_HIEU_MB,rect_input[3]);
 
-            input_so_hieu_mb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
-            input_san_bay_den.set_max_length(MAX_LENGTH_SAN_BAY_DEN);
-            input_tgb_hour.set_max_length(2);
-            input_tgb_minute.set_max_length(2);
-            input_tgb_day.set_max_length(2);
-            input_tgb_month.set_max_length(2);
-            input_tgb_year.set_max_length(4);
-            input_ma_cb.set_max_length(MAX_LENGTH_MA_CB);
 
-            input_ma_cb.set_vitri(rect_input[0]);
+        
+            
 
-            input_san_bay_den.set_vitri(rect_input[1]);
-
-             input_tgb_hour.set_vitri(rect_input_time[0]);  // tg
-        input_tgb_minute.set_vitri(rect_input_time[1]);  // tg
-        input_tgb_day.set_vitri(rect_input_time[2]);  // tg
-        input_tgb_month.set_vitri(rect_input_time[3]);  // tg
-        input_tgb_year.set_vitri(rect_input_time[4]);  // tg
-
-            input_so_hieu_mb.set_vitri(rect_input[3]);   
+           
 
         }
 
@@ -536,6 +493,8 @@ private:
     Flight::Menu menu_flight; // route menu
     Flight::Edit edit_flight; // route edit
     Flight::Add add_flight;   // route edit
+    Flight::DatVe dat_ve;
+    Flight::XemHK xem_hk;
 
     ChuyenBay *list_cb_dc_render[10];
     ChuyenBay *temp = nullptr; // lấy con trỏ máy bay ở vị trí đang hover rồi click
@@ -546,7 +505,7 @@ private:
     int mouse_X, mouse_Y;           // vị trí chuột
 
     int route_flight_width[7]{100, 200, 200, 450, 200, 200, 150};
-    string route_flight_name_cot[7]{"STT", "Mã Số CB", "Sân Bay Đến", "Thời Gian Bay", "Trạng Thái", "Số Hiệu MB", "Trạng Thái Vé"};
+    string route_flight_name_cot[7]{"STT", "Mã Số CB", "Sân Bay Đến", "Thời Gian Bay", "Trạng Thái", "Số Hiệu MB", "Vé Còn Trống"};
 
     SDL_Color nut_add{255, 255, 255};
 
@@ -618,6 +577,14 @@ public:
             {
                 add_flight.handleEvent(e, this->state, mouse_X, mouse_Y);
             }
+            else if (state == Flight::Position::DATVE)
+            {
+                dat_ve.handleEvent(e, this->state, mouse_X, mouse_Y);
+            }
+            else if (state == Flight::Position::XEM_HK)
+            {
+                xem_hk.handleEvent(e, this->state, mouse_X, mouse_Y);
+            }
         }
     }
     void render()
@@ -665,6 +632,14 @@ public:
         {
             add_flight.render_menu();
         }
+        else if (state == Flight::Position::DATVE)
+        {
+            dat_ve.render_menu(temp);
+        }
+        else if (state == Flight::Position::XEM_HK)
+        {
+            xem_hk.render_menu(temp);
+        }
     }
 
     ////////////////////////////////////////////////////////////
@@ -711,6 +686,8 @@ View_Flight::View_Flight(Global_Variable &gb,bool& flag_re_render_from_thread) :
     menu_flight.set(global, &flag);
     edit_flight.set(global, &flag);
     add_flight.set(global, &flag);
+    dat_ve.set(global,flag);
+    xem_hk.set(global);
 
     table.set(&(global.get_myscreen()), WIDTH_TABLE, HEIGHT_TABLE + 50);
     table.set_vitri(X_START_TABLE, Y_START_TABLE - 50);
@@ -719,17 +696,11 @@ View_Flight::View_Flight(Global_Variable &gb,bool& flag_re_render_from_thread) :
     data.set(&(global.get_myscreen()), WIDTH_TABLE, HEIGHT_TABLE);
     data.set_vitri(X_START_TABLE, Y_START_TABLE);
     this->getData();
-    input_ma_so_cb.connect(&(global.get_myscreen()));
-    input_ma_so_cb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
-    input_ma_so_cb.set_vitri({250, 175, 200, 50});
 
-    input_noi_den.connect(&(global.get_myscreen()));
-    input_noi_den.set_max_length(MAX_LENGTH_SAN_BAY_DEN);
-    input_noi_den.set_vitri({1100,175,150,50});
 
-    input_time.connect(&(global.get_myscreen()));
-    input_time.set_max_length(MAX_LENGTH_TIME_STRING);
-    input_time.set_vitri({600,175,300,50});
+    input_ma_so_cb.set(&(global.get_myscreen()),MAX_LENGTH_MA_CB,{250, 175, 200, 50});
+    input_noi_den.set(&(global.get_myscreen()),MAX_LENGTH_SAN_BAY_DEN,{1100,175,150,50});
+    input_time.set(&(global.get_myscreen()),MAX_LENGTH_TIME_STRING,{600,175,300,50});
 
     input_con_ve.connect(&(global.get_myscreen()));
     input_con_ve.set_box(&(global.get_c_component().unpick),&(global.get_c_component().pick));
@@ -792,7 +763,10 @@ void View_Flight::render_line_data(int stt, int start, ChuyenBay *cb) // render 
 
     rect.x += rect.w;
     rect.w = route_flight_width[6];
-    this->global.get_myscreen().render_Text("Còn vé :v", rect, {0, 0, 0, 255}, true);
+    int total_ve = cb->get_listve().get_total_ve();
+    int ve_trong = cb->get_listve().so_ve_trong();
+    string so_ve = std::to_string(ve_trong)+" / "+std::to_string(total_ve);
+    this->global.get_myscreen().render_Text(so_ve, rect, {0, 0, 0, 255}, true);
 }
 
 

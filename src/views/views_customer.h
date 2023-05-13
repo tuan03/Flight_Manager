@@ -135,7 +135,7 @@ void View_Customer::render_line_data(int stt, int start, HanhKhach *hk) // rende
 
     rect.x += rect.w;
     rect.w = route_plane_width[4];
-    this->global.get_myscreen().render_Text(std::to_string(hk->getPhai()), rect, {0, 0, 0, 255}, true);
+    this->global.get_myscreen().render_Text((hk->getPhai()) ? "Nam" : "Nữ", rect, {0, 0, 0, 255}, true);
 }
 
 

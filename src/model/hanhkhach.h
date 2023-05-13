@@ -11,7 +11,7 @@ class HanhKhach{
     char ten[MAX_LENGTH_TEN+1]={}; 
     bool phai; // true : nam, false : nữ
     HanhKhach *left = nullptr, *right = nullptr;
-    void set(char * so_cmnd, char * ho, char * ten, bool phai){
+    void set(const char * so_cmnd,const char * ho,const char * ten,const bool phai){
         strcpy(this->so_cmnd,so_cmnd);
         strcpy(this->ho,ho);
         strcpy(this->ten,ten);
@@ -59,10 +59,10 @@ class HanhKhach{
 
 
     HanhKhach(){}
-    HanhKhach(char * so_cmnd, char * ho, char * ten, bool phai){
+    HanhKhach(const char * so_cmnd,const char * ho,const char * ten, bool phai){
         this->set(so_cmnd,ho,ten,phai);
     }
-    int compare_cmnd(char* cmnd){
+    int compare_cmnd(const char* cmnd){
         return strcmp(this->so_cmnd,cmnd);
     }
 
@@ -146,8 +146,7 @@ class TreeHanhKhach {
         void add_from_file_data(HanhKhach* new_node) {
             root = insertNode(root, new_node);
         }
-        using insert = void (*)(HanhKhach*); // đặt tên khác (alias _ using (từ c++ 11 trở lên))
-
+        
         HanhKhach* search(const char* cmnd) const {
             return searchNode(root, cmnd);
         }

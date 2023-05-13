@@ -9,9 +9,6 @@ class MayBay{
 		char loai_mb[MAX_LENGTH_LOAI_MAY_BAY+1];
 		int so_day;
 		int so_dong;
-
-
-		// 
 		int so_lan_bay = 0;
 
 
@@ -76,7 +73,6 @@ class MayBay{
 		this->set(sh,loai,day,dong);
 	}
 		friend std::istringstream& operator>>(std::istringstream& is, MayBay& mb);
-		friend std::ostream& operator<<(std::ostream& os, const MayBay& mb) ;
 		friend std::ofstream& operator<<(std::ofstream& os, const MayBay& mb) ;
 };
 	std::istringstream& operator>>(std::istringstream& is, MayBay& mb) {
@@ -87,10 +83,7 @@ class MayBay{
 		is>>mb.so_dong;
 		return is;
 	}
-	std::ostream& operator<<(std::ostream& os, const MayBay& mb) {
-		os << mb.so_hieu_mb << "|" << mb.loai_mb << "|" << mb.so_day << "|" << mb.so_dong;
-		return os;
-	}
+
 	std::ofstream& operator<<(std::ofstream& os, const MayBay& mb) {
 		os << mb.so_hieu_mb << "|" << mb.loai_mb << "|" << mb.so_day << "|" << mb.so_dong;
 		return os;
@@ -104,7 +97,6 @@ class ListMayBay{
 			for (int i = 0; i < so_luong; i++) {
 				delete data[i];
 			}
-			so_luong = 0;
 		}
 		MayBay* get_at(int index) const { return this->data[index]; }
 		int get_so_luong(){ return this->so_luong; }
@@ -139,13 +131,13 @@ class ListMayBay{
 			}
 		}
 
-		void print(){
-            for(int i = 0; i < so_luong; i++){
-				cout<<*data[i]<<'\n';
-			}
-        }
+		// void print(){
+        //     for(int i = 0; i < so_luong; i++){
+		// 		cout<<*data[i]<<'\n';
+		// 	}
+        // }
 	
-		
+
 		//find chuyen bay
 		int find_mamb(const char* so_hieu_mb){
 			for(int i = 0; i < so_luong; i++){
@@ -175,15 +167,7 @@ class ListMayBay{
 
 
    friend std::ofstream& operator<<(std::ofstream& os, const ListMayBay& list);
-   friend std::ostream& operator<<(std::ostream& os, const ListMayBay& list);
 };
-
-std::ostream& operator<<(std::ostream& os, const ListMayBay& list) {
-   for (int i = 0; i < list.so_luong; i++) {
-        os << *(list.get_at(i)) << "\n";
-   }
-   return os;
-}
 
 std::ofstream& operator<<(std::ofstream& os, const ListMayBay& list) {
     for (int i=0 ; i < list.so_luong; i++) {

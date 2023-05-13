@@ -46,17 +46,15 @@ using namespace std;
 #define MIN_SOCHO 20
 
 
-#define FILE_PATH_DATA_CHUYEN_BAY "src/data/data_chuyen_bay.txt"
-#define FILE_PATH_DATA_HANH_KHACH "src/data/data_hanh_khach.txt"
-#define FILE_PATH_DATA_MAY_BAY "src/data/data_may_bay.txt"
-
-#define FILE_PATH_DATA_CHUYEN_BAY_BACKUP "src/data/data_chuyen_bay_(backup).txt"
-#define FILE_PATH_DATA_HANH_KHACH_BACKUP "src/data/data_hanh_khach_(backup).txt"
-#define FILE_PATH_DATA_MAY_BAY_BACKUP "src/data/data_may_bay_(backup).txt"
+#define DATA_CHUYEN_BAY "src\\data\\chuyen_bay.bin"
+#define DATA_HANH_KHACH "src\\data\\hanh_khach.bin"
+#define DATA_MAY_BAY "src\\data\\may_bay.bin"
 
 
 #define X_START_BODY 50
 #define Y_START_BODY 150
+#define W_BODY 1700
+#define H_BODY 780
 
 #define X_START_TABLE 150
 #define Y_START_TABLE 290

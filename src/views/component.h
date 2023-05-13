@@ -20,6 +20,12 @@ private:
     SDL_Rect vt{0, 0, 0, 0};
 
 public:
+    bool get_data(){
+        return data;
+    }
+    void set_data(bool dt){
+        this->data = dt;
+    }
     void connect(MyScreen *mc)
     {
         this->myscreen = mc;
@@ -33,15 +39,17 @@ public:
     {
         vt = rect;
     }
-    void handle_choose(SDL_Event e, int x, int y)
+    bool handle_choose(SDL_Event e, int x, int y)
     {
         if (e.type == SDL_MOUSEBUTTONDOWN)
         {
             if (MyFunc::check_click(x, y, vt))
             {
                 data = !data;
+                return true;
             }
         }
+        return false;
     }
     void render()
     {
@@ -65,20 +73,13 @@ private:
     string data = "";
     int max_length = 0;
     bool is_clicked = false;
-    bool ok_warning = true;
     SDL_Rect vitri;
 
 public:
     string get_data() { return data; }
-    int get_data_in_number() { return stoi(data); }
-
-    void set(bool logic)
-    {
-        this->ok_warning = logic;
-    }
     void handleInput_ID(SDL_Event e, int x, int y)
     { // dùng để nhập ID. có thể nhập chữ cái in hoa, số - không được phép : dấu cách và kí tự đặc biệt
-        if (ok_warning && e.type == SDL_MOUSEBUTTONDOWN)
+        if (e.type == SDL_MOUSEBUTTONDOWN)
             this->is_clicked = MyFunc::check_click(x, y, this->vitri);
         if (this->is_clicked)
         {
@@ -106,7 +107,7 @@ public:
     }
     void handleInput_Name(SDL_Event e, int x, int y)
     { // dùng để nhập Tên, Kiểu, được phép số (chỉ 1 kc giữa 2 từ, viết hoa ở đầu) - không được phép :kí tự đặc biệt
-        if (ok_warning && e.type == SDL_MOUSEBUTTONDOWN)
+        if (e.type == SDL_MOUSEBUTTONDOWN)
             this->is_clicked = MyFunc::check_click(x, y, this->vitri);
         if (this->is_clicked)
         {
@@ -143,7 +144,7 @@ public:
     }
     void handleInput_Num(SDL_Event e, int x, int y)
     { // chỉ có thể nhập số
-        if (ok_warning && e.type == SDL_MOUSEBUTTONDOWN)
+        if (e.type == SDL_MOUSEBUTTONDOWN)
             this->is_clicked = MyFunc::check_click(x, y, this->vitri);
         if (this->is_clicked)
         {
@@ -166,6 +167,15 @@ public:
         }
     }
 
+
+    void set(MyScreen* mc, int max_length, SDL_Rect vt){
+        this->myscreen = mc;
+        this->max_length = max_length;
+        this->vitri = vt;
+    }
+    bool get_is_click(){
+        return this->is_clicked;
+    }
     void connect(MyScreen *mc)
     {
         this->myscreen = mc;
@@ -188,6 +198,7 @@ public:
     }
     void render(bool type_red = false)
     {
+        if(this->myscreen == nullptr) throw "MyScreen Input is NULL\n";
         SDL_Rect box_input{vitri.x + 3, vitri.y + 3, vitri.w - 6, vitri.h - 6};
         myscreen->render_cot(vitri, {0, 0, 0});
         if (this->is_clicked)
@@ -400,5 +411,10 @@ public:
         return c_components;
     }
 };
+
+
+
+
+
 
 #endif

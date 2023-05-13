@@ -11,6 +11,12 @@
  */
 namespace MyFunc
 {
+    SDL_Rect calc_phan_tram(double tl_x, double tl_y, SDL_Rect src, int w, int h){
+        src.y += tl_y * h;
+        src.x += tl_x * w;
+        return src;
+    }
+
     bool check_click(int x, int y, SDL_Rect rect)
     {
         if (x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h)
@@ -661,8 +667,15 @@ public:
         rect.h = height_buffer;
         SDL_SetTextureBlendMode(mytexture, SDL_BLENDMODE_BLEND);
     }
+    SDL_Rect get_rect(){
+        return rect;
+    }
+    void set_none_alpha(){
+        SDL_SetTextureBlendMode(mytexture, SDL_BLENDMODE_NONE);
+    }
     ~Buffer()
     {
+        // cout<<"Xoa Buffer\n";
         SDL_DestroyTexture(mytexture);
     }
     void throw_err()
@@ -674,6 +687,17 @@ public:
     {
         rect.x = x;
         rect.y = y;
+    }
+    void set_vitri(SDL_Rect r)
+    {
+        rect = r;
+    }
+    void connect_render_clear_white()
+    {
+        this->throw_err();
+        SDL_SetRenderTarget(this->myrender->get_renderer(), mytexture);
+        SDL_SetRenderDrawColor(this->myrender->get_renderer(), 255, 255, 255, 255);
+        SDL_RenderClear(this->myrender->get_renderer());
     }
     void connect_render_clear()
     {
@@ -701,9 +725,17 @@ public:
         SDL_RenderCopy(this->myrender->get_renderer(), box->get_my_texture()->get_texture(), NULL, &(box->get_rect()));
         this->disconnect_render();
     }
-    void render()
+    void render(bool type = false,SDL_Rect srcrect = {0,0,0,0})
     {
         this->throw_err();
+        if(type == false){
         SDL_RenderCopy(this->myrender->get_renderer(), this->mytexture, NULL, &rect);
+        }
+        else {
+        SDL_Rect rectt = rect;
+        if(rectt.w > srcrect.w ) rectt.w = srcrect.w;
+        if(rectt.h > srcrect.h ) rectt.h = srcrect.h;
+        SDL_RenderCopy(this->myrender->get_renderer(), this->mytexture, &srcrect, &rectt);
+        }
     }
 };

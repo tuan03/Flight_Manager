@@ -7,57 +7,141 @@
 #include <string>
 #include <cstdio>
 
-namespace File_Handling{
-using namespace std;
+namespace File_Handling
+{
+    using namespace std;
 
-template <class List, class Child>
-void read_from_file(string link_file, List& list){
-    std::fstream inout;
-    inout.open(link_file, ios::in | ios::out);
-    if (inout.is_open()) {  // kiểm tra xem file có được mở thành công không
-        std::string line;
-        Child* obj_temp = nullptr;
-        while (std::getline(inout, line)) {
-            obj_temp = new Child();  // tạo 1 Máy Bay rỗng thông tin
-            std::istringstream iss(line);
-            iss >> *obj_temp;
-            list.add_from_file_data(obj_temp);
+// template <class List, class Child>
+    void read_bin(string fileName, ListMayBay &list)
+    {
+        std::ifstream file(fileName, std::ios::binary);
+        if (file.is_open())
+        {
+            MayBay *temp = nullptr;
+            while (!file.eof())
+            {
+                temp = new MayBay();               // cấp phát bộ nhớ động cho node
+                file.read(reinterpret_cast<char *>(temp), sizeof(*temp));
+                if (file.gcount() != sizeof(*temp))
+                {
+                    delete temp;
+                    break;
+                }
+                list.add_from_file_data(temp);
+                
+            }
+            file.close();
         }
-        inout.close();
-    } else {
-        throw "Khong the mo file";
+        else
+        {
+            std::cout << "Khong the mo file.\n";
+        }
     }
-}
+    void read_bin(string fileName, ListChuyenBay &list)
+    {
+        std::ifstream file(fileName, std::ios::binary);
+        if (file.is_open())
+        {
+            ChuyenBay *temp = nullptr;
+            while (!file.eof())
+            {
+                temp = new ChuyenBay();               // cấp phát bộ nhớ động cho node
+                file.read(reinterpret_cast<char *>(temp), sizeof(*temp));
+                if (file.gcount() != sizeof(*temp))
+                {
+                    delete temp;
+                    break;
+                }
+                list.add_from_file_data(temp);
+                
+            }
+            file.close();
+        }
+        else
+        {
+            std::cout << "Khong the mo file.\n";
+        }
+    }
+     void read_bin(string fileName, TreeHanhKhach &list)
+    {
+        std::ifstream file(fileName, std::ios::binary);
+        if (file.is_open())
+        {
+            HanhKhach *temp = nullptr;
+            while (!file.eof())
+            {
+                temp = new HanhKhach();               // cấp phát bộ nhớ động cho node
+                file.read(reinterpret_cast<char *>(temp), sizeof(*temp));
+                if (file.gcount() != sizeof(*temp))
+                {
+                    delete temp;
+                    break;
+                }
+                list.add_from_file_data(temp);
+                
+            }
+            file.close();
+        }
+        else
+        {
+            std::cout << "Khong the mo file.\n";
+        }
+    }
+    void write_bin(const string& fileName, ListMayBay &list)
+    {
+        std::ofstream file(fileName, std::ios::binary);
+        if (file.is_open())
+        {
+            for (int i = 0; i < list.get_so_luong(); i++)
+            {
+                MayBay* maybay = list.get_at(i);
+                file.write(reinterpret_cast<char*>(maybay), sizeof(*maybay));
+            }
+            file.close();
+        }
+        else
+        {
+            std::cout << "Khong the mo file.\n";
+        }
+    }
+    void write_bin(const string& fileName, ListChuyenBay &list)
+    {
+        std::ofstream file(fileName, std::ios::binary);
+        if (file.is_open())
+        {
 
-template<class List>
-void write(string link_file,string link_file_backup, List& list) {
-    std::ifstream inputFile(link_file);
-    if (!inputFile.is_open()) {
-        std::cerr << "Khong mo duoc file " << link_file << std::endl;
-        return;
+            for (ChuyenBay* current = list.head; current != nullptr; current = current->get_next()) {
+                file.write(reinterpret_cast<char*>(current), sizeof(*current));
+            }
+            file.close();
+        }
+        else
+        {
+            std::cout << "Khong the mo file.\n";
+        }
     }
-    std::string fileContent((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
-    inputFile.close();
-    std::ofstream backupFile(link_file_backup, ios::trunc);
-    if (!backupFile.is_open()) {
-        std::cerr << "Khong tao duoc file backup" << std::endl;
-        return;
-    }
-    backupFile << fileContent;
-    backupFile.close();
 
-    std::ofstream outputFile(link_file, ios::trunc);
-    if (!outputFile.is_open()) {
-        std::cerr << "Khong tao duoc file " << link_file << std::endl;
-        return;
+    void write_tree(std::ofstream& file, HanhKhach* node){
+         if (node == nullptr) {
+                return;
+            }
+            file.write(reinterpret_cast<char*>(node), sizeof(*node));
+            write_tree(file,node->getLeft());
+            write_tree(file,node->getRight());
     }
-    outputFile << list;
-    outputFile.close();
-
-    if (remove(link_file_backup.c_str()) != 0) {
-        std::cerr << "Khong xoa duoc file backup: " << link_file << std::endl;
+    void write_bin(const string& fileName, TreeHanhKhach &list)
+    {
+        std::ofstream file(fileName, std::ios::binary);
+        if (file.is_open())
+        {
+            write_tree(file,list.getRoot());
+            file.close();
+        }
+        else
+        {
+            std::cout << "Khong the mo file.\n";
+        }
     }
-}
 }
 
 /*

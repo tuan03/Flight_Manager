@@ -159,20 +159,11 @@ namespace Plane
             this->flag_re_render_in_home = flag;
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
-            input_shmb.connect(&(global.get_myscreen()));
-            input_loaimb.connect(&(global.get_myscreen()));
-            input_soday.connect(&(global.get_myscreen()));
-            input_sodong.connect(&(global.get_myscreen()));
+            input_shmb.set(&(global.get_myscreen()),MAX_LENGTH_SO_HIEU_MB,rect_input[0]);
+            input_loaimb.set(&(global.get_myscreen()),MAX_LENGTH_LOAI_MAY_BAY,rect_input[1]);
+            input_soday.set(&(global.get_myscreen()),2,rect_input[2]);
+            input_sodong.set(&(global.get_myscreen()),2,rect_input[3]);
 
-            input_shmb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
-            input_loaimb.set_max_length(MAX_LENGTH_LOAI_MAY_BAY);
-            input_soday.set_max_length(3);
-            input_sodong.set_max_length(3);
-
-            input_shmb.set_vitri(rect_input[0]);
-            input_loaimb.set_vitri(rect_input[1]);
-            input_soday.set_vitri(rect_input[2]);
-            input_sodong.set_vitri(rect_input[3]);
         }
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
@@ -316,20 +307,12 @@ namespace Plane
             this->flag_re_render_in_home = flag;
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
-            input_shmb.connect(&(global.get_myscreen()));
-            input_loaimb.connect(&(global.get_myscreen()));
-            input_soday.connect(&(global.get_myscreen()));
-            input_sodong.connect(&(global.get_myscreen()));
 
-            input_shmb.set_max_length(MAX_LENGTH_SO_HIEU_MB);
-            input_loaimb.set_max_length( MAX_LENGTH_LOAI_MAY_BAY);
-            input_soday.set_max_length( 3);
-            input_sodong.set_max_length( 3);
+            input_shmb.set(&(global.get_myscreen()),MAX_LENGTH_SO_HIEU_MB,rect_input[0]);
+            input_loaimb.set(&(global.get_myscreen()),MAX_LENGTH_LOAI_MAY_BAY,rect_input[1]);
+            input_soday.set(&(global.get_myscreen()),2,rect_input[2]);
+            input_sodong.set(&(global.get_myscreen()),2,rect_input[3]);
 
-            input_shmb.set_vitri(rect_input[0]);
-            input_loaimb.set_vitri(rect_input[1]);
-            input_soday.set_vitri(rect_input[2]);
-            input_sodong.set_vitri(rect_input[3]);
         }
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
@@ -614,9 +597,7 @@ View_Plane::View_Plane(Global_Variable& gb) : global{gb}
 
         this->getData();
 
-        input_so_hieu_mb.connect(&(global.get_myscreen()));
-        input_so_hieu_mb.set_max_length( MAX_LENGTH_SO_HIEU_MB);
-        input_so_hieu_mb.set_vitri({300, 175, 300, 50});
+        input_so_hieu_mb.set(&(global.get_myscreen()),MAX_LENGTH_SO_HIEU_MB,{300, 175, 300, 50});
     }
 void View_Plane::re_render_data()
 {
