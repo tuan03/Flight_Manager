@@ -28,22 +28,17 @@ public:
     }
     Flight_Manager()
     {
-        File_Handling::read_bin(DATA_MAY_BAY,ds_maybay);
-
-        File_Handling::read_from_file<TreeHanhKhach, HanhKhach>("src\\data\\data_hanh_khach.txt", ds_hanhkhach);
-        // File_Handling::read_from_file<ListMayBay, MayBay>("src\\data\\data_may_bay.txt", ds_maybay);
-        File_Handling::read_from_file<ListChuyenBay, ChuyenBay>("src\\data\\data_chuyen_bay.txt", ds_chuyenbay);
+        File_Handling::read_bin(DATA_MAY_BAY, ds_maybay);
+        File_Handling::read_bin(DATA_CHUYEN_BAY, ds_chuyenbay, ds_maybay);
+        File_Handling::read_bin(DATA_HANH_KHACH, ds_hanhkhach);
     }
 
     ~Flight_Manager()
     {
-
-
-    
-        File_Handling::write_bin(DATA_MAY_BAY,ds_maybay);
-        File_Handling::write<TreeHanhKhach>(FILE_PATH_DATA_HANH_KHACH, FILE_PATH_DATA_HANH_KHACH_BACKUP, ds_hanhkhach);
-        // File_Handling::write<ListMayBay>(FILE_PATH_DATA_MAY_BAY, FILE_PATH_DATA_MAY_BAY_BACKUP, ds_maybay);
-        File_Handling::write<ListChuyenBay>(FILE_PATH_DATA_CHUYEN_BAY, FILE_PATH_DATA_CHUYEN_BAY_BACKUP, ds_chuyenbay);
+        File_Handling::write_bin(DATA_MAY_BAY, ds_maybay);
+        File_Handling::write_bin(DATA_CHUYEN_BAY, ds_chuyenbay);
+        File_Handling::write_bin(DATA_HANH_KHACH, ds_hanhkhach);
+        cout<<"Completed Saved\n";
     }
 
     Status del_mb(const char *soHieuMB)
@@ -86,12 +81,12 @@ public:
 
     Status add_cb(const char *ma_so_cb, int minute, int hour, int day, int month, int year, const char *san_bay_den, const char *so_hieu_mb)
     {
-
         if (ds_chuyenbay.find_by_ma_cb(ma_so_cb))
         {
             return Status("Mã Chuyến Bay Đã Tồn Tại");
         }
-        if (ds_maybay.find_mamb(so_hieu_mb) == -1)
+        MayBay *temp = ds_maybay.find_mamb_ct(so_hieu_mb);
+        if (temp == nullptr)
         {
             return Status("Số Hiệu Máy Bay Không Tồn tại");
         }
@@ -121,6 +116,8 @@ public:
         //     }
         // }
         ChuyenBay *new_chuyenbay = new ChuyenBay(ma_so_cb, time, san_bay_den, so_hieu_mb, 1);
+        new_chuyenbay->get_listve().init_ve(temp->getSoDay(), temp->getSoDong());
+
         ds_chuyenbay.insert_order(new_chuyenbay);
         return Status("Thêm Chuyến Bay Thành Công", Status_Name::SUCCESS);
     }
@@ -138,31 +135,38 @@ public:
     //     }
     // }
 
-    Status dat_ve_khachquen(ChuyenBay* chuyenbay,int so_day, int so_dong, const char* cmnd){
-        return chuyenbay->get_listve().add_ve(so_day,so_dong,cmnd);
-    }
-    Status dat_ve_khachmoi(ChuyenBay* chuyenbay,int so_day, int so_dong, const char* cmnd,const char* ho, const char* ten, bool phai){
-        HanhKhach* hk = new HanhKhach(cmnd, ho, ten, phai);
-        this->ds_hanhkhach.add_from_file_data(hk);
-        return chuyenbay->get_listve().add_ve(so_day,so_dong,cmnd);
-    }
-
-
-    void rank_slthcb(int mb[], int &n)
+    Status dat_ve_khachquen(ChuyenBay *chuyenbay, int so_day, int so_dong, const char *cmnd)
     {
-        // sau này khắc phục thêm, bây giờ cứ từ từ
+        return chuyenbay->get_listve().add_ve(so_day, so_dong, cmnd);
+    }
+    Status dat_ve_khachmoi(ChuyenBay *chuyenbay, int so_day, int so_dong, const char *cmnd, const char *ho, const char *ten, bool phai)
+    {
+        HanhKhach *hk = new HanhKhach(cmnd, ho, ten, phai);
+        this->ds_hanhkhach.add_from_file_data(hk);
+        return chuyenbay->get_listve().add_ve(so_day, so_dong, cmnd);
+    }
+
+    void rank_slthcb(int *mb, int &n)
+    {
         n = this->ds_maybay.get_so_luong();
+        for (int i = 0; i < n; i++)
+        {
+            mb[i] = i;
+        }
         int vitrimin;
         int min;
         for (int i = 0; i < n - 1; i++)
         {
             vitrimin = i;
             for (int j = i + 1; j < n; j++)
-                if (mb[j] < mb[vitrimin])
+                if (ds_maybay.get_at_index(mb[j]) < ds_maybay.get_at_index(mb[vitrimin]))
                     vitrimin = j;
-            min = mb[vitrimin];
-            mb[vitrimin] = mb[i];
-            mb[i] = min;
+            if (i != vitrimin)
+            {
+                min = mb[vitrimin];
+                mb[vitrimin] = mb[i];
+                mb[i] = min;
+            }
         }
     }
 

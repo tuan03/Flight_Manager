@@ -71,6 +71,7 @@ class Input
 private:
     MyScreen *myscreen;
     string data = "";
+    string note = "";
     int max_length = 0;
     bool is_clicked = false;
     SDL_Rect vitri;
@@ -180,6 +181,9 @@ public:
     {
         this->myscreen = mc;
     }
+    SDL_Rect get_rect(){
+        return vitri;
+    }
     void reset_data()
     {
         this->data = "";
@@ -191,6 +195,9 @@ public:
     void set_data(string data)
     {
         this->data = data;
+    }
+    void set_note(string data){
+        this->note = data;
     }
     void set_vitri(SDL_Rect rect)
     {
@@ -206,7 +213,12 @@ public:
         else
             myscreen->render_cot(box_input, {255, 255, 255});
         SDL_Rect con_tro;
+        if(this->data.length() != 0){
         myscreen->render_Text(data, box_input, {0, 0, 0}, true, &con_tro);
+        } else {
+        myscreen->render_Text(data, box_input, {0, 0, 0}, true, &con_tro);
+        myscreen->render_Text(note, box_input, {128,128,128}, true);
+        }
         if (this->is_clicked)
         {
             con_tro.x = con_tro.x + con_tro.w + 2;
@@ -225,11 +237,16 @@ private:
     SDL_Color c_ok = {255, 255, 255};
 
     SDL_Rect vt_next{790 + 200, 700, 200, 50};
+    SDL_Color c_next = {255, 255, 255};
     SDL_Rect vt_huy{790 - 200, 700, 200, 50};
+    SDL_Color c_huy = {255, 255, 255};
 
     MyScreen *myscreen = nullptr;
 
     bool flag = false;
+    bool value = false;
+
+    bool type = true; // true: thông báo status, false : thông báo cảnh báo
 
 public:
     void connect_screen(MyScreen &myscreen)
@@ -244,9 +261,18 @@ public:
     {
         this->mess = mess;
     }
-    void on()
+    void reset_value(){
+        this->value = false;
+    }
+    void on(bool type = true) // bật thông báo trạng thái
     {
         this->flag = true;
+        this->type = type;
+        if(type) this->value = false;
+    }
+
+    bool get_value(){ // true : bấm đồng ý, false : bấm hủy
+        return value;
     }
     bool is_display()
     {
@@ -255,19 +281,45 @@ public:
     void handleEvent(SDL_Event e, int mouse_X, int mouse_Y)
     {
         c_ok = {255, 255, 255};
+        c_next = {255, 255, 255};
+        c_huy = {255, 255, 255};
         switch (e.type)
         {
         case SDL_MOUSEMOTION:
+        if(type){
             if (MyFunc::check_click(mouse_X, mouse_Y, ok))
             {
                 c_ok = {255, 219, 26};
             }
+        } else {
+            if (MyFunc::check_click(mouse_X, mouse_Y, vt_next))
+            {
+                c_next = {255, 219, 26};
+            }
+            if (MyFunc::check_click(mouse_X, mouse_Y, vt_huy))
+            {
+                c_huy = {255, 219, 26};
+            }
+        }
             break;
         case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
+        if(type){
             if (MyFunc::check_click(mouse_X, mouse_Y, ok))
             {
                 flag = false;
             }
+        } else {
+            if (MyFunc::check_click(mouse_X, mouse_Y, vt_next))
+            {
+                value = true;
+                flag = false;
+            }
+            if (MyFunc::check_click(mouse_X, mouse_Y, vt_huy))
+            {
+                value = false;
+                flag = false;
+            }
+        }
             break;
         }
     }
@@ -278,23 +330,19 @@ public:
             if (myscreen == nullptr)
                 throw "MyScreen is NULL\n";
             man_thong_bao->render(myscreen->get_my_renderer());
+            if(type){
             myscreen->render_cot(ok, c_ok);
             myscreen->render_Text("Đồng Ý", ok, {0, 0, 0}, true);
+            } else {
+                myscreen->render_cot(vt_next, c_next);
+            myscreen->render_Text("Tiếp Tục", vt_next, {0, 0, 0}, true);
+            myscreen->render_cot(vt_huy, c_huy);
+            myscreen->render_Text("Hủy", vt_huy, {0, 0, 0}, true);
+            }
             myscreen->render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
         }
     }
-    void render_canhbao()
-    {
-        if (flag)
-        {
-            if (myscreen == nullptr)
-                throw "MyScreen is NULL\n";
-            man_thong_bao->render(myscreen->get_my_renderer());
-            myscreen->render_cot(ok, c_ok);
-            myscreen->render_Text("Đồng Ý", ok, {0, 0, 0}, true);
-            myscreen->render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
-        }
-    }
+
 };
 
 class Render_Data

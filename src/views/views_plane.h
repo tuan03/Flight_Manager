@@ -598,6 +598,8 @@ View_Plane::View_Plane(Global_Variable& gb) : global{gb}
         this->getData();
 
         input_so_hieu_mb.set(&(global.get_myscreen()),MAX_LENGTH_SO_HIEU_MB,{300, 175, 300, 50});
+        string note = "Tối đa " + std::to_string(MAX_LENGTH_SO_HIEU_MB) +" kí tự";
+        input_so_hieu_mb.set_note(note);
     }
 void View_Plane::re_render_data()
 {

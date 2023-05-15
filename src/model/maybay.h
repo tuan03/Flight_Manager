@@ -25,6 +25,9 @@ class MayBay{
  		int getSoDay() const { return so_day; }
 		int getSoDong() const { return so_dong; }
 		int getSoCho() { return so_day*so_dong;}
+		int get_so_lan_bay(){
+			return this->so_lan_bay;
+		}
 	//setter
         void setSoHieuMB(const char* so_hieu) {
             strncpy(so_hieu_mb, so_hieu, MAX_LENGTH_SO_HIEU_MB);
@@ -40,6 +43,9 @@ class MayBay{
         void setSoDong(int dong) {
             so_dong = dong;
         }
+		void tang_so_lan_bay(){
+			this->so_lan_bay++;
+		}
 
 	//edit
 
@@ -105,6 +111,9 @@ class ListMayBay{
 		void add_from_file_data(MayBay* mb){
 			data[so_luong] = mb;
 			so_luong++;
+		}
+		MayBay* get_at_index(int index){
+			return data[index];
 		}
 		Status add(const char* so_hieu_mb,const char* loai, int day, int dong){
 			if(this->isFull()) return Status("Danh Sách Máy Bay Đã Đầy");

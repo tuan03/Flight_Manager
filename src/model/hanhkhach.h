@@ -66,20 +66,24 @@ class HanhKhach{
         return strcmp(this->so_cmnd,cmnd);
     }
 
-    friend std::istringstream& operator>>(std::istringstream& is, HanhKhach& mb);
-	friend std::ostream& operator<<(std::ostream& os, const HanhKhach& mb);
+     void serialize(std::ofstream &os)
+    {
+        os.write(so_cmnd, sizeof(so_cmnd));
+        os.write(ho, sizeof(ho));
+        os.write(ten, sizeof(ten));
+        os.write(reinterpret_cast<const char *>(&phai), sizeof(phai));
+    }
+
+    // chuyển đổi chuỗi byte thành đối tượng
+    void deserialize(std::ifstream &is)
+    {
+        is.read(so_cmnd, sizeof(so_cmnd));
+        is.read(ho, sizeof(ho));
+        is.read(ten, sizeof(ten));
+        is.read(reinterpret_cast<char *>(&phai), sizeof(phai));
+    }
 };
-std::istringstream& operator>>(std::istringstream& is, HanhKhach& mb){ //0123456789|Nguyen Van|A|Nam
-    is.getline(mb.so_cmnd,MAX_LENGTH_SO_CMND+1,'|');
-    is.getline(mb.ho,MAX_LENGTH_HO+1,'|');
-    is.getline(mb.ten,MAX_LENGTH_TEN+1,'|');
-    is>>mb.phai;
-    return is;
-}
-std::ostream& operator<<(std::ostream& os, const HanhKhach& mb) {
-    os<<mb.so_cmnd<<'|'<<mb.ho<<'|'<<mb.ten<<'|'<<mb.phai;
-    return os;
-}
+
 
 
 class TreeHanhKhach {
@@ -111,24 +115,7 @@ class TreeHanhKhach {
                 return searchNode(node->getRight(), cmnd);
             }
         }
-        void inorderTraversal(HanhKhach* p) {
-            if (p == nullptr) {
-                return;
-            }
 
-            inorderTraversal(p->getLeft());
-            std::cout << *p << "\n"; // In ra thông tin của HanhKhach
-            inorderTraversal(p->getRight());
-        }
-        std::ofstream& in_data(std::ofstream& os, HanhKhach* p) const {
-            if (p == nullptr) {
-                return os;
-            }
-            os<<*p<<'\n';
-            in_data(os,p->getLeft());
-            in_data(os,p->getRight());
-            return os;
-        }
         int countNodes(HanhKhach* root) {
             if (root == NULL) {
                 return 0;
@@ -150,21 +137,9 @@ class TreeHanhKhach {
         HanhKhach* search(const char* cmnd) const {
             return searchNode(root, cmnd);
         }
-        void printAll() {
-                inorderTraversal(root);
-        }
-        void print_data(std::ofstream& os) const{
-                in_data(os,root);
-        }
         int so_hanh_khach() {
             return countNodes(this->root);
         }
-        friend std::ofstream& operator<<(std::ofstream& os, const TreeHanhKhach& mb);
 };
-std::ofstream& operator<<(std::ofstream& os, const TreeHanhKhach& mb){
-    mb.print_data(os);
-    return os;
-}
 
-//lưu ý, viết thêm code về lưu và load data sao cho nó tự cân bằng, làm sau ... :3
 #endif

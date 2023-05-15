@@ -37,23 +37,20 @@ namespace File_Handling
             std::cout << "Khong the mo file.\n";
         }
     }
-    void read_bin(string fileName, ListChuyenBay &list)
+    void read_bin(string fileName, ListChuyenBay &list, ListMayBay& list_mb)
     {
         std::ifstream file(fileName, std::ios::binary);
         if (file.is_open())
         {
             ChuyenBay *temp = nullptr;
-            while (!file.eof())
-            {
-                temp = new ChuyenBay();               // cấp phát bộ nhớ động cho node
-                file.read(reinterpret_cast<char *>(temp), sizeof(*temp));
-                if (file.gcount() != sizeof(*temp))
-                {
-                    delete temp;
-                    break;
-                }
+            int so_luong = 0;
+            if(!(file.read(reinterpret_cast<char*>(&so_luong), sizeof(so_luong)))){
+                so_luong = 0;
+            }
+            for(int i=0; i<so_luong; i++){
+                temp = new ChuyenBay();        // cấp phát bộ nhớ động cho node
+                temp->deserialize(file,list_mb);
                 list.add_from_file_data(temp);
-                
             }
             file.close();
         }
@@ -68,17 +65,14 @@ namespace File_Handling
         if (file.is_open())
         {
             HanhKhach *temp = nullptr;
-            while (!file.eof())
-            {
-                temp = new HanhKhach();               // cấp phát bộ nhớ động cho node
-                file.read(reinterpret_cast<char *>(temp), sizeof(*temp));
-                if (file.gcount() != sizeof(*temp))
-                {
-                    delete temp;
-                    break;
-                }
-                list.add_from_file_data(temp);
-                
+            int so_luong = 0;
+            if(!(file.read(reinterpret_cast<char*>(&so_luong), sizeof(so_luong)))){
+                so_luong = 0;
+            }
+            for(int i=0; i<so_luong; i++){
+                temp = new HanhKhach();        // cấp phát bộ nhớ động cho node
+                temp->deserialize(file);
+                list.add_from_file_data(temp);   
             }
             file.close();
         }
@@ -108,10 +102,11 @@ namespace File_Handling
     {
         std::ofstream file(fileName, std::ios::binary);
         if (file.is_open())
-        {
-
-            for (ChuyenBay* current = list.head; current != nullptr; current = current->get_next()) {
-                file.write(reinterpret_cast<char*>(current), sizeof(*current));
+        {   
+            int so_luong = list.get_so_luong_cb();
+            file.write(reinterpret_cast<const char *>(&so_luong), sizeof(so_luong));
+            for (ChuyenBay* current = list.get_head(); current != nullptr; current = current->get_next()) {
+                current->serialize(file);
             }
             file.close();
         }
@@ -125,7 +120,7 @@ namespace File_Handling
          if (node == nullptr) {
                 return;
             }
-            file.write(reinterpret_cast<char*>(node), sizeof(*node));
+            node->serialize(file);
             write_tree(file,node->getLeft());
             write_tree(file,node->getRight());
     }
@@ -134,6 +129,8 @@ namespace File_Handling
         std::ofstream file(fileName, std::ios::binary);
         if (file.is_open())
         {
+            int so_luong = list.so_hanh_khach();
+            file.write(reinterpret_cast<const char *>(&so_luong), sizeof(so_luong));
             write_tree(file,list.getRoot());
             file.close();
         }

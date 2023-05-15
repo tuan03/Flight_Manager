@@ -17,7 +17,7 @@ void update_time(Time& time,bool& quit,std::mutex& myMutex){
     }
     
 }
-void run_list(ListChuyenBay& list_cb,Time& current_time, bool& flag, bool& quit, std::mutex& myMutex){
+void run_list(ListChuyenBay& list_cb,ListMayBay& list_mb,Time& current_time, bool& flag, bool& quit, std::mutex& myMutex){
     int status;
     bool is_change = false;
     while (!quit)
@@ -29,6 +29,8 @@ void run_list(ListChuyenBay& list_cb,Time& current_time, bool& flag, bool& quit,
                 if(Time::timeDiffInSeconds(node->get_thoi_gian_bay(), current_time) >= (60*60*3)){ // đã cách 3 giwof kể từ thời gian bay
                     myMutex.lock();
                     node->set_trang_thai_cb(3); // set hoàn thành
+                    MayBay* temp = list_mb.find_mamb_ct(node->get_so_hieu_mb());
+                    temp->tang_so_lan_bay(); // tăng số lần bay của chuyến bay
                     is_change = true;
                     myMutex.unlock();
                 }   

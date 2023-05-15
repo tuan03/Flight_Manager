@@ -319,7 +319,7 @@ enum Name_Box
     PLANE,
     FLIGHT,
     CUSTOMER,
-    TICKET,
+    HOME,
     THONGKE,
 };
 /**

@@ -32,11 +32,11 @@ class Controller {
 
    public:
     Controller() {
-        menu.connect_my_renderer(global.get_myscreen().get_my_renderer());
-        menu.insert("src/views/img/plane1.png", {50, 25, 300, 100}, Name_Box::PLANE)->set_hover("src/views/img/plane2.png", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/plane3.png", global.get_myscreen().get_my_renderer());
-        menu.insert("src/views/img/chuyenbay1.jpg", {400, 25, 300, 100}, Name_Box::FLIGHT)->set_hover("src/views/img/chuyenbay2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/chuyenbay3.jpg", global.get_myscreen().get_my_renderer());
-        menu.insert("src/views/img/custom1.jpg", {750, 25, 300, 100}, Name_Box::CUSTOMER)->set_hover("src/views/img/custom2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/custom3.jpg", global.get_myscreen().get_my_renderer());
-        menu.insert("src/views/img/ve1.jpg", {1100, 25, 300, 100}, Name_Box::TICKET)->set_hover("src/views/img/ve2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/ve3.jpg", global.get_myscreen().get_my_renderer());
+        menu.connect_my_renderer(global.get_myscreen().get_my_renderer()); //
+        menu.insert("src/views/img/ve1.jpg", {50, 25, 300, 100}, Name_Box::HOME)->set_hover("src/views/img/ve2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/ve3.jpg", global.get_myscreen().get_my_renderer());
+        menu.insert("src/views/img/plane1.png", {400, 25, 300, 100}, Name_Box::PLANE)->set_hover("src/views/img/plane2.png", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/plane3.png", global.get_myscreen().get_my_renderer());
+        menu.insert("src/views/img/chuyenbay1.jpg", {750, 25, 300, 100}, Name_Box::FLIGHT)->set_hover("src/views/img/chuyenbay2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/chuyenbay3.jpg", global.get_myscreen().get_my_renderer());
+        menu.insert("src/views/img/custom1.jpg", {1100, 25, 300, 100}, Name_Box::CUSTOMER)->set_hover("src/views/img/custom2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/custom3.jpg", global.get_myscreen().get_my_renderer());
         menu.insert("src/views/img/thongke1.jpg", {1450, 25, 300, 100}, Name_Box::THONGKE)->set_hover("src/views/img/thongke2.jpg", global.get_myscreen().get_my_renderer())->set_clicked("src/views/img/thongke3.jpg", global.get_myscreen().get_my_renderer());
         menu.insert("src/views/img/body.png", {X_START_BODY, Y_START_BODY, W_BODY, H_BODY});
     }
@@ -47,6 +47,7 @@ class Controller {
         View_Plane view_plane(global);  
         View_Flight view_flight(global,flag_re_render_list_cb);                                                                                                                                                                                                                                                                                 // khởi tạo view Plane
         View_Customer view_customer(global);
+        View_Thongke view_thongke(global);
         //end
         std::mutex myMutex;
         bool quit = false;  // điều kiện thoát chương trình
@@ -56,7 +57,7 @@ class Controller {
         Time current_time;
         current_time.get_current_time();
         std::thread thread_update_time(update_time,std::ref(current_time),std::ref(quit),std::ref(myMutex));
-        std::thread thread_update_status_cb(run_list,std::ref(this->global.get_qlcb().getListCB()),std::ref(current_time),std::ref(flag_re_render_list_cb),std::ref(quit),std::ref(myMutex));
+        std::thread thread_update_status_cb(run_list,std::ref(this->global.get_qlcb().getListCB()),std::ref(this->global.get_qlcb().getListMB()),std::ref(current_time),std::ref(flag_re_render_list_cb),std::ref(quit),std::ref(myMutex));
         
 
        
@@ -66,7 +67,7 @@ class Controller {
         int frames = 0;
         Box* get_box_hover = nullptr;             // để lấy lấy box đang hover, null nếu khoogn trên box nào
         Name_Box current_hover = Name_Box::NONE;  // route đnag hover trên thanh menu
-        Name_Box current_route = Name_Box::NONE;  // route hiện tại đang ở
+        Name_Box current_route = Name_Box::HOME;  // route hiện tại đang ở
         int mouse_X, mouse_Y;
         while (!quit) {
             while (SDL_PollEvent(&e) != 0) {
@@ -91,6 +92,9 @@ class Controller {
                 if (is_home && e.type == SDL_MOUSEBUTTONDOWN) {  // sự kiện nhấn vào các box
                     if ((current_hover != Name_Box::NONE) && (current_route != current_hover)) { 
                         current_route = current_hover; //chuyển route
+                        if(current_route == Name_Box::CUSTOMER){
+                            view_customer.re_render_data();
+                        }
                 }
                 }
                 //bắt sự kiện route Plane
@@ -100,6 +104,9 @@ class Controller {
                 view_flight.handleEvent(e, is_home,mouse_X,mouse_Y);
                 } else if(current_route == Name_Box::CUSTOMER){
                 view_customer.handleEvent(e, is_home,mouse_X,mouse_Y);
+                }
+                else if(current_route == Name_Box::THONGKE){
+                view_thongke.handleEvent(e, is_home,mouse_X,mouse_Y);
                 }
                 }
             }
@@ -118,15 +125,16 @@ class Controller {
                 case Name_Box::CUSTOMER:
                     view_customer.render();
                     break;
-                case Name_Box::TICKET:
+                case Name_Box::HOME:
+                    global.get_c_component().plane_at_homepage.render(global.get_myscreen().get_my_renderer());  // rename
                     break;
                 case Name_Box::THONGKE:
+                    view_thongke.render();
 
                     break;
 
                 default:
                     global.get_c_component().plane_at_homepage.render(global.get_myscreen().get_my_renderer());  // rename
-                    
                     break;
             }
             global.get_thong_bao().render();
