@@ -78,6 +78,9 @@ private:
 
 public:
     string get_data() { return data; }
+    bool is_empty(){
+        return data.length() == 0;
+    }
     void handleInput_ID(SDL_Event e, int x, int y)
     { // dùng để nhập ID. có thể nhập chữ cái in hoa, số - không được phép : dấu cách và kí tự đặc biệt
         if (e.type == SDL_MOUSEBUTTONDOWN)

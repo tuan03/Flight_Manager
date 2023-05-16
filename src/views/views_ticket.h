@@ -199,13 +199,13 @@ namespace Flight
         SDL_Color c_nut_ok_bl = {255, 255, 255};
 
         bool *flag_re_render = nullptr;
-        bool* flag_view_flight = nullptr;
+        bool *flag_view_flight = nullptr;
 
-        bool type = true; //true : đặt vé, false : hủy vé
-        HanhKhach* hk = nullptr;
+        bool type = true; // true : đặt vé, false : hủy vé
+        HanhKhach *hk = nullptr;
 
     public:
-        void set(Global_Variable *gl, SDL_Rect khung_dat_ve, bool &r, bool &flag_re_render, bool& fl)
+        void set(Global_Variable *gl, SDL_Rect khung_dat_ve, bool &r, bool &flag_re_render, bool &fl)
         {
             this->global = gl;
             route = &r;
@@ -237,10 +237,13 @@ namespace Flight
             this->target_cb = cb;
             this->so_day = so_day;
             this->so_dong = so_dong;
-            this->type = cb->get_listve().check_empty(so_day,so_dong);
-            if(type == false){
-                hk = global->get_list_hanhkhach().search(cb->get_listve().get_cmnd(so_day,so_dong));
-            } else {
+            this->type = cb->get_listve().check_empty(so_day, so_dong);
+            if (type == false)
+            {
+                hk = global->get_list_hanhkhach().search(cb->get_listve().get_cmnd(so_day, so_dong));
+            }
+            else
+            {
                 hk = nullptr;
             }
             this->reset_data();
@@ -298,58 +301,73 @@ namespace Flight
                     }
                     if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ok))
                     {
-                        if(type){
-                        if (hanhkhach != nullptr)
+                        if (type)
                         {
-                            Status result = global->get_qlcb().dat_ve_khachquen(target_cb, so_day, so_dong, cmnd.get_data().c_str());
-                            global->get_thong_bao().set_mess(result.mess);
-                            global->get_thong_bao().on();
+                            Status result;
+                            if (hanhkhach != nullptr)
+                            {
+                                if(cmnd.is_empty() || ho.is_empty() || ten.is_empty()){
+                                    result = Status("Bạn Chưa Nhập Đủ Thông Tin");
+                                } else {
+                                result = global->get_qlcb().dat_ve_khachquen(target_cb, so_day, so_dong, cmnd.get_data().c_str());
+                                }
+                                global->get_thong_bao().set_mess(result.mess);
+                                global->get_thong_bao().on();
+                            }
+                            else
+                            {
+                                if(cmnd.is_empty() || ho.is_empty() || ten.is_empty()){
+                                    result = Status("Bạn Chưa Nhập Đủ Thông Tin");
+                                } else {
+                                result = global->get_qlcb().dat_ve_khachmoi(target_cb, so_day, so_dong, cmnd.get_data().c_str(), ho.get_data().c_str(), ten.get_data().c_str(), gioi_tinh);
+                                }
+                                global->get_thong_bao().set_mess(result.mess);
+                                global->get_thong_bao().on();
+                            }
+                            if (result.get_status() == Status_Name::SUCCESS)
+                            {
+                                // render_bien_lai = true;
+                                *flag_re_render = true;
+                                *flag_view_flight = true;
+                                hanhkhach = nullptr;
+                                *route = false;
+                                so_day = -1;
+                                so_dong = -1;
+                                target_cb = nullptr;
+                            }
                         }
                         else
                         {
-                            Status result = global->get_qlcb().dat_ve_khachmoi(target_cb, so_day, so_dong, cmnd.get_data().c_str(), ho.get_data().c_str(), ten.get_data().c_str(), gioi_tinh);
-                            global->get_thong_bao().set_mess(result.mess);
-                            global->get_thong_bao().on();
-                        }
-                        // render_bien_lai = true;
-                        *flag_re_render = true;
-                        *flag_view_flight = true;
-                        hanhkhach = nullptr;
-                        *route = false;
-                        so_day = -1;
-                        so_dong = -1;
-                        target_cb = nullptr;
-                        } else {
-                            Status result = target_cb->get_listve().huy_ve(so_day,so_dong);
+                            Status result = target_cb->get_listve().huy_ve(so_day, so_dong);
                             global->get_thong_bao().set_mess(result.mess);
                             global->get_thong_bao().on();
                             *flag_re_render = true;
-                        *flag_view_flight = true;
-                        *route = false;
-                        so_day = -1;
-                        so_dong = -1;
-                        target_cb = nullptr;
-
-
+                            *flag_view_flight = true;
+                            *route = false;
+                            so_day = -1;
+                            so_dong = -1;
+                            target_cb = nullptr;
                         }
                     }
                 }
-                if(type){
-                cmnd.handleInput_Num(e, mouse_X, mouse_Y);
-                if (cmnd.get_is_click() && (e.type == SDL_KEYDOWN || e.type == SDL_TEXTINPUT))
-                    flag = true;
-                if(hanhkhach == nullptr){
-                ho.handleInput_Name(e, mouse_X, mouse_Y);
-                ten.handleInput_Name(e, mouse_X, mouse_Y);
-                if (nam.handle_choose(e, mouse_X, mouse_Y))
+                if (type)
                 {
-                    gioi_tinh = true;
-                }
-                else if (nu.handle_choose(e, mouse_X, mouse_Y))
-                {
-                    gioi_tinh = false;
-                }
-                }
+                    cmnd.handleInput_Num(e, mouse_X, mouse_Y);
+                    if (cmnd.get_is_click() && (e.type == SDL_KEYDOWN || e.type == SDL_TEXTINPUT))
+                        flag = true;
+                    if (hanhkhach == nullptr)
+                    {
+                        ho.handleInput_Name(e, mouse_X, mouse_Y);
+                        ten.handleInput_Name(e, mouse_X, mouse_Y);
+                        if (nam.handle_choose(e, mouse_X, mouse_Y))
+                        {
+                            gioi_tinh = true;
+                        }
+                        else if (nu.handle_choose(e, mouse_X, mouse_Y))
+                        {
+                            gioi_tinh = false;
+                        }
+                    }
                 }
             }
         }
@@ -400,46 +418,63 @@ namespace Flight
             myscreen.render_Text("Mã Vé:", {info.x, info.y + 150, 200, 50}, {0, 0, 0}, true);
             string text_ma_Ve = (char)(so_day + 'A') + std::to_string(so_dong + 1) + " (Dãy " + std::to_string(so_day + 1) + " - Dòng " + std::to_string(so_dong + 1) + ")";
             myscreen.render_Text(text_ma_Ve, {info.x + 200, info.y + 150, 500, 50}, {0, 0, 0}, true);
-            if(type){
-            myscreen.render_Text("Nhập Thông Tin Hành Khách", {khung.x, khung.y, khung.w, 100}, {0, 0, 0}, true);}
-            else{
+            if (type)
+            {
+                myscreen.render_Text("Nhập Thông Tin Hành Khách", {khung.x, khung.y, khung.w, 100}, {0, 0, 0}, true);
+            }
+            else
+            {
                 myscreen.render_Text("Thông Tin Hành Khách", {khung.x, khung.y, khung.w, 100}, {0, 0, 0}, true);
             }
             myscreen.render_Text("Số CMND:", {khung.x + 50, khung.y + 100, 200, 50}, {0, 0, 0}, true);
 
-            if(type){
-            cmnd.render();
-            } else {
-                myscreen.render_Text(hk->getSoCMND(),cmnd.get_rect(),{0,0,0},true);
+            if (type)
+            {
+                cmnd.render();
+            }
+            else
+            {
+                myscreen.render_Text(hk->getSoCMND(), cmnd.get_rect(), {0, 0, 0}, true);
             }
 
             myscreen.render_Text("Họ:", {khung.x + 50, khung.y + 175, 200, 50}, {0, 0, 0}, true);
-            if(type){
-            ho.render();
-            } else {
-                myscreen.render_Text(hk->getHo(),ho.get_rect(),{0,0,0},true);
+            if (type)
+            {
+                ho.render();
+            }
+            else
+            {
+                myscreen.render_Text(hk->getHo(), ho.get_rect(), {0, 0, 0}, true);
             }
             myscreen.render_Text("Tên:", {khung.x + 50, khung.y + 250, 200, 50}, {0, 0, 0}, true);
-            if(type){
-            ten.render();
-            } else {
-                myscreen.render_Text(hk->getTen(),ten.get_rect(),{0,0,0},true);
+            if (type)
+            {
+                ten.render();
             }
-            
+            else
+            {
+                myscreen.render_Text(hk->getTen(), ten.get_rect(), {0, 0, 0}, true);
+            }
+
             myscreen.render_Text("Giới Tính:", {khung.x + 50, khung.y + 320, 200, 50}, {0, 0, 0}, true);
-            if(type){
-            myscreen.render_Text("Nam", {khung.x + 50 + 200, khung.y + 320, 100, 50}, {0, 0, 0}, true);
-            myscreen.render_Text("Nữ", {khung.x + 50 + 200 + 200, khung.y + 320, 100, 50}, {0, 0, 0}, true);
-            nam.render();
-            nu.render();
+            if (type)
+            {
+                myscreen.render_Text("Nam", {khung.x + 50 + 200, khung.y + 320, 100, 50}, {0, 0, 0}, true);
+                myscreen.render_Text("Nữ", {khung.x + 50 + 200 + 200, khung.y + 320, 100, 50}, {0, 0, 0}, true);
+                nam.render();
+                nu.render();
             }
-            else{
+            else
+            {
                 myscreen.render_Text(hk->getPhai() ? "Nam" : "Nữ", {khung.x + 50 + 200, khung.y + 320, 400, 50}, {0, 0, 0}, true);
             }
-            myscreen.render_cot(vt_nut_ok,nut_ok);
-            if(type){
-            myscreen.render_Text("Đặt Vé", vt_nut_ok, {0, 0, 0}, true);
-            } else {
+            myscreen.render_cot(vt_nut_ok, nut_ok);
+            if (type)
+            {
+                myscreen.render_Text("Đặt Vé", vt_nut_ok, {0, 0, 0}, true);
+            }
+            else
+            {
                 myscreen.render_Text("Hủy Vé", vt_nut_ok, {0, 0, 0}, true);
             }
         }
@@ -492,7 +527,6 @@ namespace Flight
             render_data(myscreen);
             // render_bl(myscreen);
         }
-
     };
     class DatVe
     {
@@ -536,7 +570,7 @@ namespace Flight
         {
             delete buffer_ve;
         }
-        void set(Global_Variable &global, bool& flag_view_flight)
+        void set(Global_Variable &global, bool &flag_view_flight)
         {
             this->global = &global;
             this->myscreen = &(global.get_myscreen());
@@ -668,23 +702,24 @@ namespace Flight
             myscreen->render_Text(so_ve, hover, {0, 0, 0}, true);
             scroll.render(*myscreen); // render scroll bar
 
-             if(current_hover_so_day != -1 && current_hover_so_dong != -1){
-                if(!(cb->get_listve().check_empty(current_hover_so_day,current_hover_so_dong))){
-                    SDL_Rect k_i = {hover.x + hover.w/2 -200 , hover.y - 150, 400,150};
-                    
-                    HanhKhach* hk = global->get_list_hanhkhach().search(cb->get_listve().get_cmnd(current_hover_so_day,current_hover_so_dong));
-                    myscreen->render_cot(k_i);
-                    myscreen->render_Text("Số CMND:",{k_i.x,k_i.y,150,50},{0,0,0},true);
-                    myscreen->render_Text("Họ và Tên:",{k_i.x,k_i.y+50,150,50},{0,0,0},true);
-                    myscreen->render_Text("Giới Tính:",{k_i.x,k_i.y+100,150,50},{0,0,0},true);
+            if (current_hover_so_day != -1 && current_hover_so_dong != -1)
+            {
+                if (!(cb->get_listve().check_empty(current_hover_so_day, current_hover_so_dong)))
+                {
+                    SDL_Rect k_i = {hover.x + hover.w / 2 - 200, hover.y - 150, 400, 150};
 
-                    myscreen->render_Text(hk->getSoCMND(),{k_i.x+150,k_i.y,250,50},{0,0,0},true);
-                    string text_hovaten = string(hk->getHo()) +' '+ string(hk->getTen());
-                    myscreen->render_Text(text_hovaten,{k_i.x+150,k_i.y+50,250,50},{0,0,0},true);
-                    myscreen->render_Text(hk->getPhai() ? "Nam" : "Nữ",{k_i.x+150,k_i.y+100,250,50},{0,0,0},true);
+                    HanhKhach *hk = global->get_list_hanhkhach().search(cb->get_listve().get_cmnd(current_hover_so_day, current_hover_so_dong));
+                    myscreen->render_cot(k_i);
+                    myscreen->render_Text("Số CMND:", {k_i.x, k_i.y, 150, 50}, {0, 0, 0}, true);
+                    myscreen->render_Text("Họ và Tên:", {k_i.x, k_i.y + 50, 150, 50}, {0, 0, 0}, true);
+                    myscreen->render_Text("Giới Tính:", {k_i.x, k_i.y + 100, 150, 50}, {0, 0, 0}, true);
+
+                    myscreen->render_Text(hk->getSoCMND(), {k_i.x + 150, k_i.y, 250, 50}, {0, 0, 0}, true);
+                    string text_hovaten = string(hk->getHo()) + ' ' + string(hk->getTen());
+                    myscreen->render_Text(text_hovaten, {k_i.x + 150, k_i.y + 50, 250, 50}, {0, 0, 0}, true);
+                    myscreen->render_Text(hk->getPhai() ? "Nam" : "Nữ", {k_i.x + 150, k_i.y + 100, 250, 50}, {0, 0, 0}, true);
                 }
             }
-
 
             if (route == true)
                 view_dat_ve.render(*myscreen);
@@ -757,13 +792,14 @@ namespace Flight
                 break;
             }
         }
-        void render_line(HanhKhach* hk, int stt, const char* sove){
-            this->myscreen->render_Text(std::to_string(stt),{0,(stt-1)*50,150,50},{0,0,0},true);
-            this->myscreen->render_Text(sove,{150,(stt-1)*50,150,50},{0,0,0},true);
-            this->myscreen->render_Text(hk->getSoCMND(),{300,(stt-1)*50,300,50},{0,0,0},true);
-            this->myscreen->render_Text(hk->getHo(),{600,(stt-1)*50,400,50},{0,0,0},true);
-            this->myscreen->render_Text(hk->getTen(),{1000,(stt-1)*50,200,50},{0,0,0},true);
-            this->myscreen->render_Text(hk->getPhai() ? "Nam":"Nữ",{1200,(stt-1)*50,100,50},{0,0,0},true);
+        void render_line(HanhKhach *hk, int stt, const char *sove)
+        {
+            this->myscreen->render_Text(std::to_string(stt), {0, (stt - 1) * 50, 150, 50}, {0, 0, 0}, true);
+            this->myscreen->render_Text(sove, {150, (stt - 1) * 50, 150, 50}, {0, 0, 0}, true);
+            this->myscreen->render_Text(hk->getSoCMND(), {300, (stt - 1) * 50, 300, 50}, {0, 0, 0}, true);
+            this->myscreen->render_Text(hk->getHo(), {600, (stt - 1) * 50, 400, 50}, {0, 0, 0}, true);
+            this->myscreen->render_Text(hk->getTen(), {1000, (stt - 1) * 50, 200, 50}, {0, 0, 0}, true);
+            this->myscreen->render_Text(hk->getPhai() ? "Nam" : "Nữ", {1200, (stt - 1) * 50, 100, 50}, {0, 0, 0}, true);
         }
 
         void create_buffer(ChuyenBay *cb)
@@ -779,30 +815,31 @@ namespace Flight
                 buffer->set(this->myscreen, khung.w, total * 50);
                 SDL_Rect rect;
                 string so_ve;
-                HanhKhach* temp = nullptr;
+                HanhKhach *temp = nullptr;
                 buffer->connect_render_clear();
-                this->myscreen->render_cot({0,0,150,total * 50});
-                this->myscreen->render_cot({150,0,150,total * 50});
-                this->myscreen->render_cot({300,0,300,total * 50});
-                this->myscreen->render_cot({600,0,400,total * 50});
-                this->myscreen->render_cot({1000,0,200,total * 50});
-                this->myscreen->render_cot({1200,0,100,total * 50});
+                this->myscreen->render_cot({0, 0, 150, total * 50});
+                this->myscreen->render_cot({150, 0, 150, total * 50});
+                this->myscreen->render_cot({300, 0, 300, total * 50});
+                this->myscreen->render_cot({600, 0, 400, total * 50});
+                this->myscreen->render_cot({1000, 0, 200, total * 50});
+                this->myscreen->render_cot({1200, 0, 100, total * 50});
                 int stt = 0;
                 for (int i = 0; i < so_day; i++)
                 {
                     for (int j = 0; j < so_dong; j++)
                     {
                         rect = MyFunc::center_Rect(50, 50, {i * 100, j * 100, 100, 100});
-                        if (!(listve.check_empty(i, j))){
+                        if (!(listve.check_empty(i, j)))
+                        {
                             stt++;
                             so_ve = (char)(i + 'A') + std::to_string(j + 1);
-                            temp = global->get_list_hanhkhach().search(listve.get_cmnd(i,j));
-                            cout<<listve.get_cmnd(i,j);
-                            this->render_line(temp,stt,so_ve.c_str());
-                    }
+                            temp = global->get_list_hanhkhach().search(listve.get_cmnd(i, j));
+                            cout << listve.get_cmnd(i, j);
+                            this->render_line(temp, stt, so_ve.c_str());
+                        }
                     }
                 }
-                
+
                 buffer->disconnect_render();
                 buffer->set_vitri(khung.x, khung.y);
                 srcrect = {0, 0, khung.w, khung.h};
@@ -819,7 +856,7 @@ namespace Flight
             }
             buffer->render(true, srcrect);
         }
-  
+
         void render_menu(ChuyenBay *cb)
         {
             this->target = cb;
@@ -830,28 +867,25 @@ namespace Flight
             string text_title = "DANH SÁCH HÀNH KHÁCH THUỘC CHUYẾN BAY " + string(cb->get_ma_so_cb());
             string text_time = "Ngày Giờ Khởi Hành: " + cb->get_thoi_gian_bay().to_string_dd_mm_yyyy_hh_mm();
             string text_noi_den = "Nơi Đến: " + string(cb->get_san_bay_den());
-            myscreen->render_cot({vt_text.x,vt_text.y,vt_text.w,100},{255,255,255});
-            myscreen->render_Text(text_title, {vt_text.x,vt_text.y,vt_text.w,50}, {0, 0, 0}, true);
-            myscreen->render_Text(text_time, {vt_text.x,vt_text.y + 50,vt_text.w / 2,50}, {0, 0, 0}, true);
-            myscreen->render_Text(text_noi_den, {vt_text.x + vt_text.w / 2,vt_text.y + 50,vt_text.w / 2,50}, {0, 0, 0}, true);
-            
-            
+            myscreen->render_cot({vt_text.x, vt_text.y, vt_text.w, 100}, {255, 255, 255});
+            myscreen->render_Text(text_title, {vt_text.x, vt_text.y, vt_text.w, 50}, {0, 0, 0}, true);
+            myscreen->render_Text(text_time, {vt_text.x, vt_text.y + 50, vt_text.w / 2, 50}, {0, 0, 0}, true);
+            myscreen->render_Text(text_noi_den, {vt_text.x + vt_text.w / 2, vt_text.y + 50, vt_text.w / 2, 50}, {0, 0, 0}, true);
 
-
-            myscreen->render_Text("STT",{khung.x,khung.y-50,150,50},{0,0,0},true);
-            myscreen->render_Text("Số Vé",{khung.x + 150,khung.y-50,150,50},{0,0,0},true);
-            myscreen->render_Text("Số CMND",{khung.x + 300,khung.y-50,300,50},{0,0,0},true);
-            myscreen->render_Text("Họ",{khung.x + 600,khung.y-50,400,50},{0,0,0},true);
-            myscreen->render_Text("Tên",{khung.x+1000,khung.y-50,200,50},{0,0,0},true);
-            myscreen->render_Text("Giới Tính",{khung.x+ 1200,khung.y-50,100,50},{0,0,0},true);
+            myscreen->render_Text("STT", {khung.x, khung.y - 50, 150, 50}, {0, 0, 0}, true);
+            myscreen->render_Text("Số Vé", {khung.x + 150, khung.y - 50, 150, 50}, {0, 0, 0}, true);
+            myscreen->render_Text("Số CMND", {khung.x + 300, khung.y - 50, 300, 50}, {0, 0, 0}, true);
+            myscreen->render_Text("Họ", {khung.x + 600, khung.y - 50, 400, 50}, {0, 0, 0}, true);
+            myscreen->render_Text("Tên", {khung.x + 1000, khung.y - 50, 200, 50}, {0, 0, 0}, true);
+            myscreen->render_Text("Giới Tính", {khung.x + 1200, khung.y - 50, 100, 50}, {0, 0, 0}, true);
 
             // end
-            myscreen->render_cot(vien, {0, 0, 0}, {0, 0, 0}); // render viền
-            myscreen->render_cot(khung, {255, 255, 255});           // render khung đặt vé
-            myscreen->render_cot(vt_nut_x, nut_x);                         // render nút back
-            myscreen->render_Text("X", vt_nut_x, {0, 0, 0}, true);         // nút back
+            myscreen->render_cot(vien, {0, 0, 0}, {0, 0, 0});      // render viền
+            myscreen->render_cot(khung, {255, 255, 255});          // render khung đặt vé
+            myscreen->render_cot(vt_nut_x, nut_x);                 // render nút back
+            myscreen->render_Text("X", vt_nut_x, {0, 0, 0}, true); // nút back
 
-            this->render_list_hk(cb);                                      // render list vé
+            this->render_list_hk(cb); // render list vé
             // myscreen->render_cot(hover, hover_c);                          // render vé đang hover
 
             scroll.render(*myscreen); // render scroll bar

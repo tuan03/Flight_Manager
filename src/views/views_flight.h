@@ -130,7 +130,8 @@ namespace Flight
 
             // tại nút edit và xóa có nền trong suốt cho nên màu nên sẽ phụ thuộc lớp ô vuông ở phía dưới nó, cụ thể là 2 ô vuông ở trên
         }
-          ~Menu(){
+        ~Menu()
+        {
         }
     };
     class Edit
@@ -226,7 +227,15 @@ namespace Flight
                 }
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
                 {
-                    Status result = this->global->get_qlcb().edit_chuyen_bay(target_chuyenbay, std::stoi(input_tgb_minute.get_data()), std::stoi(input_tgb_hour.get_data()), std::stoi(input_tgb_day.get_data()), std::stoi(input_tgb_month.get_data()), std::stoi(input_tgb_year.get_data()), input_san_bay_den.get_data().c_str(), input_so_hieu_mb.get_data().c_str());
+                    Status result;
+                    if (input_san_bay_den.is_empty() || input_so_hieu_mb.is_empty() || input_tgb_day.is_empty() || input_tgb_hour.is_empty() || input_tgb_minute.is_empty() || input_tgb_month.is_empty() || input_tgb_year.is_empty())
+                    {
+                        result = Status("Bạn Chưa Nhập Đủ Thông Tin");
+                    }
+                    else
+                    {
+                        result = this->global->get_qlcb().edit_chuyen_bay(target_chuyenbay, std::stoi(input_tgb_minute.get_data()), std::stoi(input_tgb_hour.get_data()), std::stoi(input_tgb_day.get_data()), std::stoi(input_tgb_month.get_data()), std::stoi(input_tgb_year.get_data()), input_san_bay_den.get_data().c_str(), input_so_hieu_mb.get_data().c_str());
+                    }
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
@@ -294,7 +303,8 @@ namespace Flight
             myscreen->render_cot(vi_tri_nut_x, nut_x);
             myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
         }
-        ~Edit(){
+        ~Edit()
+        {
         }
     };
 
@@ -404,7 +414,15 @@ namespace Flight
                 }
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
                 {
-                    Status result = this->global->get_qlcb().add_cb(input_ma_cb.get_data().c_str(), std::stoi(input_tgb_minute.get_data()), std::stoi(input_tgb_hour.get_data()), std::stoi(input_tgb_day.get_data()), std::stoi(input_tgb_month.get_data()), std::stoi(input_tgb_year.get_data()), input_san_bay_den.get_data().c_str(), input_so_hieu_mb.get_data().c_str());
+                    Status result;
+                    if (input_san_bay_den.is_empty() || input_so_hieu_mb.is_empty() || input_tgb_day.is_empty() || input_tgb_hour.is_empty() || input_tgb_minute.is_empty() || input_tgb_month.is_empty() || input_tgb_year.is_empty() || input_ma_cb.is_empty())
+                    {
+                        result = Status("Bạn Chưa Nhập Đủ Thông Tin");
+                    }
+                    else
+                    {
+                        result = this->global->get_qlcb().add_cb(input_ma_cb.get_data().c_str(), std::stoi(input_tgb_minute.get_data()), std::stoi(input_tgb_hour.get_data()), std::stoi(input_tgb_day.get_data()), std::stoi(input_tgb_month.get_data()), std::stoi(input_tgb_year.get_data()), input_san_bay_den.get_data().c_str(), input_so_hieu_mb.get_data().c_str());
+                    }
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
@@ -450,19 +468,22 @@ namespace Flight
             delete buffer_list_mb;
             buffer_list_mb = nullptr;
         }
-        void render_line_data(MayBay* mb, int stt){
-            myscreen->render_Text(mb->getSoHieuMB(),{0,(stt-1)*50,150,50},{0,0,0},true);
-            if(strlen(mb->getLoaiMB()) < 15){
-            myscreen->render_Text(mb->getLoaiMB(),{150,(stt-1)*50,250,50},{0,0,0},true);
-            } else 
+        void render_line_data(MayBay *mb, int stt)
+        {
+            myscreen->render_Text(mb->getSoHieuMB(), {0, (stt - 1) * 50, 150, 50}, {0, 0, 0}, true);
+            if (strlen(mb->getLoaiMB()) < 15)
+            {
+                myscreen->render_Text(mb->getLoaiMB(), {150, (stt - 1) * 50, 250, 50}, {0, 0, 0}, true);
+            }
+            else
             {
                 string sub_str = string(mb->getLoaiMB()).substr(0, 15) + "...";
-                myscreen->render_Text(sub_str,{150,(stt-1)*50,250,50},{0,0,0},true);
+                myscreen->render_Text(sub_str, {150, (stt - 1) * 50, 250, 50}, {0, 0, 0}, true);
             }
-            myscreen->render_Text(std::to_string(mb->getSoDay()),{400,(stt-1)*50,50,50},{0,0,0},true);
-            myscreen->render_Text(std::to_string(mb->getSoDong()),{450,(stt-1)*50,50,50},{0,0,0},true);
+            myscreen->render_Text(std::to_string(mb->getSoDay()), {400, (stt - 1) * 50, 50, 50}, {0, 0, 0}, true);
+            myscreen->render_Text(std::to_string(mb->getSoDong()), {450, (stt - 1) * 50, 50, 50}, {0, 0, 0}, true);
         }
-       
+
         void get_data()
         {
             if (flag_list_mb)
@@ -470,27 +491,43 @@ namespace Flight
                 reset_buffer();
                 int total = global->get_list_plane().get_so_luong();
                 int so_luong = 0;
-                for(int i = 0; i< total; i++){
-                    if(Func_Global::check_prefix(global->get_list_plane().get_at_index(i)->getSoHieuMB(),input_so_hieu_mb.get_data().c_str())){
-                    so_luong++;
+                for (int i = 0; i < total; i++)
+                {
+                    if (Func_Global::check_prefix(global->get_list_plane().get_at_index(i)->getSoHieuMB(), input_so_hieu_mb.get_data().c_str()))
+                    {
+                        so_luong++;
                     }
                 }
+
                 buffer_list_mb = new Buffer();
-                buffer_list_mb->set(this->myscreen, 500, so_luong * 50);
-                buffer_list_mb->set_none_alpha();
-                buffer_list_mb->connect_render_clear_white();
-                myscreen->render_cot({0,0,150,so_luong * 50},{255,255,255});
-                myscreen->render_cot({150,0,250,so_luong * 50},{255,255,255});
-                myscreen->render_cot({400,0,50,so_luong * 50},{255,255,255});
-                myscreen->render_cot({450,0,50,so_luong * 50},{255,255,255});
-                int stt = 0;
-                for(int i = 0; i< total; i++){
-                    if(Func_Global::check_prefix(global->get_list_plane().get_at_index(i)->getSoHieuMB(),input_so_hieu_mb.get_data().c_str())){
-                    stt++;
-                    render_line_data(global->get_list_plane().get_at_index(i),stt);
+                if (so_luong > 0)
+                {
+                    buffer_list_mb->set(this->myscreen, 500, so_luong * 50);
+                    buffer_list_mb->set_none_alpha();
+                    buffer_list_mb->connect_render_clear_white();
+                    myscreen->render_cot({0, 0, 150, so_luong * 50}, {255, 255, 255});
+                    myscreen->render_cot({150, 0, 250, so_luong * 50}, {255, 255, 255});
+                    myscreen->render_cot({400, 0, 50, so_luong * 50}, {255, 255, 255});
+                    myscreen->render_cot({450, 0, 50, so_luong * 50}, {255, 255, 255});
+                    int stt = 0;
+                    for (int i = 0; i < total; i++)
+                    {
+                        if (Func_Global::check_prefix(global->get_list_plane().get_at_index(i)->getSoHieuMB(), input_so_hieu_mb.get_data().c_str()))
+                        {
+                            stt++;
+                            render_line_data(global->get_list_plane().get_at_index(i), stt);
+                        }
                     }
+                    buffer_list_mb->disconnect_render();
                 }
-                buffer_list_mb->disconnect_render();
+                else
+                {
+                    buffer_list_mb->set(this->myscreen, 500, 50);
+                    buffer_list_mb->set_none_alpha();
+                    buffer_list_mb->connect_render_clear_white();
+                    myscreen->render_Text("Không Tồn Tại Số Hiệu Máy Bay Phù Hợp", buffer_list_mb->get_rect(), {0, 0, 0}, true);
+                    buffer_list_mb->disconnect_render();
+                }
                 buffer_list_mb->set_vitri(khung_list_mb.x, khung_list_mb.y);
                 srcrect = {0, 0, khung_list_mb.w, khung_list_mb.h};
                 scroll.set_target(*buffer_list_mb, srcrect);
@@ -528,11 +565,11 @@ namespace Flight
             {
                 buffer_list_mb->render(true, srcrect);
                 scroll.render(*myscreen);
-                myscreen->render_cot({khung_list_mb.x,khung_list_mb.y - 50, khung_list_mb.w,50});
-                myscreen->render_Text("Số Hiệu MB",{khung_list_mb.x,khung_list_mb.y - 50, 150,50},{0,0,0},true);
-                myscreen->render_Text("Loại",{khung_list_mb.x + 150,khung_list_mb.y - 50, 250,50},{0,0,0},true);
-                myscreen->render_Text("Dãy",{khung_list_mb.x + 400,khung_list_mb.y - 50, 50,50},{0,0,0},true);
-                myscreen->render_Text("Dòng",{khung_list_mb.x + 450,khung_list_mb.y - 50, 50,50},{0,0,0},true);
+                myscreen->render_cot({khung_list_mb.x, khung_list_mb.y - 50, khung_list_mb.w, 50});
+                myscreen->render_Text("Số Hiệu MB", {khung_list_mb.x, khung_list_mb.y - 50, 150, 50}, {0, 0, 0}, true);
+                myscreen->render_Text("Loại", {khung_list_mb.x + 150, khung_list_mb.y - 50, 250, 50}, {0, 0, 0}, true);
+                myscreen->render_Text("Dãy", {khung_list_mb.x + 400, khung_list_mb.y - 50, 50, 50}, {0, 0, 0}, true);
+                myscreen->render_Text("Dòng", {khung_list_mb.x + 450, khung_list_mb.y - 50, 50, 50}, {0, 0, 0}, true);
             }
         }
         void render_button_xoa_sua()
@@ -564,10 +601,9 @@ private:
 
     Flight::Position state = Flight::Position::HOME; // mặc định ở Child_Route Home
 
-   
     Flight::DatVe dat_ve;
     Flight::XemHK xem_hk;
-     Flight::Menu menu_flight; // route menu
+    Flight::Menu menu_flight; // route menu
     Flight::Edit edit_flight; // route edit
     Flight::Add add_flight;   // route edit
 

@@ -16,32 +16,29 @@ namespace Plane
     class Menu
     {
     private:
-        Global_Variable* global = nullptr;
+        Global_Variable *global = nullptr;
 
         SDL_Color nut_xoa = {255, 255, 255}; // màu rgb
         SDL_Color nut_sua = {255, 255, 255};
-        MayBay* current = nullptr;
-        bool* flag_re_render_in_home = nullptr;
+        MayBay *current = nullptr;
+        bool *flag_re_render_in_home = nullptr;
 
-        Box* khung_menu = nullptr; 
-        Box* edit = nullptr; 
-        Box* del = nullptr;
-        MyScreen* myscreen = nullptr;
+        Box *khung_menu = nullptr;
+        Box *edit = nullptr;
+        Box *del = nullptr;
+        MyScreen *myscreen = nullptr;
+
     public:
-     void set(Global_Variable& global,bool* flag)
+        void set(Global_Variable &global, bool *flag)
         {
             this->flag_re_render_in_home = flag;
             this->global = &global;
 
-
-            khung_menu = &(global.get_c_component().khung_menu); //tuannnnn
-            edit = &(global.get_c_component().edit); 
+            khung_menu = &(global.get_c_component().khung_menu); // tuannnnn
+            edit = &(global.get_c_component().edit);
             del = &(global.get_c_component().del);
             myscreen = &(global.get_myscreen());
-
-
         }
-
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
         {
@@ -59,14 +56,14 @@ namespace Plane
                     nut_xoa = {255, 219, 26};
                 }
                 break;
-            case SDL_MOUSEBUTTONDOWN:                                                // sự kiện nhấn vào các box
+            case SDL_MOUSEBUTTONDOWN:                         // sự kiện nhấn vào các box
                 if (!khung_menu->is_in_box(mouse_X, mouse_Y)) // bấm bên ngoài menu sẽ thoát
                 {
                     state = Position::HOME;
                 }
                 else if (edit->is_in_box(mouse_X, mouse_Y)) // nhấn vào Box edit
-                {                                                                  //
-                    state = Position::EDIT;                                        // chuyển sang trang edit
+                {                                           //
+                    state = Position::EDIT;                 // chuyển sang trang edit
                 }
                 else if (del->is_in_box(mouse_X, mouse_Y)) // nhấn vào Box xóa
                 {
@@ -79,17 +76,13 @@ namespace Plane
                         *(this->flag_re_render_in_home) = true;
                         state = Position::HOME;
                     }
-                    
                 }
                 break;
             }
         }
-       
 
         void render_menu(MayBay *mb, int vt)
         {
-            
-
 
             this->current = mb;
             // render khung menu
@@ -120,7 +113,7 @@ namespace Plane
     class Edit
     {
     private:
-        Global_Variable* global = nullptr;
+        Global_Variable *global = nullptr;
 
         SDL_Rect vi_tri_nut_x = {1250, 210, 50, 50};
         SDL_Rect vi_tri_nut_sua = {950, 450, 150, 60};
@@ -145,25 +138,24 @@ namespace Plane
 
         bool *flag_re_render_in_home = nullptr;
 
-        MyScreen* myscreen = nullptr;
-        Box* khung_add_edit = nullptr;
+        MyScreen *myscreen = nullptr;
+        Box *khung_add_edit = nullptr;
+
     public:
         void
-        set(Global_Variable& global, bool *flag)
+        set(Global_Variable &global, bool *flag)
         {
             this->global = &global;
             this->myscreen = &(global.get_myscreen());
             khung_add_edit = &(global.get_c_component().khung_add_edit);
 
-
             this->flag_re_render_in_home = flag;
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
-            input_shmb.set(&(global.get_myscreen()),MAX_LENGTH_SO_HIEU_MB,rect_input[0]);
-            input_loaimb.set(&(global.get_myscreen()),MAX_LENGTH_LOAI_MAY_BAY,rect_input[1]);
-            input_soday.set(&(global.get_myscreen()),2,rect_input[2]);
-            input_sodong.set(&(global.get_myscreen()),2,rect_input[3]);
-
+            input_shmb.set(&(global.get_myscreen()), MAX_LENGTH_SO_HIEU_MB, rect_input[0]);
+            input_loaimb.set(&(global.get_myscreen()), MAX_LENGTH_LOAI_MAY_BAY, rect_input[1]);
+            input_soday.set(&(global.get_myscreen()), 2, rect_input[2]);
+            input_sodong.set(&(global.get_myscreen()), 2, rect_input[3]);
         }
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
@@ -202,7 +194,15 @@ namespace Plane
                 }
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
                 {
-                    Status result = this->target_maybay->edit(this->input_loaimb.get_data().c_str(), std::stoi(this->input_soday.get_data()), std::stoi(this->input_sodong.get_data()));
+                    Status result;
+                    if (input_soday.get_data().length() == 0 || input_sodong.get_data().length() == 0 || input_shmb.get_data().length() == 0 || input_loaimb.get_data().length() == 0)
+                    {
+                        result = Status("Bạn Chưa nhập Đủ Thông Tin");
+                    }
+                    else
+                    {
+                        result = this->target_maybay->edit(this->input_loaimb.get_data().c_str(), std::stoi(this->input_soday.get_data()), std::stoi(this->input_sodong.get_data()));
+                    }
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
@@ -233,7 +233,6 @@ namespace Plane
         }
         void render_menu(MayBay *mb)
         {
-            
 
             set_target(mb);
             myscreen->blur_background(150);
@@ -262,7 +261,7 @@ namespace Plane
         void render_button_xoa_sua()
         {
             myscreen->render_cot(vi_tri_nut_sua, nut_sua);
-            myscreen->render_Text("OK",vi_tri_nut_sua,{0,0,0}, true);
+            myscreen->render_Text("OK", vi_tri_nut_sua, {0, 0, 0}, true);
             myscreen->render_cot(vi_tri_nut_x, nut_x);
             myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
         }
@@ -270,7 +269,7 @@ namespace Plane
     class Add
     {
     private:
-        Global_Variable* global = nullptr;
+        Global_Variable *global = nullptr;
         SDL_Rect vi_tri_nut_x = {1250, 210, 50, 50};
         SDL_Rect vi_tri_nut_sua = {950, 450, 150, 60};
         SDL_Color nut_sua = {255, 255, 255};
@@ -291,13 +290,13 @@ namespace Plane
         bool da_lap_cb = false;
 
         bool *flag_re_render_in_home = nullptr;
-        MyScreen* myscreen = nullptr;
-        Box* khung_add_edit = nullptr;
-        Box* edit = nullptr;
+        MyScreen *myscreen = nullptr;
+        Box *khung_add_edit = nullptr;
+        Box *edit = nullptr;
 
     public:
         void
-        set(Global_Variable& global, bool *flag)
+        set(Global_Variable &global, bool *flag)
         {
             this->global = &global;
             khung_add_edit = &(global.get_c_component().khung_add_edit);
@@ -307,12 +306,10 @@ namespace Plane
             this->flag_re_render_in_home = flag;
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
-
-            input_shmb.set(&(global.get_myscreen()),MAX_LENGTH_SO_HIEU_MB,rect_input[0]);
-            input_loaimb.set(&(global.get_myscreen()),MAX_LENGTH_LOAI_MAY_BAY,rect_input[1]);
-            input_soday.set(&(global.get_myscreen()),2,rect_input[2]);
-            input_sodong.set(&(global.get_myscreen()),2,rect_input[3]);
-
+            input_shmb.set(&(global.get_myscreen()), MAX_LENGTH_SO_HIEU_MB, rect_input[0]);
+            input_loaimb.set(&(global.get_myscreen()), MAX_LENGTH_LOAI_MAY_BAY, rect_input[1]);
+            input_soday.set(&(global.get_myscreen()), 2, rect_input[2]);
+            input_sodong.set(&(global.get_myscreen()), 2, rect_input[3]);
         }
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
@@ -351,7 +348,14 @@ namespace Plane
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
                 {
                     Status result;
-                    result = global->get_qlcb().getListMB().add(input_shmb.get_data().c_str(),input_loaimb.get_data().c_str(), std::stoi(input_soday.get_data()), std::stoi(input_sodong.get_data()));
+                    if (input_soday.get_data().length() == 0 || input_sodong.get_data().length() == 0 || input_shmb.get_data().length() == 0 || input_loaimb.get_data().length() == 0)
+                    {
+                        result = Status("Bạn Chưa nhập Đủ Thông Tin");
+                    }
+                    else
+                    {
+                        result = global->get_qlcb().getListMB().add(input_shmb.get_data().c_str(), input_loaimb.get_data().c_str(), std::stoi(input_soday.get_data()), std::stoi(input_sodong.get_data()));
+                    }
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
@@ -362,12 +366,13 @@ namespace Plane
                 }
                 break;
             }
-            input_shmb.handleInput_ID(e,mouse_X,mouse_Y);
+            input_shmb.handleInput_ID(e, mouse_X, mouse_Y);
             input_loaimb.handleInput_Name(e, mouse_X, mouse_Y);
             input_soday.handleInput_Num(e, mouse_X, mouse_Y);
             input_sodong.handleInput_Num(e, mouse_X, mouse_Y);
         }
-        void reset_data(){
+        void reset_data()
+        {
             input_loaimb.reset_data();
             input_shmb.reset_data();
             input_soday.reset_data();
@@ -375,12 +380,11 @@ namespace Plane
         }
         void render_menu()
         {
-            if(this->now){
-            this->reset_data();
-            now = false;
+            if (this->now)
+            {
+                this->reset_data();
+                now = false;
             }
-
-            
 
             myscreen->blur_background(150);
             khung_add_edit->render(myscreen->get_my_renderer());
@@ -412,7 +416,7 @@ namespace Plane
 class View_Plane
 {
 private:
-    Global_Variable& global;
+    Global_Variable &global;
 
     Input input_so_hieu_mb;
     Buffer table;
@@ -424,40 +428,40 @@ private:
 
     Plane::Menu menu_plane; // route menu
     Plane::Edit edit_plane; // route edit
-    Plane::Add add_plane; // route edit
+    Plane::Add add_plane;   // route edit
 
     MayBay *list_mb_dc_render[10];
     MayBay *temp = nullptr; // lấy con trỏ máy bay ở vị trí đang hover rồi click
 
-
     int vi_tri_hover_on_table = -1; // vị trí hover trên table data Máy Bay tính từ 0 - 9
-    int so_luong_data = 0; // số lượng máy bay
-    int current_page;              // phân trang hiện tại
-    int mouse_X, mouse_Y;          // vị trí chuột
-
+    int so_luong_data = 0;          // số lượng máy bay
+    int current_page;               // phân trang hiện tại
+    int mouse_X, mouse_Y;           // vị trí chuột
 
     int route_plane_width[5]{150, 250, 600, 250, 250};
     string route_plane_name_cot[6]{"STT", "Số Hiệu MB", "Loại", "Số Dãy", "Số Dòng"};
 
-    SDL_Color nut_add {255,255,255};
+    SDL_Color nut_add{255, 255, 255};
+
 public:
-    View_Plane(Global_Variable& gb); 
+    View_Plane(Global_Variable &gb);
 
     void handleEvent(SDL_Event e, bool &is_home, int mouse_X, int mouse_Y)
     {
         this->mouse_X = mouse_X;
         this->mouse_Y = mouse_Y;
-        nut_add = {255,255,255};
+        nut_add = {255, 255, 255};
         if (this->state == Plane::Position::HOME)
         {
             is_home = true;
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                if(global.get_c_component().add.is_in_box(mouse_X,mouse_Y)){
+                if (global.get_c_component().add.is_in_box(mouse_X, mouse_Y))
+                {
                     nut_add = {255, 219, 26};
                 }
-                this->vi_tri_hover_on_table = Func_Global::get_line(this->mouse_X, this->mouse_Y, this->so_luong_data,this->current_page); // 0 - 9
+                this->vi_tri_hover_on_table = Func_Global::get_line(this->mouse_X, this->mouse_Y, this->so_luong_data, this->current_page); // 0 - 9
                 break;
             case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
                                       // bắt sự kiện nhấn next và prev
@@ -478,7 +482,8 @@ public:
                     this->temp = this->list_mb_dc_render[vi_tri_hover_on_table];
                     this->state = Plane::Position::MENU;
                 }
-                if(global.get_c_component().add.is_in_box(mouse_X,mouse_Y)){
+                if (global.get_c_component().add.is_in_box(mouse_X, mouse_Y))
+                {
                     state = Plane::Position::ADD;
                 }
                 break;
@@ -517,10 +522,10 @@ public:
 
         data.render(); // render data
 
-        this->global.get_myscreen().render_cot(this->global.get_c_component().add.get_rect(),nut_add);
+        this->global.get_myscreen().render_cot(this->global.get_c_component().add.get_rect(), nut_add);
         this->global.get_c_component().add.render(this->global.get_myscreen().get_my_renderer()); // render nút add
 
-        this->global.get_c_component().render_next_prev(mouse_X,mouse_Y,current_page,so_luong_data,&(this->global.get_myscreen()));
+        this->global.get_c_component().render_next_prev(mouse_X, mouse_Y, current_page, so_luong_data, &(this->global.get_myscreen()));
 
         SDL_Rect rect_temp{150, 175, 150, 50}; // ô input : 300,175,300,50
         this->global.get_myscreen().render_Text("Số Hiệu MB:", rect_temp, {0, 0, 0}, true);
@@ -544,7 +549,7 @@ public:
     void getData() // đưa data vào bộ đệm
     {
         data.connect_render_clear();
-        ListMayBay* list_mb = &(this->global.get_qlcb().getListMB());
+        ListMayBay *list_mb = &(this->global.get_qlcb().getListMB());
         int so_may_bay = list_mb->get_so_luong();
         int start = (this->current_page - 1) * 10;
         int end = start + 9; // 0 - 9 là 10
@@ -576,31 +581,31 @@ public:
     }
     void re_render_data();
     void follow_flag();
-    void createTable(); // vẽ ra viền bảng
+    void createTable();                                    // vẽ ra viền bảng
     void render_line_data(int stt, int start, MayBay *mb); // render 1 linedata Máy Bay
 };
-View_Plane::View_Plane(Global_Variable& gb) : global{gb}
-    {
+View_Plane::View_Plane(Global_Variable &gb) : global{gb}
+{
 
-        current_page = 1;
+    current_page = 1;
 
-        menu_plane.set(global,&flag);
-        edit_plane.set(global, &flag);
-        add_plane.set(global, &flag);
-        
-        table.set(&(global.get_myscreen()), WIDTH_TABLE, HEIGHT_TABLE + 50);
-        table.set_vitri(X_START_TABLE, Y_START_TABLE - 50);
-        this->createTable();
+    menu_plane.set(global, &flag);
+    edit_plane.set(global, &flag);
+    add_plane.set(global, &flag);
 
-        data.set(&(global.get_myscreen()), WIDTH_TABLE, HEIGHT_TABLE);
-        data.set_vitri(X_START_TABLE, Y_START_TABLE);
+    table.set(&(global.get_myscreen()), WIDTH_TABLE, HEIGHT_TABLE + 50);
+    table.set_vitri(X_START_TABLE, Y_START_TABLE - 50);
+    this->createTable();
 
-        this->getData();
+    data.set(&(global.get_myscreen()), WIDTH_TABLE, HEIGHT_TABLE);
+    data.set_vitri(X_START_TABLE, Y_START_TABLE);
 
-        input_so_hieu_mb.set(&(global.get_myscreen()),MAX_LENGTH_SO_HIEU_MB,{300, 175, 300, 50});
-        string note = "Tối đa " + std::to_string(MAX_LENGTH_SO_HIEU_MB) +" kí tự";
-        input_so_hieu_mb.set_note(note);
-    }
+    this->getData();
+
+    input_so_hieu_mb.set(&(global.get_myscreen()), MAX_LENGTH_SO_HIEU_MB, {300, 175, 300, 50});
+    string note = "Tối đa " + std::to_string(MAX_LENGTH_SO_HIEU_MB) + " kí tự";
+    input_so_hieu_mb.set_note(note);
+}
 void View_Plane::re_render_data()
 {
     this->flag = true;
