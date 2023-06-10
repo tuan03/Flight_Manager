@@ -4,7 +4,6 @@
 #include "maybay.h"
 #include "hanhkhach.h"
 #include "chuyenbay.h"
-#include "file_handling.h"
 
 class Flight_Manager
 {
@@ -28,16 +27,16 @@ public:
     }
     Flight_Manager()
     {
-        File_Handling::read_bin(DATA_MAY_BAY, ds_maybay);
-        File_Handling::read_bin(DATA_CHUYEN_BAY, ds_chuyenbay, ds_maybay);
-        File_Handling::read_bin(DATA_HANH_KHACH, ds_hanhkhach);
+        ds_maybay.read_bin(DATA_MAY_BAY);
+        ds_chuyenbay.read_bin(DATA_CHUYEN_BAY, ds_maybay);
+        ds_hanhkhach.read_bin(DATA_HANH_KHACH);
     }
 
     ~Flight_Manager()
     {
-        File_Handling::write_bin(DATA_MAY_BAY, ds_maybay);
-        File_Handling::write_bin(DATA_CHUYEN_BAY, ds_chuyenbay);
-        File_Handling::write_bin(DATA_HANH_KHACH, ds_hanhkhach);
+        ds_maybay.write_bin(DATA_MAY_BAY);
+        ds_chuyenbay.write_bin(DATA_CHUYEN_BAY);
+        ds_hanhkhach.write_bin(DATA_HANH_KHACH);
         cout<<"Completed Saved\n";
     }
 
@@ -142,7 +141,7 @@ public:
     Status dat_ve_khachmoi(ChuyenBay *chuyenbay, int so_day, int so_dong, const char *cmnd, const char *ho, const char *ten, bool phai)
     {
         HanhKhach *hk = new HanhKhach(cmnd, ho, ten, phai);
-        this->ds_hanhkhach.add_from_file_data(hk);
+        // this->ds_hanhkhach.add_from_file_data(hk);
         return chuyenbay->get_listve().add_ve(so_day, so_dong, cmnd);
     }
 
@@ -159,7 +158,7 @@ public:
         {
             vitrimin = i;
             for (int j = i + 1; j < n; j++)
-                if (ds_maybay.get_at_index(mb[j]) < ds_maybay.get_at_index(mb[vitrimin]))
+                if (ds_maybay.get_at(mb[j]) < ds_maybay.get_at(mb[vitrimin]))
                     vitrimin = j;
             if (i != vitrimin)
             {
@@ -170,29 +169,7 @@ public:
         }
     }
 
-    // void in_ds_kh(const char *ma_so_cb)
-    // {
-    //     ChuyenBay *p = ds_chuyenbay.find_by_ma_cb_ct(ma_so_cb);
-    //     cout << "1";
-    //     if (p != nullptr)
-    //     {
-    //         MayBay *mb = ds_maybay.find_mamb_ct(p->get_so_hieu_mb());
-    //         for (int i = 0; i < mb->getSoDay(); i++)
-    //         {
-    //             cout << "2";
-    //             for (int j = 0; j < mb->getSoDong(); j++)
-    //             {
-    //                 cout << "3";
-    //                 if (p->get_listve != nullptr)
-    //                 {
-    //                     HanhKhach *hk = ds_hanhkhach.search(p->get_listve()[i][j]->getSoCMND());
-    //                     cout << "4";
-    //                     cout << hk;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    
 };
 
 #endif

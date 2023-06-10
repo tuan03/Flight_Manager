@@ -414,10 +414,6 @@ public:
         insert_order(new_chuyenbay);
     }
 
-    void add_from_file_data(ChuyenBay *chuyenbay)
-    { // add data từ file, file theo thứ tự sẵn, nên khoogn cần insert_order
-        this->insert_last(chuyenbay);
-    }
     // func find
     ChuyenBay *find_by_sh_mb_ct(const char *ma_so_mb)
     { // find cb theo mã máy bay @ return point
@@ -524,6 +520,45 @@ public:
             current = next;
         }
         head = nullptr;
+    }
+     void read_bin(string fileName, ListMayBay& list_mb)
+    {
+        std::ifstream file(fileName, std::ios::binary);
+        if (file.is_open())
+        {
+            ChuyenBay *temp = nullptr;
+            int so_luong = 0;
+            if(!(file.read(reinterpret_cast<char*>(&so_luong), sizeof(so_luong)))){
+                so_luong = 0;
+            }
+            for(int i=0; i<so_luong; i++){
+                temp = new ChuyenBay();        // cấp phát bộ nhớ động cho node
+                temp->deserialize(file,list_mb);
+                this->insert_last(temp);
+            }
+            file.close();
+        }
+        else
+        {
+            std::cout << "Khong the mo file.\n";
+        }
+    }
+    void write_bin(string fileName)
+    {
+        std::ofstream file(fileName, std::ios::binary);
+        if (file.is_open())
+        {   
+            int so_luong = this->get_so_luong_cb();
+            file.write(reinterpret_cast<const char *>(&so_luong), sizeof(so_luong));
+            for (ChuyenBay* current = this->head; current != nullptr; current = current->get_next()) {
+                current->serialize(file);
+            }
+            file.close();
+        }
+        else
+        {
+            std::cout << "Khong the mo file.\n";
+        }
     }
 };
 

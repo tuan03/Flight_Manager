@@ -493,7 +493,7 @@ namespace Flight
                 int so_luong = 0;
                 for (int i = 0; i < total; i++)
                 {
-                    if (Func_Global::check_prefix(global->get_list_plane().get_at_index(i)->getSoHieuMB(), input_so_hieu_mb.get_data().c_str()))
+                    if (Func_Global::check_prefix(global->get_list_plane().get_at(i)->getSoHieuMB(), input_so_hieu_mb.get_data().c_str()))
                     {
                         so_luong++;
                     }
@@ -512,10 +512,10 @@ namespace Flight
                     int stt = 0;
                     for (int i = 0; i < total; i++)
                     {
-                        if (Func_Global::check_prefix(global->get_list_plane().get_at_index(i)->getSoHieuMB(), input_so_hieu_mb.get_data().c_str()))
+                        if (Func_Global::check_prefix(global->get_list_plane().get_at(i)->getSoHieuMB(), input_so_hieu_mb.get_data().c_str()))
                         {
                             stt++;
-                            render_line_data(global->get_list_plane().get_at_index(i), stt);
+                            render_line_data(global->get_list_plane().get_at(i), stt);
                         }
                     }
                     buffer_list_mb->disconnect_render();
