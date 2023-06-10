@@ -49,6 +49,19 @@ public:
         ss << std::put_time(&timeinfo, "%d/%m/%Y %H:%M");
         return ss.str();
     }
+    std::string to_string_dd_mm_yyyy() const
+    { // hh:mm-dd/mm/yyyy
+        std::stringstream ss;
+        std::tm timeinfo = {};
+        timeinfo.tm_year = year - 1900; // năm bắt đầu từ 1900
+        timeinfo.tm_mon = month - 1;    // tháng bắt đầu từ 0
+        timeinfo.tm_mday = day;
+        timeinfo.tm_hour = hour;
+        timeinfo.tm_min = minute;
+        // In ra chuỗi theo định dạng hh:mm-dd/mm/yyyy
+        ss << std::put_time(&timeinfo, "%d/%m/%Y");
+        return ss.str();
+    }
     Time()
     {
     }
@@ -65,17 +78,7 @@ public:
         this->month = month;
         this->year = year;
     }
-    void get_current_time()
-    {
-        auto now = chrono::system_clock::now();
-        time_t now_c = chrono::system_clock::to_time_t(now);
-        struct tm *parts = localtime(&now_c);
-        this->hour = parts->tm_hour;
-        this->minute = parts->tm_min;
-        this->year = parts->tm_year + 1900;
-        this->month = parts->tm_mon + 1;
-        this->day = parts->tm_mday;
-    }
+
     /**
      * @brief Hàm tính khoảng cách giữa 2 mốc thời gian
      *
@@ -104,6 +107,31 @@ public:
 
         double diff = difftime(t2_time, t1_time);
         return diff;
+    }
+    void get_current_time()
+    {
+        auto now = chrono::system_clock::now();
+        time_t now_c = chrono::system_clock::to_time_t(now);
+        struct tm *parts = localtime(&now_c);
+        this->hour = parts->tm_hour;
+        this->minute = parts->tm_min;
+        this->year = parts->tm_year + 1900;
+        this->month = parts->tm_mon + 1;
+        this->day = parts->tm_mday;
+    }
+    void get_next_time_some_hours(int x)
+    {
+        auto now = std::chrono::system_clock::now();
+        std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+        std::tm *currentTime = std::localtime(&now_c);
+
+        currentTime->tm_hour += x;
+        std::mktime(currentTime);
+        this->hour = currentTime->tm_hour;
+        this->minute = currentTime->tm_min;
+        this->year = currentTime->tm_year + 1900;
+        this->month = currentTime->tm_mon + 1;
+        this->day = currentTime->tm_mday;
     }
     bool isValidDate()
     {
@@ -226,7 +254,7 @@ public:
         return list[i][j];
     }
     bool check_empty(int so_day, int so_dong) // true nếu empty
-    { 
+    {
         return list[so_day][so_dong] == nullptr;
     }
 
@@ -238,7 +266,8 @@ public:
         strcpy(list[so_day][so_dong], cmnd);
         return Status("Đặt Vé Thành Công", Status_Name::SUCCESS);
     }
-    Status huy_ve(int so_day, int so_dong){
+    Status huy_ve(int so_day, int so_dong)
+    {
         delete list[so_day][so_dong];
         list[so_day][so_dong] = nullptr;
         return Status("Hủy Vé Thành Công", Status_Name::SUCCESS);
@@ -299,12 +328,14 @@ public:
     { // return -1: cb này < cb2, 0: cb này == cb2, 1: cb này > cb2
         return strcmp(this->ma_so_cb, macb);
     }
-    Status huy_chuyen_bay(){
-        if(this->trang_thai_cb == 0) return Status("Chuyến Bay Đã Được Hủy Trước Đó.");
-        if(this->trang_thai_cb == 3) return Status("Chuyến Bay Đã Thực Hiện Thành Công.");
+    Status huy_chuyen_bay()
+    {
+        if (this->trang_thai_cb == 0)
+            return Status("Chuyến Bay Đã Được Hủy Trước Đó.");
+        if (this->trang_thai_cb == 3)
+            return Status("Chuyến Bay Đã Thực Hiện Thành Công.");
         this->trang_thai_cb = 0;
-        return Status("Hủy Chuyến Bay Thành Công.",Status_Name::SUCCESS);
-
+        return Status("Hủy Chuyến Bay Thành Công.", Status_Name::SUCCESS);
     }
     void serialize(std::ofstream &os)
     {
@@ -415,12 +446,12 @@ public:
     }
 
     // func find
-    ChuyenBay *find_by_sh_mb_ct(const char *ma_so_mb)
+    ChuyenBay *find_by_sh_mb_ct(const char *shmb)
     { // find cb theo mã máy bay @ return point
         ChuyenBay *p = head;
         while (p != NULL)
         {
-            if (strcmp(p->get_so_hieu_mb(), ma_so_mb) == 0)
+            if (strcmp(p->get_so_hieu_mb(), shmb) == 0 && p->get_trang_thai_cb() != 0 && p->get_trang_thai_cb() != 3)
             {             // sử dụng hàm getter để lấy mã máy bay
                 return p; // trả về chuyến bay nếu tìm thấy
             }
@@ -428,42 +459,38 @@ public:
         }
         return nullptr; // trả về NULL nếu không tìm thấy chuyến bay
     }
-
-    // tìm theo số hiệu máy bay sẽ trả về cái mà đang còn vé hoặc hết vé mà không hủy hoặc hoàn thành
+    Status find_by_sh_mb_ct_ver2(const char *shmb, Time tm)
+    { // find cb theo mã máy bay @ return point
+        ChuyenBay *p = head;
+        while (p != NULL)
+        {
+            if (strcmp(p->get_so_hieu_mb(), shmb) == 0 && p->get_trang_thai_cb() != 0 && p->get_trang_thai_cb() != 3)
+            {           
+                double kc_time = Time::timeDiffInSeconds(p->get_thoi_gian_bay(),tm); 
+                if(kc_time > -60 * 60 * 3 && kc_time <= 0){ // 3 giờ
+                    return Status("Máy Bay Sắp Thực Hiện Chuyến Bay Khác Vào Thời Gian Này.");
+                }    
+            }
+            p = p->get_next();
+        }
+        return Status("",Status_Name::SUCCESS); // trả về NULL nếu không tìm thấy chuyến bay
+    }
     bool find_by_sh_mb(const char *so_hieu_mb)
     { // find cb theo mã máy bay @ return bool
-        ChuyenBay *p = head;
-        while (p != NULL)
-        {
-            if (strcmp(p->get_so_hieu_mb(), so_hieu_mb) == 0 && p->get_trang_thai_cb() != 0 && p->get_trang_thai_cb() != 3)
-            {                // sử dụng hàm getter để lấy mã máy bay
-                return true; // trả về chuyến bay nếu tìm thấy
-            }
-            p = p->get_next();
-        }
-        return false; // trả về NULL nếu không tìm thấy chuyến bay
+        return find_by_sh_mb_ct(so_hieu_mb) != nullptr; 
     }
-    bool find_by_sh_mb_v2(const char *so_hieu_mb)
-    { // find cb theo mã máy bay @ return bool
-        ChuyenBay *p = head;
-        while (p != NULL)
-        {
-            if (strcmp(p->get_so_hieu_mb(), so_hieu_mb) == 0)
-            {                // sử dụng hàm getter để lấy mã máy bay
-                return true; // trả về chuyến bay nếu tìm thấy
-            }
-            p = p->get_next();
-        }
-        return false; // trả về NULL nếu không tìm thấy chuyến bay
-    }
+
     ChuyenBay *find_by_ma_cb_ct(const char *ma_so_cb)
     {
         ChuyenBay *p = head;
         while (p != NULL)
         {
-            if (strcmp(p->get_ma_so_cb(), ma_so_cb) == 0 && p->get_trang_thai_cb() != 0 && p->get_trang_thai_cb() != 3)
+            if (strcmp(p->get_ma_so_cb(), ma_so_cb) == 0)
             {             // sử dụng hàm getter để lấy mã máy bay
                 return p; // trả về chuyến bay nếu tìm thấy
+            }
+            if(strcmp(p->get_ma_so_cb(), ma_so_cb) == 1){
+                return nullptr;
             }
             p = p->get_next();
         }
@@ -472,19 +499,8 @@ public:
 
     bool find_by_ma_cb(const char *ma_so_cb)
     {
-        ChuyenBay *p = head;
-        while (p != NULL)
-        {
-            if (strcmp(p->get_ma_so_cb(), ma_so_cb) == 0)
-            {                // sử dụng hàm getter để lấy mã máy bay
-                return true; // trả về chuyến bay nếu tìm thấy
-            }
-            p = p->get_next();
-        }
-        return false; // trả về NULL nếu không tìm thấy chuyến bay
+        return find_by_ma_cb_ct(ma_so_cb) != nullptr;
     }
-
-    // func find
 
     // getter
     int get_so_luong_cb()
@@ -521,19 +537,21 @@ public:
         }
         head = nullptr;
     }
-     void read_bin(string fileName, ListMayBay& list_mb)
+    void read_bin(string fileName, ListMayBay &list_mb)
     {
         std::ifstream file(fileName, std::ios::binary);
         if (file.is_open())
         {
             ChuyenBay *temp = nullptr;
             int so_luong = 0;
-            if(!(file.read(reinterpret_cast<char*>(&so_luong), sizeof(so_luong)))){
+            if (!(file.read(reinterpret_cast<char *>(&so_luong), sizeof(so_luong))))
+            {
                 so_luong = 0;
             }
-            for(int i=0; i<so_luong; i++){
-                temp = new ChuyenBay();        // cấp phát bộ nhớ động cho node
-                temp->deserialize(file,list_mb);
+            for (int i = 0; i < so_luong; i++)
+            {
+                temp = new ChuyenBay(); // cấp phát bộ nhớ động cho node
+                temp->deserialize(file, list_mb);
                 this->insert_last(temp);
             }
             file.close();
@@ -547,10 +565,11 @@ public:
     {
         std::ofstream file(fileName, std::ios::binary);
         if (file.is_open())
-        {   
+        {
             int so_luong = this->get_so_luong_cb();
             file.write(reinterpret_cast<const char *>(&so_luong), sizeof(so_luong));
-            for (ChuyenBay* current = this->head; current != nullptr; current = current->get_next()) {
+            for (ChuyenBay *current = this->head; current != nullptr; current = current->get_next())
+            {
                 current->serialize(file);
             }
             file.close();

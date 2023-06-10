@@ -228,7 +228,7 @@ namespace Plane
                 this->input_soday.set_data(std::to_string(mb->getSoDay()));
                 this->input_sodong.set_data(std::to_string(mb->getSoDong()));
 
-                this->da_lap_cb = global->get_qlcb().getListCB().find_by_sh_mb_v2(mb->getSoHieuMB());
+                this->da_lap_cb = global->get_qlcb().getListCB().find_by_sh_mb(mb->getSoHieuMB());
                 this->now = false;
             }
         }

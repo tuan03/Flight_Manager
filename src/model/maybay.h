@@ -55,6 +55,9 @@ public:
 
 	Status edit(const char *loai_mb, int day, int dong)
 	{
+		if(strcmp(loai_mb,this->getLoaiMB()) == 0 && day == this->getSoDay() && dong == this->getSoDong()){
+			return Status("Không Có Sự Thay Đổi");
+		}
 		if (day * dong < 20)
 			return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
 		if (day < 1 || day > 26)
