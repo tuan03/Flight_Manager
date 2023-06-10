@@ -1,7 +1,7 @@
 #ifndef MAYBAY_H
 #define MAYBAY_H
 #include "error.h"
-
+int a = 0;
 class ListMayBay;
 class MayBay
 {
@@ -67,7 +67,8 @@ public:
 		return Status("Sửa Máy Bay Thành Công !", Status_Name::SUCCESS);
 	}
 
-	MayBay(){}
+	MayBay(){
+	}
 	MayBay(const char *sh, const char *loai, int day, int dong)
 	{
 		this->set(sh, loai, day, dong);

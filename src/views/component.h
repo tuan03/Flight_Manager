@@ -20,10 +20,12 @@ private:
     SDL_Rect vt{0, 0, 0, 0};
 
 public:
-    bool get_data(){
+    bool get_data()
+    {
         return data;
     }
-    void set_data(bool dt){
+    void set_data(bool dt)
+    {
         this->data = dt;
     }
     void connect(MyScreen *mc)
@@ -78,7 +80,8 @@ private:
 
 public:
     string get_data() { return data; }
-    bool is_empty(){
+    bool is_empty()
+    {
         return data.length() == 0;
     }
     void handleInput_ID(SDL_Event e, int x, int y)
@@ -170,21 +173,49 @@ public:
             }
         }
     }
+    
+    const char * chuan_hoa()
+    {
+        int end = data.length() - 1;
+        while (end > 0 && data[end] == ' ')
+        {
+            end--;
+        }
 
+        this->data = data.substr(0, end + 1);
+        return this->data.c_str();
+    }
 
-    void set(MyScreen* mc, int max_length, SDL_Rect vt){
+    int get_num()
+    {
+        int value;
+        try
+        {
+            value = stoi(this->data);
+        }
+        catch (exception &e)
+        {
+            value = 0;
+        }
+        return value;
+    }
+
+    void set(MyScreen *mc, int max_length, SDL_Rect vt)
+    {
         this->myscreen = mc;
         this->max_length = max_length;
         this->vitri = vt;
     }
-    bool get_is_click(){
+    bool get_is_click()
+    {
         return this->is_clicked;
     }
     void connect(MyScreen *mc)
     {
         this->myscreen = mc;
     }
-    SDL_Rect get_rect(){
+    SDL_Rect get_rect()
+    {
         return vitri;
     }
     void reset_data()
@@ -199,16 +230,18 @@ public:
     {
         this->data = data;
     }
-    void set_note(string data){
+    void set_note(string data)
+    {
         this->note = data;
     }
     void set_vitri(SDL_Rect rect)
     {
         this->vitri = rect;
     }
-    void render(bool type_red = false)
+    void render()
     {
-        if(this->myscreen == nullptr) throw "MyScreen Input is NULL\n";
+        if (this->myscreen == nullptr)
+            throw "MyScreen Input is NULL\n";
         SDL_Rect box_input{vitri.x + 3, vitri.y + 3, vitri.w - 6, vitri.h - 6};
         myscreen->render_cot(vitri, {0, 0, 0});
         if (this->is_clicked)
@@ -216,11 +249,14 @@ public:
         else
             myscreen->render_cot(box_input, {255, 255, 255});
         SDL_Rect con_tro;
-        if(this->data.length() != 0){
-        myscreen->render_Text(data, box_input, {0, 0, 0}, true, &con_tro);
-        } else {
-        myscreen->render_Text(data, box_input, {0, 0, 0}, true, &con_tro);
-        myscreen->render_Text(note, box_input, {128,128,128}, true);
+        if (this->data.length() != 0)
+        {
+            myscreen->render_Text(data, box_input, {0, 0, 0}, true, &con_tro);
+        }
+        else
+        {
+            myscreen->render_Text(data, box_input, {0, 0, 0}, true, &con_tro);
+            myscreen->render_Text(note, box_input, {128, 128, 128}, true);
         }
         if (this->is_clicked)
         {
@@ -264,17 +300,20 @@ public:
     {
         this->mess = mess;
     }
-    void reset_value(){
+    void reset_value()
+    {
         this->value = false;
     }
     void on(bool type = true) // bật thông báo trạng thái
     {
         this->flag = true;
         this->type = type;
-        if(type) this->value = false;
+        if (type)
+            this->value = false;
     }
 
-    bool get_value(){ // true : bấm đồng ý, false : bấm hủy
+    bool get_value()
+    { // true : bấm đồng ý, false : bấm hủy
         return value;
     }
     bool is_display()
@@ -289,40 +328,46 @@ public:
         switch (e.type)
         {
         case SDL_MOUSEMOTION:
-        if(type){
-            if (MyFunc::check_click(mouse_X, mouse_Y, ok))
+            if (type)
             {
-                c_ok = {255, 219, 26};
+                if (MyFunc::check_click(mouse_X, mouse_Y, ok))
+                {
+                    c_ok = {255, 219, 26};
+                }
             }
-        } else {
-            if (MyFunc::check_click(mouse_X, mouse_Y, vt_next))
+            else
             {
-                c_next = {255, 219, 26};
+                if (MyFunc::check_click(mouse_X, mouse_Y, vt_next))
+                {
+                    c_next = {255, 219, 26};
+                }
+                if (MyFunc::check_click(mouse_X, mouse_Y, vt_huy))
+                {
+                    c_huy = {255, 219, 26};
+                }
             }
-            if (MyFunc::check_click(mouse_X, mouse_Y, vt_huy))
-            {
-                c_huy = {255, 219, 26};
-            }
-        }
             break;
         case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
-        if(type){
-            if (MyFunc::check_click(mouse_X, mouse_Y, ok))
+            if (type)
             {
-                flag = false;
+                if (MyFunc::check_click(mouse_X, mouse_Y, ok))
+                {
+                    flag = false;
+                }
             }
-        } else {
-            if (MyFunc::check_click(mouse_X, mouse_Y, vt_next))
+            else
             {
-                value = true;
-                flag = false;
+                if (MyFunc::check_click(mouse_X, mouse_Y, vt_next))
+                {
+                    value = true;
+                    flag = false;
+                }
+                if (MyFunc::check_click(mouse_X, mouse_Y, vt_huy))
+                {
+                    value = false;
+                    flag = false;
+                }
             }
-            if (MyFunc::check_click(mouse_X, mouse_Y, vt_huy))
-            {
-                value = false;
-                flag = false;
-            }
-        }
             break;
         }
     }
@@ -333,19 +378,21 @@ public:
             if (myscreen == nullptr)
                 throw "MyScreen is NULL\n";
             man_thong_bao->render(myscreen->get_my_renderer());
-            if(type){
-            myscreen->render_cot(ok, c_ok);
-            myscreen->render_Text("Đồng Ý", ok, {0, 0, 0}, true);
-            } else {
+            if (type)
+            {
+                myscreen->render_cot(ok, c_ok);
+                myscreen->render_Text("Đồng Ý", ok, {0, 0, 0}, true);
+            }
+            else
+            {
                 myscreen->render_cot(vt_next, c_next);
-            myscreen->render_Text("Tiếp Tục", vt_next, {0, 0, 0}, true);
-            myscreen->render_cot(vt_huy, c_huy);
-            myscreen->render_Text("Hủy", vt_huy, {0, 0, 0}, true);
+                myscreen->render_Text("Tiếp Tục", vt_next, {0, 0, 0}, true);
+                myscreen->render_cot(vt_huy, c_huy);
+                myscreen->render_Text("Hủy", vt_huy, {0, 0, 0}, true);
             }
             myscreen->render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
         }
     }
-
 };
 
 class Render_Data
@@ -462,10 +509,5 @@ public:
         return c_components;
     }
 };
-
-
-
-
-
 
 #endif

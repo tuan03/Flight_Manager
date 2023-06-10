@@ -253,6 +253,7 @@ public:
         SDL_SetTextureAlphaMod(texture, alpha);
         SDL_Rect destRect = {0, 0, WIDTH_SCREEN, HEIGHT_SCREEN};
         SDL_RenderCopy(this->get_my_renderer()->get_renderer(), texture, NULL, &destRect);
+        SDL_DestroyTexture(texture);
     }
 
     void render_Text(const std::string &text, SDL_Rect vitri, SDL_Color text_color, bool type_center_box = false, SDL_Rect *rect_return = nullptr)

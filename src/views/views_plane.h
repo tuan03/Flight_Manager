@@ -20,7 +20,7 @@ namespace Plane
 
         SDL_Color nut_xoa = {255, 255, 255}; // màu rgb
         SDL_Color nut_sua = {255, 255, 255};
-        MayBay *current = nullptr;
+        int index = -1;
         bool *flag_re_render_in_home = nullptr;
 
         Box *khung_menu = nullptr;
@@ -67,8 +67,9 @@ namespace Plane
                 }
                 else if (del->is_in_box(mouse_X, mouse_Y)) // nhấn vào Box xóa
                 {
+                    //del_function
                     Status result;
-                    result = this->global->get_qlcb().del_mb(this->current->getSoHieuMB());
+                    result = this->global->get_qlcb().del_mb_by_index(index);
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
                     if (result.get_status() == Status_Name::SUCCESS)
@@ -81,10 +82,10 @@ namespace Plane
             }
         }
 
-        void render_menu(MayBay *mb, int vt)
+        void render_menu(int index, int vt)
         {
 
-            this->current = mb;
+            this->index = index;
             // render khung menu
             SDL_Rect rect = {700, Y_START_TABLE + vt * 50 - 280, 300, 300};
             khung_menu->set_rect(rect);
@@ -96,16 +97,8 @@ namespace Plane
             rect_2.y += 30;
             rect_2.y += 60;
             del->set_rect(rect_2); // đặt vị trí theo khung menu
-            this->render_button_xoa_sua_thoat();
-        }
-        void render_button_xoa_sua_thoat()
-        {
-
-            //
             myscreen->render_cot(del->get_rect(), nut_xoa);  // render nền
             myscreen->render_cot(edit->get_rect(), nut_sua); // render nền
-            // tại nút edit và xóa có nền trong suốt cho nên màu nên sẽ phụ thuộc lớp ô vuông ở phía dưới nó, cụ thể là 2 ô vuông ở trên
-
             edit->render(myscreen->get_my_renderer()); // render nút edit
             del->render(myscreen->get_my_renderer());  // render nút delete
         }
@@ -142,8 +135,7 @@ namespace Plane
         Box *khung_add_edit = nullptr;
 
     public:
-        void
-        set(Global_Variable &global, bool *flag)
+        void set(Global_Variable &global, bool *flag)
         {
             this->global = &global;
             this->myscreen = &(global.get_myscreen());
@@ -153,9 +145,17 @@ namespace Plane
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
             input_shmb.set(&(global.get_myscreen()), MAX_LENGTH_SO_HIEU_MB, rect_input[0]);
+            string note = "Tối đa " + std::to_string(MAX_LENGTH_SO_HIEU_MB) + " kí tự";
+            input_shmb.set_note(note);
             input_loaimb.set(&(global.get_myscreen()), MAX_LENGTH_LOAI_MAY_BAY, rect_input[1]);
+            note = "Tối đa " + std::to_string(MAX_LENGTH_LOAI_MAY_BAY) + " kí tự";
+            input_loaimb.set_note(note);
             input_soday.set(&(global.get_myscreen()), 2, rect_input[2]);
+            note = "Tối đa 26 dãy";
+            input_soday.set_note(note);
             input_sodong.set(&(global.get_myscreen()), 2, rect_input[3]);
+            note = "Tối đa 99 dòng";
+            input_sodong.set_note(note);
         }
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
@@ -194,14 +194,15 @@ namespace Plane
                 }
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
                 {
+                    //edit_function
                     Status result;
-                    if (input_soday.get_data().length() == 0 || input_sodong.get_data().length() == 0 || input_shmb.get_data().length() == 0 || input_loaimb.get_data().length() == 0)
+                    if (input_soday.is_empty() || input_sodong.is_empty() || input_shmb.is_empty() || input_loaimb.is_empty())
                     {
                         result = Status("Bạn Chưa nhập Đủ Thông Tin");
                     }
                     else
                     {
-                        result = this->target_maybay->edit(this->input_loaimb.get_data().c_str(), std::stoi(this->input_soday.get_data()), std::stoi(this->input_sodong.get_data()));
+                        result = this->target_maybay->edit(this->input_loaimb.chuan_hoa(), input_soday.get_num(), input_sodong.get_num());
                     }
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
@@ -256,10 +257,6 @@ namespace Plane
             input_soday.render();
             input_sodong.render();
 
-            this->render_button_xoa_sua();
-        }
-        void render_button_xoa_sua()
-        {
             myscreen->render_cot(vi_tri_nut_sua, nut_sua);
             myscreen->render_Text("OK", vi_tri_nut_sua, {0, 0, 0}, true);
             myscreen->render_cot(vi_tri_nut_x, nut_x);
@@ -271,8 +268,8 @@ namespace Plane
     private:
         Global_Variable *global = nullptr;
         SDL_Rect vi_tri_nut_x = {1250, 210, 50, 50};
-        SDL_Rect vi_tri_nut_sua = {950, 450, 150, 60};
-        SDL_Color nut_sua = {255, 255, 255};
+        SDL_Rect vi_tri_nut_add = {950, 450, 150, 60};
+        SDL_Color nut_add = {255, 255, 255};
         SDL_Color nut_x = {255, 255, 255};
 
         Input input_shmb;
@@ -292,7 +289,6 @@ namespace Plane
         bool *flag_re_render_in_home = nullptr;
         MyScreen *myscreen = nullptr;
         Box *khung_add_edit = nullptr;
-        Box *edit = nullptr;
 
     public:
         void
@@ -300,21 +296,27 @@ namespace Plane
         {
             this->global = &global;
             khung_add_edit = &(global.get_c_component().khung_add_edit);
-            edit = &(global.get_c_component().edit);
             myscreen = &(global.get_myscreen());
 
             this->flag_re_render_in_home = flag;
-            this->vi_tri_nut_sua = {825, 515, 120, 60};
-
+            this->vi_tri_nut_add = {825, 515, 120, 60};
             input_shmb.set(&(global.get_myscreen()), MAX_LENGTH_SO_HIEU_MB, rect_input[0]);
+            string note = "Tối đa " + std::to_string(MAX_LENGTH_SO_HIEU_MB) + " kí tự";
+            input_shmb.set_note(note);
             input_loaimb.set(&(global.get_myscreen()), MAX_LENGTH_LOAI_MAY_BAY, rect_input[1]);
+            note = "Tối đa " + std::to_string(MAX_LENGTH_LOAI_MAY_BAY) + " kí tự";
+            input_loaimb.set_note(note);
             input_soday.set(&(global.get_myscreen()), 2, rect_input[2]);
+            note = "Tối đa 26 dãy";
+            input_soday.set_note(note);
             input_sodong.set(&(global.get_myscreen()), 2, rect_input[3]);
+            note = "Tối đa 99 dòng";
+            input_sodong.set_note(note);
         }
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
         {
-            nut_sua = {255, 255, 255};
+            nut_add = {255, 255, 255};
             nut_x = {255, 255, 255};
             switch (e.type)
             {
@@ -323,9 +325,9 @@ namespace Plane
                 {
                     nut_x = {255, 219, 26};
                 }
-                else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua))
+                else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_add))
                 {
-                    nut_sua = {255, 219, 26};
+                    nut_add = {255, 219, 26};
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
@@ -342,19 +344,20 @@ namespace Plane
                 {
                     state = Position::HOME;
                     this->now = true;
-                    nut_sua = {255, 255, 255};
+                    nut_add = {255, 255, 255};
                     nut_x = {255, 255, 255};
                 }
-                else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_sua)) // nhấn vào vút sửa
+                else if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_add)) // nhấn vào vút add
                 {
+                    //add_function
                     Status result;
-                    if (input_soday.get_data().length() == 0 || input_sodong.get_data().length() == 0 || input_shmb.get_data().length() == 0 || input_loaimb.get_data().length() == 0)
+                    if (input_soday.is_empty() || input_sodong.is_empty() || input_shmb.is_empty()|| input_loaimb.is_empty())
                     {
                         result = Status("Bạn Chưa nhập Đủ Thông Tin");
                     }
                     else
                     {
-                        result = global->get_qlcb().getListMB().add(input_shmb.get_data().c_str(), input_loaimb.get_data().c_str(), std::stoi(input_soday.get_data()), std::stoi(input_sodong.get_data()));
+                        result = global->get_qlcb().getListMB().add(input_shmb.chuan_hoa(), input_loaimb.chuan_hoa(),input_soday.get_num(),input_sodong.get_num());
                     }
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
@@ -388,7 +391,6 @@ namespace Plane
 
             myscreen->blur_background(150);
             khung_add_edit->render(myscreen->get_my_renderer());
-            edit->set_rect(this->vi_tri_nut_sua);
 
             for (int i = 0; i < 4; i++)
             {
@@ -400,16 +402,12 @@ namespace Plane
             input_soday.render();
             input_sodong.render();
 
-            this->render_button_xoa_sua();
-        }
-        void render_button_xoa_sua()
-        {
-            myscreen->render_cot(vi_tri_nut_sua, nut_sua);
-
-            edit->render(myscreen->get_my_renderer());
+            myscreen->render_cot(vi_tri_nut_add, nut_add);
+            myscreen->render_Text("Thêm",vi_tri_nut_add,{0,0,0},true);
             myscreen->render_cot(vi_tri_nut_x, nut_x);
             myscreen->render_Text("X", vi_tri_nut_x, {0, 0, 0}, true);
         }
+  
     };
 } // namespace Plane
 
@@ -430,7 +428,7 @@ private:
     Plane::Edit edit_plane; // route edit
     Plane::Add add_plane;   // route edit
 
-    MayBay *list_mb_dc_render[10];
+    int list_mb_dc_render[10];
     MayBay *temp = nullptr; // lấy con trỏ máy bay ở vị trí đang hover rồi click
 
     int vi_tri_hover_on_table = -1; // vị trí hover trên table data Máy Bay tính từ 0 - 9
@@ -479,7 +477,7 @@ public:
 
                 if (this->vi_tri_hover_on_table != -1)
                 { // nếu nhấn vào, mà đnag hover vào line trong table thì bật menu.
-                    this->temp = this->list_mb_dc_render[vi_tri_hover_on_table];
+                    this->temp = this->global.get_list_plane().get_at(this->list_mb_dc_render[vi_tri_hover_on_table]);
                     this->state = Plane::Position::MENU;
                 }
                 if (global.get_c_component().add.is_in_box(mouse_X, mouse_Y))
@@ -533,7 +531,7 @@ public:
 
         if (state == Plane::Position::MENU)
         {
-            menu_plane.render_menu(temp, vi_tri_hover_on_table);
+            menu_plane.render_menu(list_mb_dc_render[vi_tri_hover_on_table], vi_tri_hover_on_table);
         }
         else if (state == Plane::Position::EDIT)
         {
@@ -564,7 +562,7 @@ public:
             {
                 if (stt >= start && stt <= end)
                 {
-                    this->list_mb_dc_render[index] = mb;
+                    this->list_mb_dc_render[index] = i;
                     index++;
                     this->render_line_data(stt, start, mb);
                     so_line_render++;

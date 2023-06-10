@@ -40,15 +40,10 @@ public:
         cout<<"Completed Saved\n";
     }
 
-    Status del_mb(const char *soHieuMB)
+    Status del_mb_by_index(int index)
     {
-        int index = this->ds_maybay.find_mamb(soHieuMB);
-        if (index == -1)
-        {
-            return Status("Không Tìm Thấy Máy Bay.");
-        }
-        if (this->ds_chuyenbay.find_by_sh_mb_v2(soHieuMB) == true)
-            return Status("Xóa Thất Bại, Máy Bay Đã Lập Chuyến Bay.");
+        if (index == -1)  return Status("Không Tìm Thấy Máy Bay.");
+        if (this->ds_chuyenbay.find_by_sh_mb_v2(ds_maybay.get_at(index)->getSoHieuMB()))  return Status("Xóa Thất Bại, Máy Bay Đã Lập Chuyến Bay.");
         this->ds_maybay.del(index);
         return Status("Xóa Thành Công.", Status_Name::SUCCESS);
     }
