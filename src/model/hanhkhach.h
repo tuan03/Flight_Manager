@@ -14,14 +14,12 @@ class HanhKhach
 private:
     Info data;
     HanhKhach *left = nullptr, *right = nullptr;
-    void set(const char *so_cmnd, const char *ho, const char *ten, const bool phai)
-    {
-        strcpy(this->so_cmnd, so_cmnd);
-        strcpy(this->ho, ho);
-        strcpy(this->ten, ten);
-        this->phai = phai;
-    }
-
+    void set(const char* so_cmnd, const char* ho, const char* ten, const bool phai) {
+    strcpy(data.so_cmnd, so_cmnd);
+    strcpy(data.ho, ho);
+    strcpy(data.ten, ten);
+    data.phai = phai;
+}
 public:
     // getter
     const char *getSoCMND() const
@@ -48,23 +46,7 @@ public:
     {
         return right;
     }
-    // Setters
-    void setSoCMND(const char *cmnd)
-    {
-        strcpy(so_cmnd, cmnd);
-    }
-    void setHo(const char *h)
-    {
-        strcpy(ho, h);
-    }
-    void setTen(const char *t)
-    {
-        strcpy(ten, t);
-    }
-    void setPhai(bool p)
-    {
-        this->phai = p;
-    }
+
     void setLeft(HanhKhach *l)
     {
         left = l;
@@ -79,26 +61,17 @@ public:
     {
         this->set(so_cmnd, ho, ten, phai);
     }
-    int compare_cmnd(const char *cmnd)
-    {
-        return strcmp(this->so_cmnd, cmnd);
-    }
 
     void serialize(std::ofstream &os)
     {
-        os.write(so_cmnd, sizeof(so_cmnd));
-        os.write(ho, sizeof(ho));
-        os.write(ten, sizeof(ten));
-        os.write(reinterpret_cast<const char *>(&phai), sizeof(phai));
+        os.write(reinterpret_cast<const char *>(&data), sizeof(data));
     }
 
     // chuyển đổi chuỗi byte thành đối tượng
-    void deserialize(std::ifstream &is)
+    bool deserialize(std::ifstream &is)
     {
-        is.read(so_cmnd, sizeof(so_cmnd));
-        is.read(ho, sizeof(ho));
-        is.read(ten, sizeof(ten));
-        is.read(reinterpret_cast<char *>(&phai), sizeof(phai));
+        is.read(reinterpret_cast<char *>(&data), sizeof(data));
+        return is.good();
     }
 };
 
@@ -178,31 +151,7 @@ public:
     {
         return countNodes(this->root);
     }
-    void read_bin(string fileName)
-    {
-        std::ifstream file(fileName, std::ios::binary);
-        if (file.is_open())
-        {
-            HanhKhach *temp = nullptr;
-            int so_luong = 0;
-            if (!(file.read(reinterpret_cast<char *>(&so_luong), sizeof(so_luong))))
-            {
-                so_luong = 0;
-            }
-            for (int i = 0; i < so_luong; i++)
-            {
-                temp = new HanhKhach(); // cấp phát bộ nhớ động cho node
-                temp->deserialize(file);
-                addNode(temp);
-            }
-            file.close();
-        }
-        else
-        {
-            std::cout << "Khong the mo file.\n";
-        }
-    }
-
+   
     void write_tree(std::ofstream &file, HanhKhach *node)
     {
         if (node == nullptr)
@@ -218,9 +167,32 @@ public:
         std::ofstream file(fileName, std::ios::binary);
         if (file.is_open())
         {
-            int so_luong = this->so_hanh_khach();
-            file.write(reinterpret_cast<const char *>(&so_luong), sizeof(so_luong));
             write_tree(file, this->root);
+            file.close();
+        }
+        else
+        {
+            std::cout << "Khong the mo file.\n";
+        }
+        std::cout<<"Saved Completed List Custommer.\n";
+    }
+
+    void read_bin(string fileName)
+    {
+        std::ifstream file(fileName, std::ios::binary);
+        if (file.is_open())
+        {
+            HanhKhach *temp = nullptr;
+            while (true)
+            {
+                temp = new HanhKhach(); // cấp phát bộ nhớ động cho node
+                if (!temp->deserialize(file))
+                {
+                    delete temp;
+                    break;
+                }
+                addNode(temp);
+            }
             file.close();
         }
         else

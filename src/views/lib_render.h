@@ -194,7 +194,7 @@ public:
         delete myfont;
         delete myrenderer;
         delete mywindow;
-        // std::cout<<"Quit Screen\n";
+        std::cout<<"Quit Screen\n";
         TTF_Quit();
         IMG_Quit();
         SDL_Quit();

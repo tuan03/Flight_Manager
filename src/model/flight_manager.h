@@ -34,6 +34,7 @@ public:
 
     ~Flight_Manager()
     {
+        cout<<"Start saving.\n";
         ds_maybay.write_bin(DATA_MAY_BAY);
         ds_chuyenbay.write_bin(DATA_CHUYEN_BAY);
         ds_hanhkhach.write_bin(DATA_HANH_KHACH);

@@ -157,7 +157,6 @@ class Controller {
                 frames = 0;
             }
         }
-
         thread_update_status_cb.join();
         thread_update_time.join();
     }
