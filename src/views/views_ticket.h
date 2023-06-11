@@ -557,6 +557,7 @@ namespace Flight
             khung_dat_ve = MyFunc::center_Rect(1300, 750, {X_START_BODY, Y_START_BODY, W_BODY, H_BODY});
             vien_khung_dat_ve = {khung_dat_ve.x - 2, khung_dat_ve.y - 2, khung_dat_ve.w + 4, khung_dat_ve.h + 4};
             vt_nut_x = {khung_dat_ve.x + khung_dat_ve.w - 50, khung_dat_ve.y - 100, 50, 50};
+            buffer_ve = nullptr;
         }
         ~DatVe()
         {
