@@ -64,6 +64,12 @@ public:
 			return Status("Số Dãy Không Hợp Lệ (1-26)");
 		if (dong < 1 || dong > 99)
 			return Status("Số Dòng Không Hợp Lệ (1-99)");
+		if(this->getSoDay() > day){
+			return Status("Số Dãy Thay Đổi Phải Lớn Hơn Số Dãy Ban Đầu");
+		}
+		if(this->getSoDong() > dong){
+			return Status("Số Dòng Thay Đổi Phải Lớn Hơn Số Dòng Ban Đầu");
+		}
 		this->setLoaiMB(loai_mb);
 		this->setSoDay(day);
 		this->setSoDong(dong);

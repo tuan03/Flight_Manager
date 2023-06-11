@@ -507,6 +507,7 @@ namespace Flight
                     if (result.get_status() == Status_Name::SUCCESS)
                     {
                         *(this->flag_re_render_in_home) = true;
+                        flag_list_mb = true;
                         this->now = true;
                         state = Position::HOME;
                     }

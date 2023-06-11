@@ -2,14 +2,17 @@
 #define HANHKHACH_H
 
 #include "error.h"
-
-class HanhKhach
+struct Info
 {
-private:
     char so_cmnd[MAX_LENGTH_SO_CMND + 1] = {};
     char ho[MAX_LENGTH_HO + 1] = {};
     char ten[MAX_LENGTH_TEN + 1] = {};
     bool phai; // true : nam, false : nữ
+};
+class HanhKhach
+{
+private:
+    Info data;
     HanhKhach *left = nullptr, *right = nullptr;
     void set(const char *so_cmnd, const char *ho, const char *ten, const bool phai)
     {
@@ -23,25 +26,25 @@ public:
     // getter
     const char *getSoCMND() const
     {
-        return so_cmnd;
+        return data.so_cmnd;
     }
     const char *getHo() const
     {
-        return ho;
+        return data.ho;
     }
     const char *getTen() const
     {
-        return ten;
+        return data.ten;
     }
     bool getPhai() const
     {
-        return phai;
+        return data.phai;
     }
-    HanhKhach *getLeft() const
+    HanhKhach *&getLeft()
     {
         return left;
     }
-    HanhKhach *getRight() const
+    HanhKhach *&getRight()
     {
         return right;
     }
@@ -103,7 +106,7 @@ class TreeHanhKhach
 {
 private:
     HanhKhach *root;
-    HanhKhach *insertNode(HanhKhach *node, HanhKhach *new_node)
+    HanhKhach *insertNode(HanhKhach *&node, HanhKhach *new_node)
     {
         if (node == nullptr)
         {
@@ -111,13 +114,17 @@ private:
         }
         else if (strcmp(node->getSoCMND(), new_node->getSoCMND()) > 0)
         {
-            node->setLeft(insertNode(node->getLeft(), new_node));
+            insertNode(node->getLeft(), new_node);
         }
         else
         {
-            node->setRight(insertNode(node->getRight(), new_node));
+            insertNode(node->getRight(), new_node);
         }
         return node;
+    }
+    HanhKhach *addNode(HanhKhach *new_node)
+    {
+        return this->insertNode(this->root, new_node);
     }
     HanhKhach *searchNode(HanhKhach *node, const char *cmnd) const
     {
@@ -149,6 +156,11 @@ private:
     }
 
 public:
+    void add(const char *cmnd, const char *ho, const char *ten, bool phai)
+    {
+        HanhKhach *newhk = new HanhKhach(cmnd, ho, ten, phai);
+        this->addNode(newhk);
+    }
     HanhKhach *getRoot()
     {
         return this->root;
@@ -181,7 +193,7 @@ public:
             {
                 temp = new HanhKhach(); // cấp phát bộ nhớ động cho node
                 temp->deserialize(file);
-                insertNode(root, temp);
+                addNode(temp);
             }
             file.close();
         }

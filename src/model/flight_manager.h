@@ -39,7 +39,20 @@ public:
         ds_hanhkhach.write_bin(DATA_HANH_KHACH);
         cout << "Completed Saved\n";
     }
-
+    Status edit_may_bay(MayBay *maybay, int new_day, int new_dong, const char *loai)
+    {
+        int pre_day = maybay->getSoDay();
+        int pre_dong = maybay->getSoDong();
+        Status result = maybay->edit(loai, new_day, new_dong);
+        if (result.get_status() == Status_Name::SUCCESS)
+        {
+            if (pre_day != new_day || pre_dong != new_dong)
+            {
+                ds_chuyenbay.update_cho_ngoi(maybay->getSoHieuMB(), new_day, new_dong);
+            }
+        }
+        return result;
+    }
     Status del_mb_by_index(int index)
     {
         if (index == -1)
@@ -75,9 +88,10 @@ public:
             if (mb == nullptr)
                 return Status("Số hiệu máy bay không tồn tại");
         }
-        if(strcmp(san_bay_den, cb->get_san_bay_den()) != 0){
-           if(cb->get_listve().get_ve_da_ban() > 0)
-            return Status("Không Được Phép Thay Đổi Nơi Đến Khi Đã Có Khách Đặt Vé.");
+        if (strcmp(san_bay_den, cb->get_san_bay_den()) != 0)
+        {
+            if (cb->get_listve().get_ve_da_ban() > 0)
+                return Status("Không Được Phép Thay Đổi Nơi Đến Khi Đã Có Khách Đặt Vé.");
         }
         cb->set_thoi_gian_bay(thoi_gian_bay);
         cb->set_so_hieu_mb(so_hieu_mb);
@@ -118,27 +132,18 @@ public:
         {
             return Status("Chỉ Được Lập Chuyến Bay Trong Vòng 365 Ngày");
         }
-        Status check_mb = ds_chuyenbay.find_by_sh_mb_ct_ver2(so_hieu_mb,time); // kiểm tra thời gian đăng kí chuyến bay có cách 3 giờ so với chuyến bay khác hay không
-        if(check_mb.get_status() != Status_Name::SUCCESS){
+        Status check_mb = ds_chuyenbay.find_by_sh_mb_ct_ver2(so_hieu_mb, time); // kiểm tra thời gian đăng kí chuyến bay có cách 3 giờ so với chuyến bay khác hay không
+        if (check_mb.get_status() != Status_Name::SUCCESS)
+        {
             return check_mb;
         }
-        ChuyenBay *new_chuyenbay = new ChuyenBay(ma_so_cb, time, san_bay_den, so_hieu_mb, 1);
-        new_chuyenbay->get_listve().init_ve(temp->getSoDay(), temp->getSoDong());
-
-        ds_chuyenbay.insert_order(new_chuyenbay);
+        ds_chuyenbay.add(ma_so_cb, time, san_bay_den, temp);
         return Status("Thêm Chuyến Bay Thành Công", Status_Name::SUCCESS);
     }
 
-
-    Status dat_ve_khachquen(ChuyenBay *chuyenbay, int so_day, int so_dong, const char *cmnd)
+    Status dat_ve(ChuyenBay *chuyenbay, int so_day, int so_dong, const char *cmnd, bool type = true)
     {
-        return chuyenbay->get_listve().add_ve(so_day, so_dong, cmnd);
-    }
-    Status dat_ve_khachmoi(ChuyenBay *chuyenbay, int so_day, int so_dong, const char *cmnd, const char *ho, const char *ten, bool phai)
-    {
-        HanhKhach *hk = new HanhKhach(cmnd, ho, ten, phai);
-        // this->ds_hanhkhach.add_from_file_data(hk);
-        return chuyenbay->get_listve().add_ve(so_day, so_dong, cmnd);
+        return ds_chuyenbay.dat_ve(so_day,so_dong,chuyenbay,cmnd,type);
     }
 
     void rank_slthcb(int *mb, int &n)

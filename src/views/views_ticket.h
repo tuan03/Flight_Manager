@@ -174,7 +174,7 @@ namespace Flight
         SDL_Rect vt_nut_x = {0, 0, 0, 0};
         SDL_Color nut_ok = {255, 255, 255};
         SDL_Rect vt_nut_ok = {0, 0, 0, 0};
-        bool *route = nullptr;
+        bool *route = nullptr; // liên kết với biên route class Dat_Ve : true : render màn đặt vé, flase: ẩn
 
         int so_day = -1;
         int so_dong = -1;
@@ -198,8 +198,8 @@ namespace Flight
         SDL_Rect nut_ok_bienlai;
         SDL_Color c_nut_ok_bl = {255, 255, 255};
 
-        bool *flag_re_render = nullptr;
-        bool *flag_view_flight = nullptr;
+        bool *flag_re_render = nullptr; // render lại màn chọn vé
+        bool *flag_view_flight = nullptr; // render lại view_flight (update số vé)
 
         bool type = true; // true : đặt vé, false : hủy vé
         HanhKhach *hk = nullptr;
@@ -301,29 +301,21 @@ namespace Flight
                     }
                     if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ok))
                     {
+                        // dat_ve_function
                         if (type)
-                        {
+                        { // màn đặt vé
                             Status result;
-                            if (hanhkhach != nullptr)
-                            {
                                 if(cmnd.is_empty() || ho.is_empty() || ten.is_empty()){
                                     result = Status("Bạn Chưa Nhập Đủ Thông Tin");
                                 } else {
-                                result = global->get_qlcb().dat_ve_khachquen(target_cb, so_day, so_dong, cmnd.get_data().c_str());
+                                    if(hanhkhach == nullptr){
+                                        global->get_list_hanhkhach().add(cmnd.get_data().c_str(),ho.chuan_hoa(),ten.chuan_hoa(), gioi_tinh); // chèn khác
+                                    }
+                                    result = global->get_qlcb().dat_ve(target_cb,so_day,so_dong,cmnd.get_data().c_str(),hanhkhach != nullptr);
                                 }
                                 global->get_thong_bao().set_mess(result.mess);
                                 global->get_thong_bao().on();
-                            }
-                            else
-                            {
-                                if(cmnd.is_empty() || ho.is_empty() || ten.is_empty()){
-                                    result = Status("Bạn Chưa Nhập Đủ Thông Tin");
-                                } else {
-                                result = global->get_qlcb().dat_ve_khachmoi(target_cb, so_day, so_dong, cmnd.get_data().c_str(), ho.get_data().c_str(), ten.get_data().c_str(), gioi_tinh);
-                                }
-                                global->get_thong_bao().set_mess(result.mess);
-                                global->get_thong_bao().on();
-                            }
+
                             if (result.get_status() == Status_Name::SUCCESS)
                             {
                                 // render_bien_lai = true;
@@ -337,7 +329,7 @@ namespace Flight
                             }
                         }
                         else
-                        {
+                        { // màn hủy vé
                             Status result = target_cb->get_listve().huy_ve(so_day, so_dong);
                             global->get_thong_bao().set_mess(result.mess);
                             global->get_thong_bao().on();
@@ -537,7 +529,7 @@ namespace Flight
         SDL_Color nut_x = {255, 255, 255};
         SDL_Rect vt_nut_x = {0, 0, 0, 0};
         Buffer *buffer_ve;
-        bool flag = true;
+        bool flag = true; // cờ hiệu re render màn chọn vé
 
         SDL_Rect srcrect = {0, 0, 0, 0};
 
@@ -595,6 +587,9 @@ namespace Flight
                         delete buffer_ve;
                         buffer_ve = nullptr;
                         state = Position::HOME;
+                        route = false;
+                        current_hover_so_day = -1;
+                        current_hover_so_dong = -1;
                     }
                     if (current_hover_so_day != -1 && current_hover_so_dong != -1)
                     {
@@ -604,6 +599,8 @@ namespace Flight
                     break;
 
                 case SDL_MOUSEMOTION:
+                    current_hover_so_day = -1;
+                    current_hover_so_dong = -1;
                     if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_x))
                     {
                         nut_x = {255, 219, 26};
@@ -640,15 +637,18 @@ namespace Flight
 
         void create_buffer(ChuyenBay *cb)
         {
+            //sửa quá kích thước // max 50
             if (flag)
             {
                 ListVe &listve = cb->get_listve();
                 int so_day = listve.get_so_day();
                 int so_dong = listve.get_so_dong();
-
                 buffer_ve = new Buffer();
+                
                 buffer_ve->set(this->myscreen, so_day * 100, so_dong * 100);
+                
                 buffer_ve->set_none_alpha();
+                
                 SDL_Rect rect;
                 string so_ve;
                 buffer_ve->connect_render_clear_white();
@@ -672,6 +672,7 @@ namespace Flight
                 srcrect = {0, 0, khung_dat_ve.w, khung_dat_ve.h};
                 scroll.set_target(*buffer_ve, srcrect);
                 flag = false;
+                
             }
         }
         void render_list_ve(ChuyenBay *cb)
@@ -701,7 +702,6 @@ namespace Flight
             myscreen->render_cot(hover, hover_c);                          // render vé đang hover
             myscreen->render_Text(so_ve, hover, {0, 0, 0}, true);
             scroll.render(*myscreen); // render scroll bar
-
             if (current_hover_so_day != -1 && current_hover_so_dong != -1)
             {
                 if (!(cb->get_listve().check_empty(current_hover_so_day, current_hover_so_dong)))
@@ -720,7 +720,6 @@ namespace Flight
                     myscreen->render_Text(hk->getPhai() ? "Nam" : "Nữ", {k_i.x + 150, k_i.y + 100, 250, 50}, {0, 0, 0}, true);
                 }
             }
-
             if (route == true)
                 view_dat_ve.render(*myscreen);
         }

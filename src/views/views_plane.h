@@ -202,7 +202,7 @@ namespace Plane
                     }
                     else
                     {
-                        result = this->target_maybay->edit(this->input_loaimb.chuan_hoa(), input_soday.get_num(), input_sodong.get_num());
+                        result = this->global->get_qlcb().edit_may_bay(this->target_maybay,input_soday.get_num(), input_sodong.get_num(),this->input_loaimb.chuan_hoa());
                     }
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
