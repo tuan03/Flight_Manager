@@ -620,14 +620,14 @@ namespace Flight
                             so_ve = "";
                             break;
                         }
-                        if ((((temp_1 + srcrect.x) % 100) >= 25) && (((temp_1 + srcrect.x) % 100) <= 75) && (((temp_2 + srcrect.y) % 100) >= 25) && (((temp_2 + srcrect.y) % 100) <= 75))
+                        if ((((temp_1 + srcrect.x) % 60) >= 5) && (((temp_1 + srcrect.x) % 60) <= 55) && (((temp_2 + srcrect.y) % 60) >= 5) && (((temp_2 + srcrect.y) % 60) <= 55))
                         {
-                            hover = MyFunc::center_Rect(50, 50, {((temp_1 + srcrect.x) / 100) * 100 - srcrect.x + khung_dat_ve.x, ((temp_2 + srcrect.y) / 100) * 100 - srcrect.y + khung_dat_ve.y, 100, 100});
+                            hover = MyFunc::center_Rect(50, 50, {((temp_1 + srcrect.x) / 60) * 60 - srcrect.x + khung_dat_ve.x, ((temp_2 + srcrect.y) / 60) * 60 - srcrect.y + khung_dat_ve.y, 60, 60});
                             hover.h = std::min(khung_dat_ve.y + srcrect.h - hover.y, 50);
                             hover.w = std::min(khung_dat_ve.x + srcrect.w - hover.x, 50);
                             hover_c = {255, 219, 26};
-                            current_hover_so_day = (temp_1 + srcrect.x) / 100;
-                            current_hover_so_dong = (temp_2 + srcrect.y) / 100;
+                            current_hover_so_day = (temp_1 + srcrect.x) / 60;
+                            current_hover_so_dong = (temp_2 + srcrect.y) / 60;
                             so_ve = (char)(current_hover_so_day + 'A') + std::to_string(current_hover_so_dong + 1);
                         }
                         else
@@ -656,7 +656,7 @@ namespace Flight
                 int so_dong = listve.get_so_dong();
                 buffer_ve = new Buffer();
 
-                buffer_ve->set(this->myscreen, so_day * 100, so_dong * 100);
+                buffer_ve->set(this->myscreen, so_day * 60, so_dong * 60);
 
                 buffer_ve->set_none_alpha();
 
@@ -667,7 +667,7 @@ namespace Flight
                 {
                     for (int j = 0; j < so_dong; j++)
                     {
-                        rect = MyFunc::center_Rect(50, 50, {i * 100, j * 100, 100, 100});
+                        rect = MyFunc::center_Rect(50, 50, {i * 60, j * 60, 60, 60});
                         SDL_Color color;
                         if (listve.check_empty(i, j))
                             color = {255, 255, 255};
