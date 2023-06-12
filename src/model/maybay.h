@@ -1,8 +1,6 @@
 #ifndef MAYBAY_H
 #define MAYBAY_H
 #include "error.h"
-int a = 0;
-class ListMayBay;
 class MayBay
 {
 private:

@@ -452,14 +452,14 @@ public:
         if (this->state == Plane::Position::HOME)
         {
             is_home = true;
+            this->vi_tri_hover_on_table = Func_Global::get_line(this->mouse_X, this->mouse_Y, this->so_luong_data, this->current_page);
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
                 if (global.get_c_component().add.is_in_box(mouse_X, mouse_Y))
                 {
                     nut_add = {255, 219, 26};
-                }
-                this->vi_tri_hover_on_table = Func_Global::get_line(this->mouse_X, this->mouse_Y, this->so_luong_data, this->current_page); // 0 - 9
+                } // 0 - 9
                 break;
             case SDL_MOUSEBUTTONDOWN: // sự kiện nhấn vào các box
                                       // bắt sự kiện nhấn next và prev
@@ -511,7 +511,6 @@ public:
     void render()
     {
         this->follow_flag();
-
         table.render(); // render table
         if (vi_tri_hover_on_table != -1)
         {

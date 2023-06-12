@@ -289,6 +289,8 @@ public:
     }
     bool check_empty(int so_day, int so_dong) // true nếu empty
     {
+        if(so_day < 0 || so_dong < 0 || so_day >= this->so_day || so_dong >= this->so_dong) 
+            throw "Err: So Day, So Dong\n";
         return list[so_day][so_dong] == nullptr;
     }
     bool find_by_cmnd(const char *cmnd)
@@ -427,13 +429,7 @@ public:
             list_ve.add_ve(so_day, so_dong, cmnd);
         }
     }
-
-    friend int compare_ma_cb(const ChuyenBay *mb1, const ChuyenBay *mb2);
 };
-int compare_ma_cb(const ChuyenBay *mb1, const ChuyenBay *mb2)
-{
-    return strcmp(mb1->ma_so_cb, mb2->ma_so_cb);
-}
 class ListChuyenBay
 {
 private:
@@ -455,9 +451,10 @@ private:
     }
     void insert_order(ChuyenBay *new_chuyenbay)
     {
-        // nếu danh sách rỗng hoặc chuyên bay mới có mã nhỏ hơn head
-        if (head == NULL || compare_ma_cb(new_chuyenbay, head) == -1)
-        {
+        // sort tăng dần
+        if (head == NULL || strcmp(new_chuyenbay->get_ma_so_cb(), head->get_ma_so_cb()) == -1)
+        { // nếu head rỗng thì đưa head = new_cb
+          // nếu head > new_cb : thì new thành head
             new_chuyenbay->set_next(head);
             head = new_chuyenbay;
         }
@@ -465,13 +462,14 @@ private:
         {
             ChuyenBay *current = head;
             // Tìm vị trí để chèn vào
-            while (current->get_next() != NULL && compare_ma_cb(new_chuyenbay, current) == -1)
+            ChuyenBay * pre = nullptr;
+            while (current != NULL && strcmp(current->get_ma_so_cb(),new_chuyenbay->get_ma_so_cb()) == -1)
             {
+                pre = current;
                 current = current->get_next();
             }
-
-            new_chuyenbay->set_next(current->get_next());
-            current->set_next(new_chuyenbay);
+            new_chuyenbay->set_next(pre->get_next());
+            pre->set_next(new_chuyenbay);
         }
         // Nếu danh sách rỗng hoặc chuyenbay được thêm sau tail thì cập nhật tail
         if (tail == NULL || tail->get_next() == new_chuyenbay)
@@ -536,7 +534,7 @@ public:
             {             // sử dụng hàm getter để lấy mã máy bay
                 return p; // trả về chuyến bay nếu tìm thấy
             }
-            if (strcmp(p->get_ma_so_cb(), ma_so_cb) == 1)
+            if (strcmp(p->get_ma_so_cb(), ma_so_cb) == 1) // đã theo thứ tự tăng dần sẵn.
             {
                 return nullptr;
             }

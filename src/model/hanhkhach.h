@@ -174,7 +174,6 @@ public:
         {
             std::cout << "Khong the mo file.\n";
         }
-        std::cout<<"Saved Completed List Custommer.\n";
     }
 
     void read_bin(string fileName)

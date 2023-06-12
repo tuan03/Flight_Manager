@@ -67,23 +67,26 @@ namespace Flight
                 {
                     state = Position::HOME;
                 }
-                else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_datve))
+                if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3)
                 {
-                    state = Position::DATVE;
+                    if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_datve))
+                    {
+                        state = Position::DATVE;
+                    }
+                    else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_sua)) // nhấn vào Box edit
+                    {                                                           //
+                        state = Position::EDIT;                                 // chuyển sang trang edit
+                    }
+                    else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_huy)) // nhấn vào Box xóa
+                    {
+                        // del_function
+                        global->get_thong_bao().set_mess("Chỉ Hủy Khi Thật Cần Thiết.");
+                        global->get_thong_bao().on(false);
+                    }
                 }
-                else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_xemhk))
+                if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_xemhk))
                 {
                     state = Position::XEM_HK;
-                }
-                else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_sua)) // nhấn vào Box edit
-                {                                                           //
-                    state = Position::EDIT;                                 // chuyển sang trang edit
-                }
-                else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_huy)) // nhấn vào Box xóa
-                {
-                    // del_function
-                    global->get_thong_bao().set_mess("Chỉ Hủy Khi Thật Cần Thiết.");
-                    global->get_thong_bao().on(false);
                 }
                 break;
             }
@@ -117,17 +120,24 @@ namespace Flight
             vt_nut_sua = MyFunc::center_Rect(width, height, {rect.x, rect.y + 190, rect.w, 50});
             vt_nut_huy = MyFunc::center_Rect(width, height, {rect.x, rect.y + 260, rect.w, 50});
 
-            myscreen->render_cot(vt_nut_datve, nut_datve); // render nền
-            myscreen->render_Text("Đặt Vé", vt_nut_datve, {0, 0, 0}, true);
+            if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3)
+            {
+                myscreen->render_cot(vt_nut_datve, nut_datve); // render nền
+                myscreen->render_Text("Đặt Vé", vt_nut_datve, {0, 0, 0}, true);
+                myscreen->render_cot(vt_nut_sua, nut_sua); // render nền
+                myscreen->render_Text("Sửa Thông Tin", vt_nut_sua, {0, 0, 0}, true);
+                myscreen->render_cot(vt_nut_huy, nut_xoa); // render nền
+                myscreen->render_Text("Hủy Chuyến", vt_nut_huy, {0, 0, 0}, true);
+            } else {
+                string text = "Chuyến Bay Đã " + string(this->current->get_trang_thai_cb() == 0 ? "Hủy" : "Hoàn Thành");
+                myscreen->render_Text(text ,{rect.x, rect.y + 190, rect.w, 50},{0,0,0},true);
+            
+            }
 
             myscreen->render_cot(vt_nut_xemhk, nut_xemhk); // render nền
             myscreen->render_Text("DS HK", vt_nut_xemhk, {0, 0, 0}, true);
 
-            myscreen->render_cot(vt_nut_sua, nut_sua); // render nền
-            myscreen->render_Text("Sửa Thông Tin", vt_nut_sua, {0, 0, 0}, true);
-
-            myscreen->render_cot(vt_nut_huy, nut_xoa); // render nền
-            myscreen->render_Text("Hủy Chuyến", vt_nut_huy, {0, 0, 0}, true);
+            
 
             // tại nút edit và xóa có nền trong suốt cho nên màu nên sẽ phụ thuộc lớp ô vuông ở phía dưới nó, cụ thể là 2 ô vuông ở trên
         }
@@ -351,7 +361,7 @@ namespace Flight
         SDL_Rect rect_input_time[5] = {{770, 400, 50, 50}, {840, 400, 50, 50}, {950, 400, 50, 50}, {1020, 400, 50, 50}, {1090, 400, 100, 50}};
         string name_field_time[4] = {":", "-", "/", "/"};
         SDL_Rect rect_field_time[4] = {{710, 400, 240, 50}, {800, 400, 240, 50}, {890, 400, 240, 50}, {960, 400, 240, 50}};
-        
+
         string name_field[4] = {"Mã Chuyến Bay:", "Nơi Đến:", "Thời Gian Bay:", "Số Hiệu Máy Bay:"};
         SDL_Rect rect_field[4] = {{530, 280, 240, 50}, {530, 340, 240, 50}, {530, 400, 240, 50}, {530, 460, 240, 50}};
         SDL_Rect rect_input[4] = {{770, 280, 500, 50}, {770, 340, 500, 50}, {770, 400, 500, 50}, {770, 460, 500, 50}};
@@ -413,17 +423,20 @@ namespace Flight
 
             khung_list_mb = {input_so_hieu_mb.get_rect().x + input_so_hieu_mb.get_rect().w + 10, input_so_hieu_mb.get_rect().y - 100, 500, 500};
         }
-        void get_hover_mb(int x, int y){
+        void get_hover_mb(int x, int y)
+        {
             line_hover = -1;
-             if (MyFunc::check_click(x, y, khung_list_mb) && input_so_hieu_mb.get_is_click())
-                {
-                    int vt_y = y - khung_list_mb.y + srcrect.y;
-                    if(vt_y < buffer_list_mb->get_rect().h)
-                        line_hover = vt_y/50;
-                }
+            if (MyFunc::check_click(x, y, khung_list_mb) && input_so_hieu_mb.get_is_click())
+            {
+                int vt_y = y - khung_list_mb.y + srcrect.y;
+                if (vt_y < buffer_list_mb->get_rect().h)
+                    line_hover = vt_y / 50;
+            }
         }
-        void set_click_mb(){
-            if(line_hover != -1){
+        void set_click_mb()
+        {
+            if (line_hover != -1)
+            {
                 int stt = -1;
                 int total = global->get_list_plane().get_so_luong();
                 for (int i = 0; i < total; i++)
@@ -432,8 +445,9 @@ namespace Flight
                     {
                         stt++;
                     }
-                    if(stt == line_hover){
-                        cout<<global->get_list_plane().get_at(i)->getSoHieuMB()<<'\n';
+                    if (stt == line_hover)
+                    {
+                        cout << global->get_list_plane().get_at(i)->getSoHieuMB() << '\n';
                         input_so_hieu_mb.set_data(global->get_list_plane().get_at(i)->getSoHieuMB());
                         flag_list_mb = true;
                         break;
@@ -449,7 +463,7 @@ namespace Flight
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                get_hover_mb(mouse_X,mouse_Y);
+                get_hover_mb(mouse_X, mouse_Y);
                 if (MyFunc::check_click(mouse_X, mouse_Y, vi_tri_nut_x))
                 {
                     nut_x = {255, 219, 26};
@@ -478,9 +492,11 @@ namespace Flight
                 {
                     state = Position::HOME;
                     this->now = true;
+                    flag_list_mb = true;
                     nut_sua = {255, 255, 255};
                     nut_x = {255, 255, 255};
-                } else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_auto))
+                }
+                else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_auto))
                 {
                     Time tm;
                     tm.get_next_time_some_hours(4); // 4 giờ kể từ bây giờ
@@ -645,9 +661,9 @@ namespace Flight
             if (input_so_hieu_mb.get_is_click())
             {
                 myscreen->render_cot(khung_list_mb, {255, 255, 255});
-                if(line_hover != -1)
-                    myscreen->render_cot({khung_list_mb.x, khung_list_mb.y - srcrect.y + line_hover*50, khung_list_mb.w, 50}, {159, 212, 171});
-        
+                if (line_hover != -1)
+                    myscreen->render_cot({khung_list_mb.x, khung_list_mb.y - srcrect.y + line_hover * 50, khung_list_mb.w, 50}, {159, 212, 171});
+
                 buffer_list_mb->render(true, srcrect);
                 scroll.render(*myscreen);
                 myscreen->render_cot({khung_list_mb.x, khung_list_mb.y - 50, khung_list_mb.w, 50});
