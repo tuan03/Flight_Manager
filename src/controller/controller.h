@@ -53,13 +53,12 @@ class Controller {
         bool quit = false;  // điều kiện thoát chương trình
 
         
-
-        Time current_time;
-        current_time.get_current_time();
-        std::thread thread_update_time(update_time,std::ref(current_time),std::ref(quit),std::ref(myMutex));
-        std::thread thread_update_status_cb(run_list,std::ref(this->global.get_qlcb().getListCB()),std::ref(this->global.get_qlcb().getListMB()),std::ref(current_time),std::ref(flag_re_render_list_cb),std::ref(quit),std::ref(myMutex));
         
-
+        std::thread thread_update_status_cb(run_list,std::ref(this->global.get_qlcb().getListCB()),std::ref(this->global.get_qlcb().getListMB()),std::ref(flag_re_render_list_cb),std::ref(quit),std::ref(myMutex));
+        
+        /*
+            - sau khi máy bay hoàn thành, thì phải đợi 1 tiếng sau mới tiếp tục thực hiện chuyến bay ( thời gian chuẩn bị).
+        */
        
         SDL_Event e;
         Uint32 timeCurrent = SDL_GetTicks();  // tại fps
@@ -126,7 +125,10 @@ class Controller {
                     view_customer.render();
                     break;
                 case Name_Box::HOME:
-                    global.get_c_component().plane_at_homepage.render(global.get_myscreen().get_my_renderer());  // rename
+                    global.get_c_component().logo_maybay.render(global.get_myscreen().get_my_renderer());  // rename
+                    global.get_myscreen().render_Text("HỌC VIỆN CÔNG NGHỆ BƯU CHÍNH VIỄN THÔNG CƠ SỞ TP.HỒ CHÍ MINH",{350 + X_START_BODY,105 + Y_START_BODY,1000,50},{0,0,0},true);
+                    global.get_myscreen().render_Text("PHẦN MỀM QUẢN LÍ CHUYẾN BAY",{500 + X_START_BODY,390 + Y_START_BODY,700,50},{0,0,0},true);
+                    global.get_c_component().logo_ptit.render(global.get_myscreen().get_my_renderer());  // rename
                     break;
                 case Name_Box::THONGKE:
                     view_thongke.render();
@@ -134,7 +136,7 @@ class Controller {
                     break;
 
                 default:
-                    global.get_c_component().plane_at_homepage.render(global.get_myscreen().get_my_renderer());  // rename
+                    // global.get_c_component().plane_at_homepage.render(global.get_myscreen().get_my_renderer());  // rename
                     break;
             }
             global.get_thong_bao().render();
@@ -158,7 +160,6 @@ class Controller {
             }
         }
         thread_update_status_cb.join();
-        thread_update_time.join();
     }
     ~Controller() {
     }

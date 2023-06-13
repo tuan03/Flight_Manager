@@ -370,10 +370,6 @@ public:
     ~ChuyenBay()
     {
     }
-    int compare_macb(const char *macb)
-    { // return -1: cb này < cb2, 0: cb này == cb2, 1: cb này > cb2
-        return strcmp(this->ma_so_cb, macb);
-    }
     Status huy_chuyen_bay()
     {
         if (this->trang_thai_cb == 0)
@@ -382,6 +378,19 @@ public:
             return Status("Chuyến Bay Đã Thực Hiện Thành Công.");
         this->trang_thai_cb = 0;
         return Status("Hủy Chuyến Bay Thành Công.", Status_Name::SUCCESS);
+    }
+    Status set_completed(){
+        Time current_time;
+        current_time.get_current_time();
+        double kc_time = Time::timeDiffInSeconds(this->thoi_gian_bay,current_time);
+        if(kc_time < 0){
+            return Status("Chưa Đến Thời Gian Chuyến Bay Khởi Hành.");
+        }
+        if(kc_time < 60 * 90){
+            return Status("Thời Gian Thực Hiện Chuyến Bay Ít Nhất 1 tiếng 30 phút");
+        }
+        this->trang_thai_cb = 3;
+        return Status("Thành Công.", Status_Name::SUCCESS);
     }
     void serialize(std::ofstream &os)
     {

@@ -414,7 +414,8 @@ struct Child_Component
 {
     Box pick;
     Box unpick;
-    Box plane_at_homepage; // máy bay ở homepage
+    Box logo_ptit; // máy bay ở homepage
+    Box logo_maybay;
     Box prev;              // nút Prev
     Box next;              // nút Next
     Box edit;              // nút edit
@@ -425,8 +426,11 @@ struct Child_Component
     Box thong_bao;         // khung thông báo
     void load_img(MyScreen &myscreen)
     {
-        plane_at_homepage.create("src/views/img/plane_img.png", myscreen.get_my_renderer()); // rename
-        plane_at_homepage.set_rect(500, 190, 800, 700);
+        logo_ptit.create("src/views/img/Logo_PTIT.png", myscreen.get_my_renderer()); // rename
+        logo_ptit.set_rect(10 + X_START_BODY, 10 + Y_START_BODY, 240, 240);
+
+        logo_maybay.create("src/views/img/maybay.png", myscreen.get_my_renderer()); // rename
+        logo_maybay.set_rect(1200 + X_START_BODY, 150 + Y_START_BODY, 355, 355);
 
         // prev
         prev.create("src/views/img/prev.png", myscreen.get_my_renderer()); // renanme
