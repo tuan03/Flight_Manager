@@ -529,9 +529,18 @@ public:
         }
         return Status("", Status_Name::SUCCESS); // trả về NULL nếu không tìm thấy chuyến bay
     }
-    bool find_by_sh_mb(const char *so_hieu_mb)
+    bool find_by_sh_mb(const char *so_hieu_mb) // hàm dùng khi xóa máy bay
     { // find cb theo mã máy bay @ return bool
-        return find_by_sh_mb_ct(so_hieu_mb) != nullptr;
+        ChuyenBay *p = head;
+        while (p != NULL)
+        {
+            if (strcmp(p->get_so_hieu_mb(), so_hieu_mb) == 0)
+            {             // sử dụng hàm getter để lấy mã máy bay
+                return true; // trả về chuyến bay nếu tìm thấy
+            }
+            p = p->get_next();
+        }
+        return false;
     }
 
     ChuyenBay *find_by_ma_cb_ct(const char *ma_so_cb)

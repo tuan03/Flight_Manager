@@ -20,6 +20,12 @@ namespace Flight
         SDL_Rect vt_nut_xemhk = {0, 0, 0, 0};
         SDL_Rect vt_nut_huy = {0, 0, 0, 0};
         SDL_Rect vt_nut_sua = {0, 0, 0, 0};
+
+        SDL_Rect vt_khung_2 = {0, 0, 0, 0}; // khung render nút set completed
+
+        SDL_Rect vt_nut_ht = {0, 0, 0, 0}; // vị trí nút set hoàn thành
+        SDL_Color nut_ht = {255, 255, 255};
+
         ChuyenBay *current = nullptr;
         bool *flag_re_render_in_home = nullptr;
 
@@ -42,6 +48,7 @@ namespace Flight
             nut_sua = {255, 255, 255};
             nut_datve = {255, 255, 255};
             nut_xemhk = {255, 255, 255};
+            nut_ht = {255, 255, 255};
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
@@ -60,6 +67,13 @@ namespace Flight
                 else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_xemhk))
                 {
                     nut_xemhk = {255, 219, 26};
+                }
+                if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3)
+                {
+                    if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ht))
+                    {
+                        nut_ht = {255, 219, 26};
+                    }
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:                         // sự kiện nhấn vào các box
@@ -82,6 +96,18 @@ namespace Flight
                         // del_function
                         global->get_thong_bao().set_mess("Chỉ Hủy Khi Thật Cần Thiết.");
                         global->get_thong_bao().on(false);
+                    }
+                    else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ht)) // nhấn vào nút set hoàn thành
+                    {
+                        Status result = current->set_completed();
+                        global->get_thong_bao().set_mess(result.mess);
+                        global->get_thong_bao().on();
+                        if (result.get_status() == Status_Name::SUCCESS)
+                        {
+                            *(this->flag_re_render_in_home) = true;
+                            state = Position::HOME;
+                        }
+                        global->get_thong_bao().reset_value();
                     }
                 }
                 if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_xemhk))
@@ -120,6 +146,9 @@ namespace Flight
             vt_nut_sua = MyFunc::center_Rect(width, height, {rect.x, rect.y + 190, rect.w, 50});
             vt_nut_huy = MyFunc::center_Rect(width, height, {rect.x, rect.y + 260, rect.w, 50});
 
+            vt_khung_2 = {700 - 150 + 320, Y_START_TABLE + vt * 50 - 330 + 200, 300, 100};
+            vt_nut_ht = MyFunc::center_Rect(200, 50, vt_khung_2);
+
             if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3)
             {
                 myscreen->render_cot(vt_nut_datve, nut_datve); // render nền
@@ -128,16 +157,19 @@ namespace Flight
                 myscreen->render_Text("Sửa Thông Tin", vt_nut_sua, {0, 0, 0}, true);
                 myscreen->render_cot(vt_nut_huy, nut_xoa); // render nền
                 myscreen->render_Text("Hủy Chuyến", vt_nut_huy, {0, 0, 0}, true);
-            } else {
-                string text = "Chuyến Bay Đã " + string(this->current->get_trang_thai_cb() == 0 ? "Hủy" : "Hoàn Thành");
-                myscreen->render_Text(text ,{rect.x, rect.y + 190, rect.w, 50},{0,0,0},true);
-            
+
+                myscreen->render_cot(vt_khung_2, {255, 255, 255}); // render nền
+                myscreen->render_cot(vt_nut_ht, nut_ht);           // render nền
+                myscreen->render_Text("Set Hoàn Thành", vt_nut_ht, {0, 0, 0}, true);
+            }
+            else
+            {
+                string text = string(this->current->get_trang_thai_cb() == 0 ? "Hủy" : "Hoàn Thành");
+                myscreen->render_Text(text, {rect.x, rect.y + 190, rect.w, 50}, {0, 0, 0}, true);
             }
 
             myscreen->render_cot(vt_nut_xemhk, nut_xemhk); // render nền
             myscreen->render_Text("DS HK", vt_nut_xemhk, {0, 0, 0}, true);
-
-            
 
             // tại nút edit và xóa có nền trong suốt cho nên màu nên sẽ phụ thuộc lớp ô vuông ở phía dưới nó, cụ thể là 2 ô vuông ở trên
         }
