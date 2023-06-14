@@ -133,15 +133,17 @@ namespace Plane
 
         MyScreen *myscreen = nullptr;
         Box *khung_add_edit = nullptr;
+        bool* flag_re_render_chuyenbay = nullptr;
 
     public:
-        void set(Global_Variable &global, bool *flag)
+        void set(Global_Variable &global, bool *flag,bool& flag_re_render_chuyenbay)
         {
             this->global = &global;
             this->myscreen = &(global.get_myscreen());
             khung_add_edit = &(global.get_c_component().khung_add_edit);
 
             this->flag_re_render_in_home = flag;
+            this->flag_re_render_chuyenbay = &flag_re_render_chuyenbay;
             this->vi_tri_nut_sua = {825, 515, 120, 60};
 
             input_shmb.set(&(global.get_myscreen()), MAX_LENGTH_SO_HIEU_MB, rect_input[0]);
@@ -209,6 +211,7 @@ namespace Plane
                     if (result.get_status() == Status_Name::SUCCESS)
                     {
                         *(this->flag_re_render_in_home) = true;
+                        *flag_re_render_chuyenbay = true;
                     }
                 }
                 break;
@@ -441,8 +444,9 @@ private:
 
     SDL_Color nut_add{255, 255, 255};
 
+
 public:
-    View_Plane(Global_Variable &gb);
+    View_Plane(Global_Variable &gb, bool& flag_re_render_chuyenbay);
 
     void handleEvent(SDL_Event e, bool &is_home, int mouse_X, int mouse_Y)
     {
@@ -581,13 +585,13 @@ public:
     void createTable();                                    // vẽ ra viền bảng
     void render_line_data(int stt, int start, MayBay *mb); // render 1 linedata Máy Bay
 };
-View_Plane::View_Plane(Global_Variable &gb) : global{gb}
+View_Plane::View_Plane(Global_Variable &gb,bool& flag_re_render_chuyenbay) : global{gb}
 {
 
     current_page = 1;
 
     menu_plane.set(global, &flag);
-    edit_plane.set(global, &flag);
+    edit_plane.set(global, &flag, flag_re_render_chuyenbay);
     add_plane.set(global, &flag);
 
     table.set(&(global.get_myscreen()), WIDTH_TABLE, HEIGHT_TABLE + 50);

@@ -304,6 +304,7 @@ namespace Flight
                         // dat_ve_function
                         if (type)
                         { // màn đặt vé
+                            //datve_function
                             Status result;
                             if (cmnd.is_empty() || ho.is_empty() || ten.is_empty())
                             {
@@ -334,6 +335,7 @@ namespace Flight
                         }
                         else
                         { // màn hủy vé
+                            //huyve_function
                             Status result = target_cb->get_listve().huy_ve(so_day, so_dong);
                             global->get_thong_bao().set_mess(result.mess);
                             global->get_thong_bao().on();

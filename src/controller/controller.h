@@ -44,7 +44,7 @@ class Controller {
     void running() {
         //Khởi tạo các route
         bool flag_re_render_list_cb = false;
-        View_Plane view_plane(global);  
+        View_Plane view_plane(global,flag_re_render_list_cb);  
         View_Flight view_flight(global,flag_re_render_list_cb);                                                                                                                                                                                                                                                                                 // khởi tạo view Plane
         View_Customer view_customer(global);
         View_Thongke view_thongke(global);

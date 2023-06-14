@@ -98,7 +98,7 @@ namespace Flight
                         global->get_thong_bao().on(false);
                     }
                     else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ht)) // nhấn vào nút set hoàn thành
-                    {
+                    {   //set_completed_function
                         Status result = current->set_completed();
                         global->get_thong_bao().set_mess(result.mess);
                         global->get_thong_bao().on();
@@ -117,7 +117,8 @@ namespace Flight
                 break;
             }
             if (global->get_thong_bao().get_value())
-            {
+            {   
+                //huy_function
                 Status result;
                 result = current->huy_chuyen_bay();
                 global->get_thong_bao().set_mess(result.mess);
@@ -479,7 +480,6 @@ namespace Flight
                     }
                     if (stt == line_hover)
                     {
-                        cout << global->get_list_plane().get_at(i)->getSoHieuMB() << '\n';
                         input_so_hieu_mb.set_data(global->get_list_plane().get_at(i)->getSoHieuMB());
                         flag_list_mb = true;
                         break;

@@ -218,9 +218,10 @@ public:
     }
     void update_so_cho(int day, int dong)
     {
-        if (this->so_day >= day || this->so_dong >= dong)
+        if (this->so_day > day || this->so_dong > dong)
             return;
-
+        if (this->so_day == day && this->so_dong == dong)
+            return;
         char ***newlist = new char **[day];
         for (int i = 0; i < day; ++i)
         {
@@ -249,6 +250,8 @@ public:
         delete[] list;
 
         list = newlist;
+        this->so_day = day;
+        this->so_dong = dong;
     }
     int get_so_day()
     {
