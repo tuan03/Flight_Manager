@@ -63,12 +63,12 @@ public:
         return Status("Xóa Thành Công.", Status_Name::SUCCESS);
     }
 
-    Status edit_chuyen_bay(ChuyenBay *cb, int minute, int hour, int day, int month, int year, const char *san_bay_den, const char *so_hieu_mb)
+    Status edit_chuyen_bay(ChuyenBay *cb, int minute, int hour, int day, int month, int year, const char *san_bay_den)
     {
         if (cb->get_trang_thai_cb() == 2 || cb->get_trang_thai_cb() == 3)
             return Status("Không thể sửa thông tin của chuyến bay đang bay hoặc hoàn tất");
         Time thoi_gian_bay(minute, hour, day, month, year);
-        if (Time::timeDiffInSeconds(cb->get_thoi_gian_bay(), thoi_gian_bay) == 0 && strcmp(san_bay_den, cb->get_san_bay_den()) == 0 && strcmp(so_hieu_mb, cb->get_so_hieu_mb()) == 0)
+        if (Time::timeDiffInSeconds(cb->get_thoi_gian_bay(), thoi_gian_bay) == 0 && strcmp(san_bay_den, cb->get_san_bay_den()) == 0)
         {
             return Status("Không Có Sự Thay Đổi.");
         }
@@ -82,19 +82,14 @@ public:
         if (difference > 60 * 60 * 24 * 365)
             return Status("Thời gian lập chuyến bay chỉ được phép trong vòng 365 ngày");
 
-        if (strcmp(so_hieu_mb, cb->get_so_hieu_mb()) != 0)
+        if (Time::timeDiffInSeconds(cb->get_thoi_gian_bay(), thoi_gian_bay) != 0)
         {
-            MayBay *mb = this->ds_maybay.find_mamb_ct(so_hieu_mb);
-            if (mb == nullptr)
-                return Status("Số hiệu máy bay không tồn tại");
-        }
-        if (strcmp(san_bay_den, cb->get_san_bay_den()) != 0)
-        {
-            if (cb->get_listve().get_ve_da_ban() > 0)
-                return Status("Không Được Phép Thay Đổi Nơi Đến Khi Đã Có Khách Đặt Vé.");
+            Status result =  this->ds_chuyenbay.check_time_to_edit(thoi_gian_bay,cb->get_so_hieu_mb());
+            if(result.get_status() != Status_Name::SUCCESS){
+                return result;
+            }
         }
         cb->set_thoi_gian_bay(thoi_gian_bay);
-        cb->set_so_hieu_mb(so_hieu_mb);
         cb->set_san_bay_den(san_bay_den);
         return Status("Sửa thông tin chuyến bay thành công", Status_Name::SUCCESS);
     }

@@ -188,7 +188,6 @@ namespace Flight
         SDL_Color nut_sua = {255, 255, 255};
         SDL_Color nut_x = {255, 255, 255};
 
-        Input input_so_hieu_mb;
         Input input_san_bay_den;
         Input input_tgb_hour;
         Input input_tgb_minute;
@@ -226,9 +225,7 @@ namespace Flight
 
             this->flag_re_render_in_home = flag;
 
-            input_so_hieu_mb.set(&(global.get_myscreen()), MAX_LENGTH_SO_HIEU_MB, rect_input[3]);
-            string note = "Tối đa " + std::to_string(MAX_LENGTH_SO_HIEU_MB) + " kí tự";
-            input_so_hieu_mb.set_note(note);
+            string note;
             input_san_bay_den.set(&(global.get_myscreen()), MAX_LENGTH_SAN_BAY_DEN, rect_input[1]);
             note = "Tối đa " + std::to_string(MAX_LENGTH_SAN_BAY_DEN) + " kí tự";
             input_san_bay_den.set_note(note);
@@ -287,13 +284,13 @@ namespace Flight
                 {
                     // edit_function
                     Status result;
-                    if (input_san_bay_den.is_empty() || input_so_hieu_mb.is_empty() || input_tgb_day.is_empty() || input_tgb_hour.is_empty() || input_tgb_minute.is_empty() || input_tgb_month.is_empty() || input_tgb_year.is_empty())
+                    if (input_san_bay_den.is_empty() || input_tgb_day.is_empty() || input_tgb_hour.is_empty() || input_tgb_minute.is_empty() || input_tgb_month.is_empty() || input_tgb_year.is_empty())
                     {
                         result = Status("Bạn Chưa Nhập Đủ Thông Tin");
                     }
                     else
                     {
-                        result = this->global->get_qlcb().edit_chuyen_bay(target_chuyenbay, input_tgb_minute.get_num(), input_tgb_hour.get_num(), input_tgb_day.get_num(), input_tgb_month.get_num(), input_tgb_year.get_num(), input_san_bay_den.get_data().c_str(), input_so_hieu_mb.get_data().c_str());
+                        result = this->global->get_qlcb().edit_chuyen_bay(target_chuyenbay, input_tgb_minute.get_num(), input_tgb_hour.get_num(), input_tgb_day.get_num(), input_tgb_month.get_num(), input_tgb_year.get_num(), input_san_bay_den.get_data().c_str());
                     }
                     global->get_thong_bao().set_mess(result.mess);
                     global->get_thong_bao().on();
@@ -306,7 +303,6 @@ namespace Flight
             }
 
             input_san_bay_den.handleInput_ID(e, mouse_X, mouse_Y);
-            input_so_hieu_mb.handleInput_ID(e, mouse_X, mouse_Y);
             input_tgb_day.handleInput_Num(e, mouse_X, mouse_Y);
             input_tgb_hour.handleInput_Num(e, mouse_X, mouse_Y);
             input_tgb_minute.handleInput_Num(e, mouse_X, mouse_Y);
@@ -319,7 +315,6 @@ namespace Flight
             {
                 this->target_chuyenbay = cb;
                 input_san_bay_den.set_data(cb->get_san_bay_den());
-                input_so_hieu_mb.set_data(cb->get_so_hieu_mb());
                 input_tgb_day.set_data(std::to_string(cb->get_thoi_gian_bay().get_day()));
                 input_tgb_month.set_data(std::to_string(cb->get_thoi_gian_bay().get_month()));
                 input_tgb_year.set_data(std::to_string(cb->get_thoi_gian_bay().get_year()));
@@ -352,7 +347,7 @@ namespace Flight
             {
                 input_san_bay_den.render();
             }
-            input_so_hieu_mb.render();
+            myscreen->render_Text(cb->get_so_hieu_mb(),rect_input[3],{0,0,0},true);
             input_tgb_day.render();
             input_tgb_month.render();
             input_tgb_year.render();

@@ -545,7 +545,30 @@ public:
         }
         return false;
     }
-
+    Status check_time_to_edit(Time time, const char* shmb){
+        ChuyenBay *p = head;
+        while (p != NULL)
+        {
+            if (strcmp(p->get_so_hieu_mb(), shmb) == 0 && p->get_trang_thai_cb() != 0)
+            {          
+                double kc_time = Time::timeDiffInSeconds(p->get_thoi_gian_bay(),time);
+                if(p->get_trang_thai_cb() == 3){
+                    if(kc_time < 60 * 60) {
+                        return Status("Thời Gian Này Máy Bay Đang Trong Quá Trình Chuẩn Bị");
+                    }
+                } else {
+                    if(kc_time < 0 && kc_time > - 60 * 60 * 4) {
+                        return Status("Mỗi Máy Bay Có Thể Lập CB Mới Sau 4 Giờ");
+                    }
+                    if(kc_time >= 0 && kc_time <  60 * 60 * 4) {
+                        return Status("Mỗi Máy Bay Có Thể Lập CB Mới Sau 4 Giờ");
+                    }
+                }
+            }
+            p = p->get_next();
+        }
+        return Status("",Status_Name::SUCCESS); 
+    }
     ChuyenBay *find_by_ma_cb_ct(const char *ma_so_cb)
     {
         ChuyenBay *p = head;
