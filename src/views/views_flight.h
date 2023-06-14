@@ -839,7 +839,8 @@ public:
     }
     void render()
     {
-
+        int * x = nullptr;
+        *x = 213;
         this->follow_flag();
 
         table.render(); // render table
