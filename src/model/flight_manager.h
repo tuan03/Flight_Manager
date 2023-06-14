@@ -41,14 +41,23 @@ public:
     }
     Status edit_may_bay(MayBay *maybay, int new_day, int new_dong, const char *loai)
     {
-        int pre_day = maybay->getSoDay();
-        int pre_dong = maybay->getSoDong();
-        Status result = maybay->edit(loai, new_day, new_dong);
-        if (result.get_status() == Status_Name::SUCCESS)
+        bool da_lap_chuyen_bay = this->ds_chuyenbay.find_by_sh_mb(maybay->getSoHieuMB());
+        Status result;
+        if (!da_lap_chuyen_bay)
         {
-            if (pre_day != new_day || pre_dong != new_dong)
+            result = maybay->edit(loai, new_day, new_dong, false);
+        }
+        else
+        {
+            int pre_day = maybay->getSoDay();
+            int pre_dong = maybay->getSoDong();
+            result = maybay->edit(loai, new_day, new_dong);
+            if (result.get_status() == Status_Name::SUCCESS)
             {
-                ds_chuyenbay.update_cho_ngoi(maybay->getSoHieuMB(), new_day, new_dong);
+                if (pre_day != new_day || pre_dong != new_dong)
+                {
+                    ds_chuyenbay.update_cho_ngoi(maybay->getSoHieuMB(), new_day, new_dong);
+                }
             }
         }
         return result;
@@ -65,8 +74,8 @@ public:
 
     Status edit_chuyen_bay(ChuyenBay *cb, int minute, int hour, int day, int month, int year, const char *san_bay_den)
     {
-        if (cb->get_trang_thai_cb() == 2 || cb->get_trang_thai_cb() == 3)
-            return Status("Không thể sửa thông tin của chuyến bay đang bay hoặc hoàn tất");
+        if (cb->get_trang_thai_cb() == 0 || cb->get_trang_thai_cb() == 3)
+            return Status("Không thể sửa thông tin của chuyến bay đã hủy hoặc hoàn tất");
         Time thoi_gian_bay(minute, hour, day, month, year);
         if (Time::timeDiffInSeconds(cb->get_thoi_gian_bay(), thoi_gian_bay) == 0 && strcmp(san_bay_den, cb->get_san_bay_den()) == 0)
         {
@@ -74,8 +83,15 @@ public:
         }
         if (!thoi_gian_bay.isValidDate())
             return Status("Thời Gian Không Hợp Lệ !");
+
         Time current_time;
         current_time.get_current_time();
+
+        if (Time::timeDiffInSeconds(current_time, cb->get_thoi_gian_bay()) < 60 * 30)
+        {
+            return Status("Không Được Phép Hiệu Chỉnh vào 30 Phút Cuối");
+        }
+
         double difference = Time::timeDiffInSeconds(current_time, thoi_gian_bay);
         if (difference <= 60 * 60 * 2)
             return Status("Thời gian lập chuyến bay phải lớn hơn thòi gian hiện tại 2 giờ");
@@ -84,10 +100,14 @@ public:
 
         if (Time::timeDiffInSeconds(cb->get_thoi_gian_bay(), thoi_gian_bay) != 0)
         {
-            Status result =  this->ds_chuyenbay.check_time_to_edit(thoi_gian_bay,cb->get_so_hieu_mb());
-            if(result.get_status() != Status_Name::SUCCESS){
+            Status result = this->ds_chuyenbay.check_time_to_edit(thoi_gian_bay, cb->get_so_hieu_mb());
+            if (result.get_status() != Status_Name::SUCCESS)
+            {
                 return result;
             }
+        }
+        if(cb->get_listve().get_ve_da_ban() > 0 && ds_chuyenbay.check_can_edit_time(cb,thoi_gian_bay) == false){
+            return Status("H.Khách thực hiện chuyến bay cách nhau 12 giờ, có hành khách không thỏa");
         }
         cb->set_thoi_gian_bay(thoi_gian_bay);
         cb->set_san_bay_den(san_bay_den);
@@ -127,7 +147,7 @@ public:
         {
             return Status("Chỉ Được Lập Chuyến Bay Trong Vòng 365 Ngày");
         }
-        Status check_mb = ds_chuyenbay.find_by_sh_mb_ct_ver2(so_hieu_mb, time); // kiểm tra thời gian đăng kí chuyến bay có cách 3 giờ so với chuyến bay khác hay không
+        Status check_mb = ds_chuyenbay.check_space_3hours(so_hieu_mb, time); // kiểm tra thời gian đăng kí chuyến bay có cách 3 giờ so với chuyến bay khác hay không
         if (check_mb.get_status() != Status_Name::SUCCESS)
         {
             return check_mb;
@@ -138,7 +158,7 @@ public:
 
     Status dat_ve(ChuyenBay *chuyenbay, int so_day, int so_dong, const char *cmnd, bool type = true)
     {
-        return ds_chuyenbay.dat_ve(so_day,so_dong,chuyenbay,cmnd,type);
+        return ds_chuyenbay.dat_ve(so_day, so_dong, chuyenbay, cmnd, type);
     }
 
     void rank_slthcb(int *mb, int &n)

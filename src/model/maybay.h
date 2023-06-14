@@ -47,13 +47,14 @@ public:
 	int getSoDay() const { return so_day; }
 	int getSoDong() const { return so_dong; }
 	int getSoCho() { return so_day * so_dong; }
-	int get_so_lan_bay(){ return this->so_lan_bay; }
+	int get_so_lan_bay() { return this->so_lan_bay; }
 
 	// edit
 
-	Status edit(const char *loai_mb, int day, int dong)
+	Status edit(const char *loai_mb, int day, int dong, bool type = true) // true : đã lập chuyến bay, false : chưa
 	{
-		if(strcmp(loai_mb,this->getLoaiMB()) == 0 && day == this->getSoDay() && dong == this->getSoDong()){
+		if (strcmp(loai_mb, this->getLoaiMB()) == 0 && day == this->getSoDay() && dong == this->getSoDong())
+		{
 			return Status("Không Có Sự Thay Đổi");
 		}
 		if (day * dong < 20)
@@ -62,11 +63,16 @@ public:
 			return Status("Số Dãy Không Hợp Lệ (1-26)");
 		if (dong < 1 || dong > 99)
 			return Status("Số Dòng Không Hợp Lệ (1-99)");
-		if(this->getSoDay() > day){
-			return Status("Số Dãy Thay Đổi Phải Lớn Hơn Số Dãy Ban Đầu");
-		}
-		if(this->getSoDong() > dong){
-			return Status("Số Dòng Thay Đổi Phải Lớn Hơn Số Dòng Ban Đầu");
+		if (type == true)
+		{
+			if (this->getSoDay() > day)
+			{
+				return Status("Số Dãy Thay Đổi Phải Lớn Hơn Số Dãy Ban Đầu");
+			}
+			if (this->getSoDong() > dong)
+			{
+				return Status("Số Dòng Thay Đổi Phải Lớn Hơn Số Dòng Ban Đầu");
+			}
 		}
 		this->setLoaiMB(loai_mb);
 		this->setSoDay(day);
@@ -74,7 +80,8 @@ public:
 		return Status("Sửa Máy Bay Thành Công !", Status_Name::SUCCESS);
 	}
 
-	MayBay(){
+	MayBay()
+	{
 	}
 	MayBay(const char *sh, const char *loai, int day, int dong)
 	{

@@ -13,6 +13,14 @@ void run_list(ListChuyenBay& list_cb,ListMayBay& list_mb, bool& flag, bool& quit
             status = node->get_trang_thai_cb();
             if(status != 0 && status != 3){ // không cần check cb đã hủy hoặc hoàn thành
                 current_time.get_current_time();
+                if(Time::timeDiffInSeconds(node->get_thoi_gian_bay(), current_time) >= 0){
+                    if(node->get_listve().get_ve_da_ban() == 0){
+                    myMutex.lock();
+                    node->set_trang_thai_cb(0);
+                    is_change = true;
+                    myMutex.unlock();
+                    }
+                }
                 if(Time::timeDiffInSeconds(node->get_thoi_gian_bay(), current_time) >= (60*60*3)){ // đã cách 3 giwof kể từ thời gian bay
                     myMutex.lock();
                     node->set_trang_thai_cb(3); // set hoàn thành
