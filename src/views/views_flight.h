@@ -151,18 +151,20 @@ namespace Flight
             vt_nut_ht = MyFunc::center_Rect(200, 50, vt_khung_2);
             Time current_time;
             current_time.get_current_time();
+            if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3)
+            {
+                myscreen->render_cot(vt_khung_2, {255, 255, 255}); // render nền
+                myscreen->render_cot(vt_nut_ht, nut_ht);           // render nền
+                myscreen->render_Text("Set Hoàn Thành", vt_nut_ht, {0, 0, 0}, true);
+                myscreen->render_cot(vt_nut_huy, nut_xoa); // render nền
+                myscreen->render_Text("Hủy Chuyến", vt_nut_huy, {0, 0, 0}, true);
+            }
             if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3 && Time::timeDiffInSeconds(current_time, current->get_thoi_gian_bay()) >= 60 * 30)
             {
                 myscreen->render_cot(vt_nut_datve, nut_datve); // render nền
                 myscreen->render_Text("Đặt Vé", vt_nut_datve, {0, 0, 0}, true);
                 myscreen->render_cot(vt_nut_sua, nut_sua); // render nền
                 myscreen->render_Text("Sửa Thông Tin", vt_nut_sua, {0, 0, 0}, true);
-                myscreen->render_cot(vt_nut_huy, nut_xoa); // render nền
-                myscreen->render_Text("Hủy Chuyến", vt_nut_huy, {0, 0, 0}, true);
-
-                myscreen->render_cot(vt_khung_2, {255, 255, 255}); // render nền
-                myscreen->render_cot(vt_nut_ht, nut_ht);           // render nền
-                myscreen->render_Text("Set Hoàn Thành", vt_nut_ht, {0, 0, 0}, true);
             }
             else
             {

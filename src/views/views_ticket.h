@@ -336,7 +336,7 @@ namespace Flight
                         else
                         { // màn hủy vé
                             //huyve_function
-                            Status result = target_cb->get_listve().huy_ve(target_cb->get_thoi_gian_bay(),so_day, so_dong);
+                            Status result = target_cb->huy_ve(so_day, so_dong);
                             global->get_thong_bao().set_mess(result.mess);
                             global->get_thong_bao().on();
                             *flag_re_render = true;

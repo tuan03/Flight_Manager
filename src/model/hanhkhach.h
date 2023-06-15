@@ -14,12 +14,14 @@ class HanhKhach
 private:
     Info data;
     HanhKhach *left = nullptr, *right = nullptr;
-    void set(const char* so_cmnd, const char* ho, const char* ten, const bool phai) {
-    strcpy(data.so_cmnd, so_cmnd);
-    strcpy(data.ho, ho);
-    strcpy(data.ten, ten);
-    data.phai = phai;
-}
+    void set(const char *so_cmnd, const char *ho, const char *ten, const bool phai)
+    {
+        strcpy(data.so_cmnd, so_cmnd);
+        strcpy(data.ho, ho);
+        strcpy(data.ten, ten);
+        data.phai = phai;
+    }
+
 public:
     // getter
     const char *getSoCMND() const
@@ -79,7 +81,8 @@ class TreeHanhKhach
 {
 private:
     HanhKhach *root;
-    HanhKhach *insertNode(HanhKhach *&node, HanhKhach *new_node)
+
+    void insertNode(HanhKhach *&node, HanhKhach *new_node)
     {
         if (node == nullptr)
         {
@@ -93,11 +96,10 @@ private:
         {
             insertNode(node->getRight(), new_node);
         }
-        return node;
     }
-    HanhKhach *addNode(HanhKhach *new_node)
+    void addNode(HanhKhach *new_node)
     {
-        return this->insertNode(this->root, new_node);
+        this->insertNode(this->root, new_node);
     }
     HanhKhach *searchNode(HanhKhach *node, const char *cmnd) const
     {
@@ -129,18 +131,31 @@ private:
     }
 
 public:
+    TreeHanhKhach()
+    {
+        root = nullptr;
+    }
+    void deleteTree(HanhKhach *node)
+    {
+        if (node != nullptr)
+        {
+            deleteTree(node->getLeft());
+            deleteTree(node->getRight());
+            delete node;
+        }
+    }
+    ~TreeHanhKhach(){
+        deleteTree(root);
+    }
+    
     void add(const char *cmnd, const char *ho, const char *ten, bool phai)
     {
         HanhKhach *newhk = new HanhKhach(cmnd, ho, ten, phai);
         this->addNode(newhk);
     }
-    HanhKhach *getRoot()
+    HanhKhach *getRoot() const
     {
         return this->root;
-    }
-    TreeHanhKhach()
-    {
-        root = nullptr;
     }
 
     HanhKhach *search(const char *cmnd) const
@@ -151,7 +166,7 @@ public:
     {
         return countNodes(this->root);
     }
-   
+
     void write_tree(std::ofstream &file, HanhKhach *node)
     {
         if (node == nullptr)
@@ -202,4 +217,3 @@ public:
 };
 
 #endif
-

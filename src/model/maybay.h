@@ -35,10 +35,7 @@ private:
 	}
 
 public:
-	void tang_so_lan_bay()
-	{
-		this->so_lan_bay++;
-	}
+	void tang_so_lan_bay() { this->so_lan_bay++; }
 	// getter
 	const char *getSoHieuMB() const { return so_hieu_mb; }
 	const char *getLoaiMB() const { return loai_mb; }
@@ -47,32 +44,44 @@ public:
 	int getSoCho() { return so_day * so_dong; }
 	int get_so_lan_bay() { return this->so_lan_bay; }
 
-	// edit
-
+	/**
+	 * @brief hàm Sửa thông tin 1 Máy Bay //edit_function
+	 *
+	 * @param type true : đã lập chuyến bay (default), false: chưa thành lập chuyến bay
+	 * @return Status
+	 */
 	Status edit(const char *loai_mb, int day, int dong, bool type = true) // true : đã lập chuyến bay, false : chưa
 	{
 		if (strcmp(loai_mb, this->getLoaiMB()) == 0 && day == this->getSoDay() && dong == this->getSoDong())
 		{
 			return Status("Không Có Sự Thay Đổi");
 		}
-		if (day * dong < 20)
-			return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
 		if (day < 1 || day > 26)
 			return Status("Số Dãy Không Hợp Lệ (1-26)");
 		if (dong < 1 || dong > 99)
 			return Status("Số Dòng Không Hợp Lệ (1-99)");
-		if (type == true)
+		if (day * dong < 20)
+			return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
+		if (type == true) // nếu đã lập chuyến bay
 		{
+			if(strcmp(loai_mb,this->getLoaiMB()) != 0){
+				return Status("Máy Bay Đã Thành Lập, Không Thể Sửa Loại Máy Bay.");
+			}
 			if (this->getSoDay() > day)
 			{
-				return Status("Số Dãy Thay Đổi Phải Lớn Hơn Số Dãy Ban Đầu");
+				string text = "Số Dãy Thay Đổi Phải Lớn Hơn Số Dãy Ban Đầu ( >" + to_string(this->getSoDay()) + " dãy)";
+				return Status(text);
 			}
 			if (this->getSoDong() > dong)
 			{
-				return Status("Số Dòng Thay Đổi Phải Lớn Hơn Số Dòng Ban Đầu");
+				string text = "Số Dòng Thay Đổi Phải Lớn Hơn Số Dòng Ban Đầu ( >" + to_string(this->getSoDay()) + " dòng)";
+				return Status(text);
 			}
 		}
-		this->setLoaiMB(loai_mb);
+		else
+		{
+			this->setLoaiMB(loai_mb); //chưa lập máy bay thì mới sửa loại được
+		}
 		this->setSoDay(day);
 		this->setSoDong(dong);
 		return Status("Sửa Máy Bay Thành Công !", Status_Name::SUCCESS);
@@ -116,18 +125,18 @@ public:
 	int get_so_luong() { return this->so_luong; }
 	bool isEmpty() { return this->so_luong == 0; }
 	bool isFull() { return this->so_luong >= MAX_MAYBAY; }
-	Status add(const char *so_hieu_mb, const char *loai, int day, int dong)
+	Status add(const char *so_hieu_mb, const char *loai, int day, int dong) //add_function
 	{
 		if (this->isFull())
 			return Status("Danh Sách Máy Bay Đã Đầy");
 		if (this->find_mamb(so_hieu_mb) != -1)
 			return Status("Số Hiệu Máy Bay Đã Tồn Tại");
-		if (day * dong < 20)
-			return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
 		if (day < 1 || day > 26)
 			return Status("Số Dãy Không Hợp Lệ (1-26)");
 		if (dong < 1 || dong > 99)
 			return Status("Số Dòng Không Hợp Lệ (1-99)");
+		if (day * dong < 20)
+			return Status("Số Chỗ Ngồi Phải Lớn Hơn Hoặc Bằng 20");
 
 		data[so_luong++] = new MayBay(so_hieu_mb, loai, day, dong);
 		return Status("Thêm Máy Bay Thành Công !", Status_Name::SUCCESS);

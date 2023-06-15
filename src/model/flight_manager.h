@@ -48,16 +48,13 @@ public:
             result = maybay->edit(loai, new_day, new_dong, false);
         }
         else
-        {
+        { // sửa dòng hoặc sửa loại
             int pre_day = maybay->getSoDay();
             int pre_dong = maybay->getSoDong();
             result = maybay->edit(loai, new_day, new_dong);
             if (result.get_status() == Status_Name::SUCCESS)
             {
-                if (pre_day != new_day || pre_dong != new_dong)
-                {
-                    ds_chuyenbay.update_cho_ngoi(maybay->getSoHieuMB(), new_day, new_dong);
-                }
+                ds_chuyenbay.update_cho_ngoi(maybay->getSoHieuMB(), new_day, new_dong);
             }
         }
         return result;
@@ -74,12 +71,12 @@ public:
 
     Status edit_chuyen_bay(ChuyenBay *cb, int minute, int hour, int day, int month, int year, const char *san_bay_den)
     {
-       return ds_chuyenbay.edit_chuyen_bay(cb,minute,hour,day,month,year,san_bay_den); 
+        return ds_chuyenbay.edit_chuyen_bay(cb, minute, hour, day, month, year, san_bay_den);
     }
 
     Status add_cb(const char *ma_so_cb, int minute, int hour, int day, int month, int year, const char *san_bay_den, const char *so_hieu_mb)
     {
-        return ds_chuyenbay.add_cb(this->ds_maybay,ma_so_cb,minute,hour,day,month,year,san_bay_den,so_hieu_mb);
+        return ds_chuyenbay.add_cb(this->ds_maybay, ma_so_cb, minute, hour, day, month, year, san_bay_den, so_hieu_mb);
     }
 
     Status dat_ve(ChuyenBay *chuyenbay, int so_day, int so_dong, const char *cmnd, bool type = true)
