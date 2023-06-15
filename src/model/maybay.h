@@ -20,12 +20,10 @@ private:
 	void setSoHieuMB(const char *so_hieu)
 	{
 		strncpy(so_hieu_mb, so_hieu, MAX_LENGTH_SO_HIEU_MB);
-		so_hieu_mb[MAX_LENGTH_SO_HIEU_MB] = '\0';
 	}
 	void setLoaiMB(const char *loai)
 	{
 		strncpy(loai_mb, loai, MAX_LENGTH_LOAI_MAY_BAY);
-		loai_mb[MAX_LENGTH_LOAI_MAY_BAY] = '\0';
 	}
 	void setSoDay(int day)
 	{

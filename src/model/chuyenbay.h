@@ -310,8 +310,16 @@ public:
         list[so_day][so_dong] = new char[MAX_LENGTH_SO_CMND + 1];
         strcpy(list[so_day][so_dong], cmnd);
     }
-    Status huy_ve(int so_day, int so_dong)
+    Status huy_ve(Time tgb,int so_day, int so_dong)
     {
+        Time current_time;
+        current_time.get_current_time();
+        if(Time::timeDiffInSeconds(current_time, tgb) <= 0){
+            return Status("Không Thể Hủy Vé Khi Chuyến Bay Đã Cất Cánh");
+        }
+        if(Time::timeDiffInSeconds(current_time, tgb) < 60 * 30){
+            return Status("Không Thể Hủy Vé Vào 30 Phút Cuối.");
+        }
         delete list[so_day][so_dong];
         list[so_day][so_dong] = nullptr;
         return Status("Hủy Vé Thành Công", Status_Name::SUCCESS);
