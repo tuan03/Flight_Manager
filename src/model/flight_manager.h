@@ -97,8 +97,10 @@ public:
         {
             vitrimin = i;
             for (int j = i + 1; j < n; j++)
-                if (ds_maybay.get_at(mb[j]) < ds_maybay.get_at(mb[vitrimin]))
+            {
+                if (ds_maybay.get_at(mb[j])->get_so_lan_bay() > ds_maybay.get_at(mb[vitrimin])->get_so_lan_bay())
                     vitrimin = j;
+            }
             if (i != vitrimin)
             {
                 min = mb[vitrimin];

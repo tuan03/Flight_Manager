@@ -8,7 +8,9 @@ private:
 	char loai_mb[MAX_LENGTH_LOAI_MAY_BAY + 1];
 	int so_day;
 	int so_dong;
-	int so_lan_bay = 0;
+
+	
+	int so_lan_bay;//chỉ số tạm
 
 	void set(const char *sh, const char *loai, int day, int dong)
 	{
@@ -93,6 +95,7 @@ public:
 	MayBay(const char *sh, const char *loai, int day, int dong)
 	{
 		this->set(sh, loai, day, dong);
+		int so_lan_bay = 0;
 	}
 };
 

@@ -855,7 +855,6 @@ namespace Flight
                                 stt++;
                                 so_ve = (char)(i + 'A') + std::to_string(j + 1);
                                 temp = global->get_list_hanhkhach().search(listve.get_cmnd(i, j));
-                                cout << listve.get_cmnd(i, j);
                                 this->render_line(temp, stt, so_ve.c_str());
                             }
                         }

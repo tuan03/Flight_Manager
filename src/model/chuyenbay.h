@@ -365,9 +365,7 @@ public:
     ~ChuyenBay()
     {
     }
-   
-   
-   
+
     Status huy_chuyen_bay() // huy_function
     {
         if (this->trang_thai_cb == 0)
@@ -378,10 +376,10 @@ public:
         return Status("Hủy Chuyến Bay Thành Công.", Status_Name::SUCCESS);
     }
 
-
     Status huy_ve(int so_day, int so_dong)
     {
-        if (so_day < 0 || so_dong < 0 || so_day >= this->list_ve.get_so_day() || so_dong >= this->list_ve.get_so_dong()){
+        if (so_day < 0 || so_dong < 0 || so_day >= this->list_ve.get_so_day() || so_dong >= this->list_ve.get_so_dong())
+        {
             return Status("Số Dãy - Số Dòng Của Vé Không Hợp Lệ");
         }
         Time current_time;
@@ -394,10 +392,9 @@ public:
         {
             return Status("Không Thể Hủy Vé Vào 30 Phút Cuối.");
         }
-        this->list_ve.huy_ve(so_day,so_dong);
+        this->list_ve.huy_ve(so_day, so_dong);
         return Status("Hủy Vé Thành Công", Status_Name::SUCCESS);
     }
-
 
     Status set_completed(ListMayBay &lmb) // set trạng thái chuyến bay đã hoàn thành
     {
@@ -416,9 +413,6 @@ public:
         lmb.find_mamb_ct(this->so_hieu_mb)->tang_so_lan_bay(); // tăng số lần thực hiện 1 chuyến bay
         return Status("Thành Công.", Status_Name::SUCCESS);
     }
-
-
-
 
     void serialize(std::ofstream &os)
     {
@@ -714,7 +708,6 @@ public:
         if (!time.isValidDate())
             return Status("Thời Gian Không Hợp Lệ !");
 
-
         if (Time::timeDiffInSeconds(current_time, cb->get_thoi_gian_bay()) < 0)
         {
             return Status("Không Được Phép Hiệu Chỉnh Khi Máy Bay Đã Bay");
@@ -727,7 +720,8 @@ public:
         double difference = Time::timeDiffInSeconds(current_time, time);
         if (difference > 60 * 60 * 5)
             return Status("Không Được Phép Hiệu Chỉnh Quá 4 Giờ So Với Ban Đầu");
-        if (difference < 0)
+
+        if (Time::timeDiffInSeconds(time, cb->get_thoi_gian_bay()) > 0)
             return Status("Chỉ Có Thể Hiệu Chỉnh Thời Gian Tăng");
 
         if (difference < 0)
@@ -739,7 +733,6 @@ public:
 
     Status dat_ve(int so_day, int so_dong, ChuyenBay *chuyen_bay, const char *cmnd, bool type = true) // type : true : khách quen, false : khách lạ
     {
-
         if (so_day < 0 || so_dong < 0 || so_day >= chuyen_bay->get_listve().get_so_day() || so_dong >= chuyen_bay->get_listve().get_so_dong())
             return Status("Số Dãy Hoặc Số Dòng Không Hợp Lệ");
         Time current;
@@ -752,23 +745,26 @@ public:
 
         if (type)
         {
+            if (chuyen_bay->get_listve().find_by_cmnd(cmnd))
+            {
+                return Status("Hành Khách Này Đã Đặt Vé Trên Chuyến Bay Này.");
+            }
             ChuyenBay *p = head;
             while (p != NULL)
             {
-                if (p->get_listve().find_by_cmnd(cmnd))
+                if (chuyen_bay != p)
                 {
-                    if (p == chuyen_bay)
+                    if (p->get_listve().find_by_cmnd(cmnd))
                     {
-                        return Status("Hành Khách Này Đã Đặt Vé Trên Chuyến Bay Này.");
-                    }
-                    Time time = chuyen_bay->get_thoi_gian_bay();
-                    if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 60 * 60 * 12 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) >= 0)
-                    {
-                        return Status("Mỗi Hành Khách Có Thể Thực Hiện Chuyến Bay Sau 12 tiếng.\n Nên Khoảng Cách Thời Gian Giữa 2 Chuyến Bay Đặt Vé Là 12 Tiếng\nTrong 12 Tiếng Tiếp Theo, Khách Này Sắp Thực Hiện Chuyến Bay\nMã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()) + " vào Lúc: " + p->get_thoi_gian_bay().to_string());
-                    }
-                    if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) > -60 * 60 * 12 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 0)
-                    {
-                        return Status("Mỗi Hành Khách Có Thể Thực Hiện Chuyến Bay Sau 12 tiếng.\n Nên Khoảng Cách Thời Gian Giữa 2 Chuyến Bay Đặt Vé Là 12 Tiếng\nTrong 12 Tiếng Tiếp Theo, Khách Này Đang Thực Hiện Chuyến Bay\nMã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()) + " Từ Lúc: " + p->get_thoi_gian_bay().to_string());
+                        Time time = chuyen_bay->get_thoi_gian_bay();
+                        if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 60 * 60 * 12 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) >= 0)
+                        {
+                            return Status("Mỗi Hành Khách Có Thể Thực Hiện Chuyến Bay Sau 12 tiếng.\n Nên Khoảng Cách Thời Gian Giữa 2 Chuyến Bay Đặt Vé Là 12 Tiếng\nTrong 12 Tiếng Tiếp Theo, Khách Này Sắp Thực Hiện Chuyến Bay\nMã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()) + " vào Lúc: " + p->get_thoi_gian_bay().to_string());
+                        }
+                        if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) > -60 * 60 * 12 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 0)
+                        {
+                            return Status("Mỗi Hành Khách Có Thể Thực Hiện Chuyến Bay Sau 12 tiếng.\n Nên Khoảng Cách Thời Gian Giữa 2 Chuyến Bay Đặt Vé Là 12 Tiếng\nTrong 12 Tiếng Tiếp Theo, Khách Này Đang Thực Hiện Chuyến Bay\nMã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()) + " Từ Lúc: " + p->get_thoi_gian_bay().to_string());
+                        }
                     }
                 }
                 p = p->get_next();
@@ -782,7 +778,6 @@ public:
         }
         return Status("Đặt Vé Thành Công.", Status_Name::SUCCESS);
     }
-
 
     ~ListChuyenBay()
     {
