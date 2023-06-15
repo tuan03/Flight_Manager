@@ -99,7 +99,7 @@ namespace Flight
                     }
                     else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ht)) // nhấn vào nút set hoàn thành
                     {   //set_completed_function
-                        Status result = current->set_completed();
+                        Status result = current->set_completed(this->global->get_list_plane());
                         global->get_thong_bao().set_mess(result.mess);
                         global->get_thong_bao().on();
                         if (result.get_status() == Status_Name::SUCCESS)

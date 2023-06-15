@@ -318,6 +318,10 @@ public:
     }
 };
 
+
+struct Info_ChuyenBay{
+    
+};
 class ChuyenBay
 {
 private:
@@ -396,7 +400,7 @@ public:
         this->trang_thai_cb = 0;
         return Status("Hủy Chuyến Bay Thành Công.", Status_Name::SUCCESS);
     }
-    Status set_completed()
+    Status set_completed(ListMayBay& lmb)
     {
         Time current_time;
         current_time.get_current_time();
@@ -410,6 +414,8 @@ public:
             return Status("Thời Gian Thực Hiện Chuyến Bay Ít Nhất 1 tiếng 30 phút");
         }
         this->trang_thai_cb = 3;
+        MayBay* mb = lmb.find_mamb_ct(this->so_hieu_mb);
+        mb->tang_so_lan_bay();
         return Status("Thành Công.", Status_Name::SUCCESS);
     }
 
