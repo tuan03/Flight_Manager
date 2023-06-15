@@ -44,6 +44,8 @@ namespace Flight
 
         void handleEvent(SDL_Event e, Position &state, int mouse_X, int mouse_Y)
         {
+            Time current_time;
+            current_time.get_current_time();
             nut_xoa = {255, 255, 255};
             nut_sua = {255, 255, 255};
             nut_datve = {255, 255, 255};
@@ -52,27 +54,31 @@ namespace Flight
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_sua))
-                {
-                    nut_sua = {255, 219, 26};
-                }
-                else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_huy))
-                {
-                    nut_xoa = {255, 219, 26};
-                }
-                else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_datve))
-                {
-                    nut_datve = {255, 219, 26};
-                }
-                else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_xemhk))
+                if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_xemhk))
                 {
                     nut_xemhk = {255, 219, 26};
                 }
+
                 if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3)
                 {
                     if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ht))
                     {
                         nut_ht = {255, 219, 26};
+                    }
+                    if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_huy))
+                    {
+                        nut_xoa = {255, 219, 26};
+                    }
+                    if (Time::timeDiffInSeconds(current_time, current->get_thoi_gian_bay()) >= 60 * 30)
+                    {
+                        if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_sua))
+                        {
+                            nut_sua = {255, 219, 26};
+                        }
+                        if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_datve))
+                        {
+                            nut_datve = {255, 219, 26};
+                        }
                     }
                 }
                 break;
@@ -83,22 +89,26 @@ namespace Flight
                 }
                 if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3)
                 {
-                    if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_datve))
-                    {
-                        state = Position::DATVE;
-                    }
-                    else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_sua)) // nhấn vào Box edit
-                    {                                                           //
-                        state = Position::EDIT;                                 // chuyển sang trang edit
-                    }
-                    else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_huy)) // nhấn vào Box xóa
+
+                    if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_huy)) // nhấn vào Box xóa
                     {
                         // del_function
                         global->get_thong_bao().set_mess("Chỉ Hủy Khi Thật Cần Thiết.");
                         global->get_thong_bao().on(false);
                     }
-                    else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ht)) // nhấn vào nút set hoàn thành
-                    {                                                          // set_completed_function
+                    if (Time::timeDiffInSeconds(current_time, current->get_thoi_gian_bay()) >= 60 * 30)
+                    {
+                        if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_sua)) // nhấn vào Box edit
+                        {                                                      //
+                            state = Position::EDIT;                            // chuyển sang trang edit
+                        }
+                        if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_datve))
+                        {
+                            state = Position::DATVE;
+                        }
+                    }
+                    if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ht)) // nhấn vào nút set hoàn thành
+                    {                                                     // set_completed_function
                         Status result = current->set_completed(this->global->get_list_plane());
                         global->get_thong_bao().set_mess(result.mess);
                         global->get_thong_bao().on();
@@ -151,20 +161,21 @@ namespace Flight
             vt_nut_ht = MyFunc::center_Rect(200, 50, vt_khung_2);
             Time current_time;
             current_time.get_current_time();
+
             if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3)
             {
                 myscreen->render_cot(vt_khung_2, {255, 255, 255}); // render nền
                 myscreen->render_cot(vt_nut_ht, nut_ht);           // render nền
                 myscreen->render_Text("Set Hoàn Thành", vt_nut_ht, {0, 0, 0}, true);
-                myscreen->render_cot(vt_nut_huy, nut_xoa); // render nền
-                myscreen->render_Text("Hủy Chuyến", vt_nut_huy, {0, 0, 0}, true);
+                myscreen->render_cot(vt_nut_huy, nut_xoa);                        // render nền
+                myscreen->render_Text("Hủy Chuyến", vt_nut_huy, {0, 0, 0}, true); // nếu chưa hoàn thành hoặc chưa hủy
             }
             if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3 && Time::timeDiffInSeconds(current_time, current->get_thoi_gian_bay()) >= 60 * 30)
             {
-                myscreen->render_cot(vt_nut_datve, nut_datve); // render nền
-                myscreen->render_Text("Đặt Vé", vt_nut_datve, {0, 0, 0}, true);
-                myscreen->render_cot(vt_nut_sua, nut_sua); // render nền
-                myscreen->render_Text("Sửa Thông Tin", vt_nut_sua, {0, 0, 0}, true);
+                myscreen->render_cot(vt_nut_datve, nut_datve);                       // render nền
+                myscreen->render_Text("Đặt Vé", vt_nut_datve, {0, 0, 0}, true);      // nếu đã hủy và đã hoàn thành, 30 phút cuối không xem được
+                myscreen->render_cot(vt_nut_sua, nut_sua);                           // render nền
+                myscreen->render_Text("Sửa Thông Tin", vt_nut_sua, {0, 0, 0}, true); // 30 phút cuối không được xem
             }
             else
             {

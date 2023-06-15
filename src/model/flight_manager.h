@@ -49,8 +49,6 @@ public:
         }
         else
         { // sửa dòng hoặc sửa loại
-            int pre_day = maybay->getSoDay();
-            int pre_dong = maybay->getSoDong();
             result = maybay->edit(loai, new_day, new_dong);
             if (result.get_status() == Status_Name::SUCCESS)
             {
