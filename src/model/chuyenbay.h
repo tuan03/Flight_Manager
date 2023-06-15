@@ -65,10 +65,6 @@ public:
     {
         this->set(m, h, d, month, y);
     }
-    void copy(const Time& time)
-    {
-        this->set(time.minute, time.hour, time.day, time.month, time.year);
-    }
     void set(int minute, int hour, int day, int month, int year)
     {
         this->minute = minute;
@@ -333,9 +329,8 @@ private:
 
 
 
-
     // chỉ số phụ - lưu thơi gian ban đầu
-    Time max_time; // thời tối đa có thể chỉnh sửa (cách time 4 giờ thời gian bay)
+    Time first_time; // thời tối đa có thể chỉnh sửa (cách time 4 giờ thời gian bay)
 
     void set(const char *ma_so_cb, Time thoi_gian_bay, const char *san_bay_den, const char *so_hieu_mb, int trang_thai_cb)
     {
@@ -346,8 +341,7 @@ private:
 
         this->thoi_gian_bay = thoi_gian_bay;
 
-        this->max_time.copy(this->thoi_gian_bay); // cách 4 giờ
-        this->max_time.get_next_time_some_hours(4);// cách 4 giờ
+        this->first_time = thoi_gian_bay;
         
     }
 
@@ -355,6 +349,7 @@ public:
     // Getter
     const char *get_ma_so_cb() { return this->ma_so_cb; }
     Time get_thoi_gian_bay() { return this->thoi_gian_bay; }
+    Time get_first_time() { return this->first_time; }
     const char *get_san_bay_den() { return this->san_bay_den; }
     int get_trang_thai_cb() { return this->trang_thai_cb; }
     const char *get_so_hieu_mb() { return this->so_hieu_mb; }
@@ -364,6 +359,7 @@ public:
     // Setter
     void set_ma_so_cb(const char *ma_so_cb) { strcpy(this->ma_so_cb, ma_so_cb); }
     void set_thoi_gian_bay(Time thoi_gian_bay) { this->thoi_gian_bay = thoi_gian_bay; }
+    void set_first_time() { this->first_time = this->thoi_gian_bay; }
     void set_san_bay_den(const char *san_bay_den) { strcpy(this->san_bay_den, san_bay_den); }
     void set_trang_thai_cb(int trang_thai_cb) { this->trang_thai_cb = trang_thai_cb; }
     void set_so_hieu_mb(const char *so_hieu_mb) { strcpy(this->so_hieu_mb, so_hieu_mb); }
@@ -436,6 +432,7 @@ public:
         os.write(so_hieu_mb, sizeof(so_hieu_mb));
         os.write(reinterpret_cast<const char *>(&trang_thai_cb), sizeof(trang_thai_cb));
         os.write(reinterpret_cast<const char *>(&thoi_gian_bay), sizeof(thoi_gian_bay));
+        os.write(reinterpret_cast<const char *>(&first_time), sizeof(first_time));
         int so_luong_ve = list_ve.get_ve_da_ban();
         os.write(reinterpret_cast<char *>(&so_luong_ve), sizeof(so_luong_ve));
         // in vé
@@ -461,6 +458,7 @@ public:
         is.read(so_hieu_mb, sizeof(so_hieu_mb));
         is.read(reinterpret_cast<char *>(&trang_thai_cb), sizeof(trang_thai_cb));
         is.read(reinterpret_cast<char *>(&thoi_gian_bay), sizeof(thoi_gian_bay));
+        is.read(reinterpret_cast<char *>(&first_time), sizeof(first_time));
         int so_luong_ve = 0;
         is.read(reinterpret_cast<char *>(&so_luong_ve), sizeof(so_luong_ve));
         int so_day = 0, so_dong = 0;
@@ -727,7 +725,11 @@ public:
         {
             return Status("Không Được Phép Hiệu Chỉnh Khi Máy Bay Đã Bay");
         }
-
+        if (Time::timeDiffInSeconds(cb->get_first_time(), time) > 60*60*4) // 4 giờ
+        {
+            string text = "Thời gian hiệu chỉnh tối đa là cách 4 giờ kể từ: " + cb->get_first_time().to_string();
+            return Status(text);
+        }
         if (Time::timeDiffInSeconds(current_time, cb->get_thoi_gian_bay()) < 60 * 30)
         {
             return Status("Không Được Phép Hiệu Chỉnh vào 30 Phút Cuối");
