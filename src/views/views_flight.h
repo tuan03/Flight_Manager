@@ -98,7 +98,7 @@ namespace Flight
                         global->get_thong_bao().on(false);
                     }
                     else if (MyFunc::check_click(mouse_X, mouse_Y, vt_nut_ht)) // nhấn vào nút set hoàn thành
-                    {   //set_completed_function
+                    {                                                          // set_completed_function
                         Status result = current->set_completed(this->global->get_list_plane());
                         global->get_thong_bao().set_mess(result.mess);
                         global->get_thong_bao().on();
@@ -117,8 +117,8 @@ namespace Flight
                 break;
             }
             if (global->get_thong_bao().get_value())
-            {   
-                //huy_function
+            {
+                // huy_function
                 Status result;
                 result = current->huy_chuyen_bay();
                 global->get_thong_bao().set_mess(result.mess);
@@ -149,8 +149,9 @@ namespace Flight
 
             vt_khung_2 = {700 - 150 + 320, Y_START_TABLE + vt * 50 - 330 + 200, 300, 100};
             vt_nut_ht = MyFunc::center_Rect(200, 50, vt_khung_2);
-
-            if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3)
+            Time current_time;
+            current_time.get_current_time();
+            if (this->current->get_trang_thai_cb() != 0 && this->current->get_trang_thai_cb() != 3 && Time::timeDiffInSeconds(current_time, current->get_thoi_gian_bay()) >= 60 * 30)
             {
                 myscreen->render_cot(vt_nut_datve, nut_datve); // render nền
                 myscreen->render_Text("Đặt Vé", vt_nut_datve, {0, 0, 0}, true);
@@ -165,7 +166,30 @@ namespace Flight
             }
             else
             {
-                string text = string(this->current->get_trang_thai_cb() == 0 ? "Hủy" : "Hoàn Thành");
+
+                string text;
+                if (this->current->get_trang_thai_cb() == 0)
+                {
+                    text = "CB Đã Hủy";
+                }
+                else
+                {
+                    if (this->current->get_trang_thai_cb() == 3)
+                    {
+                        text = "CB Đã Hoàn Thành";
+                    }
+                    else
+                    {
+                        if (Time::timeDiffInSeconds(current_time, current->get_thoi_gian_bay()) > 0)
+                        {
+                            text = "CB Sắp Khởi Hành";
+                        }
+                        else
+                        {
+                            text = "CB Đang Bay";
+                        }
+                    }
+                }
                 myscreen->render_Text(text, {rect.x, rect.y + 190, rect.w, 50}, {0, 0, 0}, true);
             }
 
@@ -347,7 +371,7 @@ namespace Flight
             {
                 input_san_bay_den.render();
             }
-            myscreen->render_Text(cb->get_so_hieu_mb(),rect_input[3],{0,0,0},true);
+            myscreen->render_Text(cb->get_so_hieu_mb(), rect_input[3], {0, 0, 0}, true);
             input_tgb_day.render();
             input_tgb_month.render();
             input_tgb_year.render();
