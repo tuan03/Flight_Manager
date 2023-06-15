@@ -65,7 +65,10 @@ public:
     {
         this->set(m, h, d, month, y);
     }
-
+    void copy(const Time& time)
+    {
+        this->set(time.minute, time.hour, time.day, time.month, time.year);
+    }
     void set(int minute, int hour, int day, int month, int year)
     {
         this->minute = minute;
@@ -131,7 +134,7 @@ public:
     }
     bool isValidDate()
     {
-        if (minute < 0 || minute > 60 || hour < 0 || hour > 24)
+        if (minute < 0 || minute > 60 || hour < 0 || hour >= 24)
         {
             return false;
         }
@@ -327,13 +330,25 @@ private:
     ListVe list_ve;
     ChuyenBay *next = NULL;
 
+
+
+
+
+    // chỉ số phụ - lưu thơi gian ban đầu
+    Time max_time; // thời tối đa có thể chỉnh sửa (cách time 4 giờ thời gian bay)
+
     void set(const char *ma_so_cb, Time thoi_gian_bay, const char *san_bay_den, const char *so_hieu_mb, int trang_thai_cb)
     {
         strcpy(this->ma_so_cb, ma_so_cb);
         strcpy(this->san_bay_den, san_bay_den);
         strcpy(this->so_hieu_mb, so_hieu_mb);
         this->trang_thai_cb = trang_thai_cb;
+
         this->thoi_gian_bay = thoi_gian_bay;
+
+        this->max_time.copy(this->thoi_gian_bay); // cách 4 giờ
+        this->max_time.get_next_time_some_hours(4);// cách 4 giờ
+        
     }
 
 public:
@@ -717,8 +732,8 @@ public:
         {
             return Status("Không Được Phép Hiệu Chỉnh vào 30 Phút Cuối");
         }
-        double difference = Time::timeDiffInSeconds(current_time, time);
-        if (difference > 60 * 60 * 5)
+        double difference = Time::timeDiffInSeconds(cb->get_thoi_gian_bay(), time);
+        if (difference > 60 * 60 * 4)
             return Status("Không Được Phép Hiệu Chỉnh Quá 4 Giờ So Với Ban Đầu");
 
         if (Time::timeDiffInSeconds(time, cb->get_thoi_gian_bay()) > 0)
