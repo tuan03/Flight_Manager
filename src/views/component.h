@@ -392,7 +392,21 @@ public:
                 myscreen->render_cot(vt_huy, c_huy);
                 myscreen->render_Text("Hủy", vt_huy, {0, 0, 0}, true);
             }
-            myscreen->render_Text(this->mess, man_thong_bao->get_rect(), {0, 0, 0}, true);
+            int dem = 0;
+            stringstream str(this->mess);
+            string t;
+            while(getline(str,t)){
+                dem++;
+            }
+            SDL_Rect rect = man_thong_bao->get_rect();
+            rect.h = rect.h/dem;
+            stringstream str2(this->mess);
+            string k;
+            while(getline(str2,k)){
+                myscreen->render_Text(k, rect, {0, 0, 0}, true);
+                rect.y += rect.h;
+            }
+            
         }
     }
 };

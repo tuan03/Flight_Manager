@@ -713,12 +713,12 @@ public:
                     Time time = chuyen_bay->get_thoi_gian_bay();
                     if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 60 * 60 * 12 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) >= 0)
                     {
-                        return Status("Thời Gian Này Hành Khách Sắp Thực Hiện Chuyến Bay - Mã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()) + " vào Lúc: " + p->get_thoi_gian_bay().to_string());
+                        return Status("Mỗi Hành Khách Có Thể Thực Hiện Chuyến Bay Sau 12 tiếng.\n Nên Khoảng Cách Thời Gian Giữa 2 Chuyến Bay Đặt Vé Là 12 Tiếng\nTrong 12 Tiếng Tiếp Theo, Khách Này Sắp Thực Hiện Chuyến Bay\nMã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()) + " vào Lúc: " + p->get_thoi_gian_bay().to_string());
                     }
                     if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) > -60 * 60 * 12 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 0)
                     {
-                        return Status("Thời Gian Này Hành Khách Đang Thực Hiện Chuyến Bay - Mã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()));
-                    }
+                        return Status("Mỗi Hành Khách Có Thể Thực Hiện Chuyến Bay Sau 12 tiếng.\n Nên Khoảng Cách Thời Gian Giữa 2 Chuyến Bay Đặt Vé Là 12 Tiếng\nTrong 12 Tiếng Tiếp Theo, Khách Này Đang Thực Hiện Chuyến Bay\nMã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()) + " Từ Lúc: " + p->get_thoi_gian_bay().to_string());
+                   }
                 }
                 p = p->get_next();
             }
