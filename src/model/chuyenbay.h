@@ -318,9 +318,8 @@ public:
     }
 };
 
-
-struct Info_ChuyenBay{
-    
+struct Info_ChuyenBay
+{
 };
 class ChuyenBay
 {
@@ -372,25 +371,6 @@ public:
     ~ChuyenBay()
     {
     }
-    bool check_space_12hours_custommer_bay(Time time, ListVe &list)
-    {
-        if (abs(Time::timeDiffInSeconds(time, thoi_gian_bay)) < 60 * 60 * 12)
-        {
-            for (int i = 0; i < list.get_so_day(); i++)
-            {
-                for (int j = 0; j < list.get_so_dong(); j++)
-                {
-                    if (list.get_cmnd(i, j) != nullptr)
-                    {
-                        if(this->list_ve.find_by_cmnd(list.get_cmnd(i, j))){
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-        return true;
-    }
     Status huy_chuyen_bay()
     {
         if (this->trang_thai_cb == 0)
@@ -400,7 +380,7 @@ public:
         this->trang_thai_cb = 0;
         return Status("Hủy Chuyến Bay Thành Công.", Status_Name::SUCCESS);
     }
-    Status set_completed(ListMayBay& lmb)
+    Status set_completed(ListMayBay &lmb)
     {
         Time current_time;
         current_time.get_current_time();
@@ -414,7 +394,7 @@ public:
             return Status("Thời Gian Thực Hiện Chuyến Bay Ít Nhất 1 tiếng 30 phút");
         }
         this->trang_thai_cb = 3;
-        MayBay* mb = lmb.find_mamb_ct(this->so_hieu_mb);
+        MayBay *mb = lmb.find_mamb_ct(this->so_hieu_mb);
         mb->tang_so_lan_bay();
         return Status("Thành Công.", Status_Name::SUCCESS);
     }
@@ -513,13 +493,29 @@ private:
             tail = new_chuyenbay;
         }
     }
-
-public:
     void add(const char *ma_so_cb, Time thoi_gian_bay, const char *san_bay_den, MayBay *maybay)
     {
         ChuyenBay *new_chuyenbay = new ChuyenBay(ma_so_cb, thoi_gian_bay, san_bay_den, maybay);
         insert_order(new_chuyenbay);
     }
+public:
+    // getter
+    ChuyenBay *get_head()
+    {
+        return this->head;
+    }
+    int get_so_luong_cb()
+    {
+        int count = 0;
+        ChuyenBay *current = head;
+        while (current != nullptr)
+        {
+            count++;
+            current = current->get_next();
+        }
+        return count;
+    }
+    
 
     // func find
     ChuyenBay *find_by_sh_mb_ct(const char *shmb) // tìm chuyến bay theo Số Hiệu Máy Bay, (Loại trừ đã hủy hoặc đã hoàn thành)
@@ -534,28 +530,6 @@ public:
             p = p->get_next();
         }
         return nullptr; // trả về NULL nếu không tìm thấy chuyến bay
-    }
-
-    Status check_space_3hours(const char *shmb, Time tm)
-    {
-        ChuyenBay *p = head;
-        while (p != NULL)
-        {
-            if (strcmp(p->get_so_hieu_mb(), shmb) == 0 && p->get_trang_thai_cb() != 0 && p->get_trang_thai_cb() != 3)
-            {
-                double kc_time = Time::timeDiffInSeconds(p->get_thoi_gian_bay(), tm);
-                if (kc_time > -60 * 60 * 3 && kc_time <= 0)
-                { // 3 giờ
-                    return Status("Máy Bay Sắp Thực Hiện Chuyến Bay Khác Vào Thời Gian Này.");
-                }
-                if (kc_time < 60 * 60 * 3 && kc_time >= 0)
-                { // 3 giờ
-                    return Status("Máy Bay Đang Thực Hiện Chuyến Bay Khác Vào Thời Gian Này.");
-                }
-            }
-            p = p->get_next();
-        }
-        return Status("", Status_Name::SUCCESS); // trả về NULL nếu không tìm thấy chuyến bay
     }
 
     bool find_by_sh_mb(const char *so_hieu_mb) // tìm theo số hiệu MB, all
@@ -594,33 +568,6 @@ public:
         return find_by_ma_cb_ct(ma_so_cb) != nullptr;
     }
 
-    bool check_can_edit_time(ChuyenBay *cb, Time time)
-    {
-        ChuyenBay *p = head;
-        while (p != NULL)
-        {
-            if ( p!=cb && p->check_space_12hours_custommer_bay(time,cb->get_listve()))
-            {
-                return false; // trả về chuyến bay nếu tìm thấy
-            } 
-            p = p->get_next();
-        }
-        return false;
-        
-    }
-
-    // getter
-    int get_so_luong_cb()
-    {
-        int count = 0;
-        ChuyenBay *current = head;
-        while (current != nullptr)
-        {
-            count++;
-            current = current->get_next();
-        }
-        return count;
-    }
     Status update_cho_ngoi(const char *shmb, int day, int dong)
     {
         ChuyenBay *p = head;
@@ -634,41 +581,111 @@ public:
         }
         return Status("", Status_Name::SUCCESS);
     }
-    Status check_time_to_edit(Time time, const char *shmb)
-    {
+  
+    Status check_invadid_time(Time time, const char* shmb){
+        if (!time.isValidDate())
+        {
+            return Status("Thời Gian Không Hợp Lệ");
+        }
+        Time current_time; 
+        current_time.get_current_time();
+        double khoang_cach_time = Time::timeDiffInSeconds(current_time, time);
+         if (khoang_cach_time < 0)
+        {
+            return Status("Lỗi: Thời Gian Ở Quá Khứ");
+        }
+        if (khoang_cach_time < 3600)
+        {
+            return Status("Chỉ Được Lập Chuyến Bay Cách Thời Gian Hiện Tại 1 Giờ");
+        }
+        if (khoang_cach_time > 3600 * 24 * 365)
+        {
+            return Status("Chỉ Được Lập Chuyến Bay Trong Vòng 365 Ngày");
+        }
+
         ChuyenBay *p = head;
         while (p != NULL)
         {
-            if (strcmp(p->get_so_hieu_mb(), shmb) == 0 && p->get_trang_thai_cb() != 0)
+            if (strcmp(p->get_so_hieu_mb(), shmb) == 0 && p->get_trang_thai_cb() != 0) // tìm cb có shmb trừ cái đã hủy
             {
-                double kc_time = Time::timeDiffInSeconds(p->get_thoi_gian_bay(), time);
-                if (p->get_trang_thai_cb() == 3)
-                {
-                    if (kc_time < 60 * 60)
-                    {
-                        return Status("Thời Gian Này Máy Bay Đang Trong Quá Trình Chuẩn Bị");
-                    }
+                double kc = Time::timeDiffInSeconds(time, p->get_thoi_gian_bay());
+                string text;
+                if(kc < 60*60*12 && kc>0){
+                    text = "Thời Gian Này. Máy Bay Sắp Thực Hiện Chuyến Bay : " + string(p->get_ma_so_cb());
+                    return Status(text);
                 }
-                else
-                {
-                    if (kc_time < 0 && kc_time > -60 * 60 * 4)
-                    {
-                        return Status("Mỗi Máy Bay Có Thể Lập CB Mới Sau 4 Giờ");
-                    }
-                    if (kc_time >= 0 && kc_time < 60 * 60 * 4)
-                    {
-                        return Status("Mỗi Máy Bay Có Thể Lập CB Mới Sau 4 Giờ");
-                    }
+                if(kc > -60*60*12 && kc<=0){
+                    text = "Thời Gian Này. Máy Bay Đang Thực Hiện Chuyến Bay : " + string(p->get_ma_so_cb());
+                    return Status(text);
                 }
             }
             p = p->get_next();
         }
-        return Status("", Status_Name::SUCCESS);
+
+        return Status("",Status_Name::SUCCESS);
     }
-    ChuyenBay *get_head()
+
+
+    Status add_cb(ListMayBay& ds_maybay,const char *ma_so_cb, int minute, int hour, int day, int month, int year, const char *san_bay_den, const char *so_hieu_mb)
     {
-        return this->head;
+        if (this->find_by_ma_cb(ma_so_cb))
+        {
+            return Status("Mã Chuyến Bay Đã Tồn Tại");
+        }
+        MayBay *temp = ds_maybay.find_mamb_ct(so_hieu_mb);
+        if (temp == nullptr)
+        {
+            return Status("Số Hiệu Máy Bay Không Tồn tại");
+        }
+
+        Time time(minute, hour, day, month, year);
+
+        Status check_time = this->check_invadid_time(time,so_hieu_mb);
+        if(check_time.get_status() != Status_Name::SUCCESS){
+            return check_time;
+        }
+
+        this->add(ma_so_cb, time, san_bay_den, temp);
+        return Status("Thêm Chuyến Bay Thành Công", Status_Name::SUCCESS);
     }
+
+    Status edit_chuyen_bay(ChuyenBay *cb, int minute, int hour, int day, int month, int year, const char *san_bay_den)
+    {
+        if (cb->get_trang_thai_cb() == 0 || cb->get_trang_thai_cb() == 3)
+            return Status("Không thể sửa thông tin của chuyến bay đã hủy hoặc hoàn tất");
+        
+        if (hour == cb->get_thoi_gian_bay().get_hour() &&
+            minute == cb->get_thoi_gian_bay().get_minute() &&
+            day == cb->get_thoi_gian_bay().get_day() &&
+            month == cb->get_thoi_gian_bay().get_month() &&
+            year == cb->get_thoi_gian_bay().get_year() &&
+            strcmp(san_bay_den, cb->get_san_bay_den()) == 0)
+        {
+            return Status("Không Có Sự Thay Đổi.");
+        }
+        Time time(minute, hour, day, month, year);
+        Time current_time;
+        current_time.get_current_time();
+
+        if (!time.isValidDate())
+            return Status("Thời Gian Không Hợp Lệ !");
+
+        if (Time::timeDiffInSeconds(current_time, cb->get_thoi_gian_bay()) < 60 * 30)
+        {
+            return Status("Không Được Phép Hiệu Chỉnh vào 30 Phút Cuối");
+        }
+
+        double difference = Time::timeDiffInSeconds(current_time, time);
+        if (difference > 60 * 60 * 5)
+            return Status("Không Được Phép Hiệu Chỉnh Quá 4 Giờ So Với Ban Đầu");
+
+        if (difference < 0)
+            return Status("Thời Gian Thuộc Quá Khứ !");
+        cb->set_thoi_gian_bay(time);
+        cb->set_san_bay_den(san_bay_den);
+        return Status("Sửa thông tin chuyến bay thành công", Status_Name::SUCCESS);
+    }
+
     Status dat_ve(int so_day, int so_dong, ChuyenBay *chuyen_bay, const char *cmnd, bool type = true) // type : true : khách quen, false : khách lạ
     {
 
@@ -679,7 +696,7 @@ public:
 
         if (Time::timeDiffInSeconds(current, chuyen_bay->get_thoi_gian_bay()) < 60 * 30)
         {
-            return Status("Phải Đặt Vé Trước 30phút Lúc Máy Bay Khởi Hành");
+            return Status("Không Được Đặt Vé Vào 30 Phút Cuối");
         }
 
         if (type)
@@ -694,11 +711,11 @@ public:
                         return Status("Hành Khách Này Đã Đặt Vé Trên Chuyến Bay Này.");
                     }
                     Time time = chuyen_bay->get_thoi_gian_bay();
-                    if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 60 * 60 * 5 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) >= 0)
+                    if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 60 * 60 * 12 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) >= 0)
                     {
                         return Status("Thời Gian Này Hành Khách Sắp Thực Hiện Chuyến Bay - Mã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()) + " vào Lúc: " + p->get_thoi_gian_bay().to_string());
                     }
-                    if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) > -60 * 60 * 5 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 0)
+                    if (Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) > -60 * 60 * 12 && Time::timeDiffInSeconds(time, p->get_thoi_gian_bay()) < 0)
                     {
                         return Status("Thời Gian Này Hành Khách Đang Thực Hiện Chuyến Bay - Mã Số: " + string(p->get_ma_so_cb()) + " Đến: " + string(p->get_san_bay_den()));
                     }
@@ -714,6 +731,7 @@ public:
         }
         return Status("Đặt Vé Thành Công.", Status_Name::SUCCESS);
     }
+
     ~ListChuyenBay()
     {
         ChuyenBay *current = head;
